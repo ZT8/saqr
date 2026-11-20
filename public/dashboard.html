@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>صقر | لوحة الجهات المختصة</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="/">
+        <img src="/img/logo.svg" alt="" width="40" height="40">
+        <span><strong data-i18n="brand"></strong><small data-i18n="dash_title"></small></span>
+      </a>
+      <div class="nav"></div>
+      <div class="top-actions">
+        <span class="link-quiet" id="whoami" hidden></span>
+        <button class="btn-ghost" id="logoutBtn" type="button" data-i18n="logout" hidden></button>
+        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="loginView" class="wrap" hidden>
+      <form class="card form login-box" id="loginForm">
+        <h1 data-i18n="login_title"></h1>
+        <label><span data-i18n="username"></span><input name="username" autocomplete="username" required dir="ltr"></label>
+        <label><span data-i18n="password"></span><input name="password" type="password" autocomplete="current-password" required dir="ltr"></label>
+        <p class="form-error" id="loginError" role="alert"></p>
+        <button class="btn-primary" type="submit" data-i18n="login"></button>
+      </form>
+    </section>
+
+    <section id="dashView" class="wrap dash" hidden>
+      <div class="dash-head">
+        <h1 data-i18n="dash_title"></h1>
+        <a class="btn-primary" id="exportBtn" href="/api/admin/export.csv?status=verified" data-i18n="export_csv"></a>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="panels">
+        <div class="panel"><h3 data-i18n="ch_trend"></h3><div id="trendChart"></div></div>
+        <div class="panel"><h3 data-i18n="ch_scans"></h3><div id="scanChart"></div></div>
+      </div>
+
+      <div class="panels-3">
+        <div class="panel"><h3 data-i18n="ch_category"></h3><div class="hbars" id="byCategory"></div></div>
+        <div class="panel"><h3 data-i18n="ch_emirate"></h3><div class="hbars" id="byEmirate"></div></div>
+        <div class="panel"><h3 data-i18n="ch_channel"></h3><div class="hbars" id="byChannel"></div></div>
+      </div>
+
+      <div class="panel queue">
+        <h3 data-i18n="queue"></h3>
+        <div class="queue-bar">
+          <div class="tabs" role="tablist" id="statusTabs">
+            <button role="tab" data-status="pending" aria-selected="true" data-i18n="tab_pending"></button>
+            <button role="tab" data-status="verified" aria-selected="false" data-i18n="tab_verified"></button>
+            <button role="tab" data-status="rejected" aria-selected="false" data-i18n="tab_rejected"></button>
+          </div>
+          <select id="qType">
+            <option value="" data-i18n="all_types"></option>
+            <option value="url" data-i18n="t_url"></option>
+            <option value="phone" data-i18n="t_phone"></option>
+            <option value="message" data-i18n="t_message"></option>
+          </select>
+          <input type="search" id="qSearch" data-i18n-ph="search_ph" dir="auto">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th data-i18n="col_indicator"></th><th data-i18n="col_category"></th><th data-i18n="col_reports"></th>
+              <th data-i18n="col_score"></th><th data-i18n="col_last"></th><th data-i18n="col_actions"></th>
+            </tr></thead>
+            <tbody id="queueBody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="qPager"></div>
+      </div>
+
+      <div class="side-grid">
+        <div class="panel model">
+          <h3 data-i18n="model_title"></h3>
+          <dl id="modelInfo"></dl>
+          <p data-i18n="model_note"></p>
+        </div>
+        <div class="panel">
+          <h3 data-i18n="audit_title"></h3>
+          <ul class="audit" id="audit"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

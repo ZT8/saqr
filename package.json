@@ -1,0 +1,30 @@
+{
+  "name": "saqr",
+  "version": "1.0.0",
+  "description": "Saqr (صقر) — privacy-first community fraud detection platform for the UAE",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "reset": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\""
+  },
+  "keywords": [
+    "fraud",
+    "phishing",
+    "uae",
+    "cybercrime"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "better-sqlite3": "^13.2.0",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "private": true
+}

@@ -1,0 +1,111 @@
+'use strict';
+// Seed training set for the message classifier: Arabic (MSA + Gulf dialect) and English.
+// Scam samples model the fraud patterns common in the UAE (fake fines, bank/OTP theft,
+// parcel fees, prizes, fake jobs and investments). Ham samples are everyday legitimate
+// messages, including real-looking bank/telecom notices that do NOT ask for secrets.
+// Verified community reports are appended to this set at runtime (see learning loop).
+
+const scam = [
+  // Fake police / government fines
+  'شرطة أبوظبي: لديك مخالفة مرورية غير مدفوعة بقيمة 500 درهم، يرجى السداد خلال 24 ساعة لتجنب حجز المركبة عبر الرابط',
+  'تنبيه من وزارة الداخلية: تم تسجيل مخالفة على هويتك، ادفع الغرامة فورا عبر الرابط لتجنب الإجراءات القانونية',
+  'Dubai Police: You have an unpaid traffic fine of AED 300. Pay within 24 hours to avoid vehicle impound: click the link',
+  'عزيزي المتعامل تم إيقاف هويتك الإماراتية مؤقتا، يرجى تحديث بياناتك عبر الرابط لتجنب الحظر',
+  'Your Emirates ID has been suspended. Update your details immediately at the link below to avoid legal action',
+  'تم رصد بلاغ ضدك في النيابة العامة، تواصل فورا مع الضابط على الرقم لتسوية القضية ودفع الكفالة',
+  'This is the police department. A case has been filed against you. Call the officer now and transfer the bail amount',
+  // Bank / OTP / card theft
+  'عزيزي العميل تم إيقاف بطاقتك البنكية، يرجى إرسال رمز التحقق المرسل إليك لإعادة التفعيل',
+  'المصرف: حسابك معلق، أرسل الرقم السري وتاريخ انتهاء البطاقة لتحديث البيانات',
+  'Your bank account has been blocked due to suspicious activity. Reply with the OTP code to unlock it',
+  'Dear customer, your card will be deactivated today. Verify your card number and CVV at the secure link',
+  'هلا اخوي انا موظف البنك، وصلك كود على تلفونك عطني اياه عشان نحدث حسابك لا يتوقف',
+  'We detected a login to your account. If this was not you, confirm your password and PIN here to secure your account',
+  'تحديث بيانات العميل إلزامي، يرجى إدخال رقم البطاقة والرقم السري ورمز التحقق خلال ساعة',
+  'Please share the 6 digit verification code we just sent you to complete your account upgrade',
+  // Parcel / delivery fees
+  'شحنتك معلقة في الجمارك، يرجى دفع رسوم التوصيل 12 درهم عبر الرابط لإعادة الجدولة',
+  'بريد الإمارات: لم نتمكن من توصيل طردك بسبب نقص العنوان، ادفع رسوم بسيطة لإعادة التوصيل',
+  'Your package is on hold at customs. Pay the AED 9.99 delivery fee now to release your parcel',
+  'Aramex: we attempted delivery of your parcel. Confirm your address and pay the redelivery fee here',
+  'DHL: your shipment is pending payment of customs duty, pay now or it will be returned to sender',
+  // Prizes / lottery
+  'مبروك! لقد ربحت جائزة نقدية بقيمة 100,000 درهم في السحب الشهري، أرسل بيانات حسابك لاستلام الجائزة',
+  'مبروك فزت بسيارة جديدة من اتصالات، ادفع رسوم التسجيل لاستلام جائزتك',
+  'Congratulations! You are the lucky winner of AED 50,000. Send your bank details to claim your prize',
+  'You have won an iPhone 16 in our anniversary draw. Pay the shipping fee to receive your gift',
+  'مبروك تم اختيار رقمك في سحب اكسبو، للاستلام تواصل معنا على الواتساب',
+  // Fake jobs / investment
+  'وظيفة من البيت بدخل يومي 800 درهم، فقط لايكات ومتابعات، تواصل واتساب',
+  'Part time job: earn AED 1000 daily by liking videos. Contact us on WhatsApp now, limited places',
+  'استثمر 1000 درهم واحصل على 5000 درهم خلال أسبوع، أرباح مضمونة 100٪ في العملات الرقمية',
+  'Guaranteed profit! Invest in our bitcoin trading platform and double your money in 7 days',
+  'فرصة استثمارية حصرية، أرباح يومية مضمونة بدون مخاطرة، حول المبلغ وابدأ اليوم',
+  'Earn passive income with our crypto mining plan, minimum deposit only 500, withdraw anytime, guaranteed returns',
+  'نبحث عن موظفين بدوام جزئي براتب 15000 بدون خبرة، ادفع رسوم التأشيرة فقط',
+  // Telecom / utilities / accounts
+  'اتصالات: لقد ربحت 50 جيجا مجانا، اضغط على الرابط وأدخل بيانات بطاقتك للتفعيل',
+  'Your WhatsApp account will be deleted in 24 hours. Verify now by sending the code you received',
+  'هيئة الكهرباء: فاتورتك متأخرة وسيتم قطع الخدمة اليوم، ادفع فورا عبر الرابط',
+  'Your DEWA bill is overdue, service will be disconnected today unless you pay via the link',
+  'Your Netflix subscription failed. Update your payment information within 24 hours to avoid suspension',
+  'حسابك في انستقرام بيتم حذفه بسبب انتهاك حقوق النشر، ادخل الرابط واعترض خلال 24 ساعة',
+  // Romance / family emergency
+  'هلا يمه هذا رقمي الجديد، تلفوني خربان، ممكن تحولين لي 2000 درهم ضروري الحين',
+  'Hi mum this is my new number, my phone broke. Can you transfer me some money urgently, I will explain later',
+  'Hello dear, I am a widow with a large inheritance and I need your help to transfer funds to your account',
+];
+
+const ham = [
+  'السلام عليكم، كيف حالك؟ نشوفك بكرة في المجلس إن شاء الله',
+  'Hi, are we still meeting for lunch tomorrow at 1pm?',
+  'تذكير: موعدك في العيادة يوم الثلاثاء الساعة 10 صباحا، يرجى الحضور قبل الموعد بعشر دقائق',
+  'Reminder: your dental appointment is on Tuesday at 10:00 AM. Reply C to confirm',
+  'تم خصم مبلغ 245 درهم من بطاقتك المنتهية بـ 4417 لدى كارفور. إذا لم تقم بهذه العملية اتصل بالرقم الموجود خلف البطاقة',
+  'AED 245.00 spent on your card ending 4417 at Carrefour. If this was not you, call the number on the back of your card',
+  'لن نطلب منك أبدا رمز التحقق أو الرقم السري. رمز الدخول الخاص بك هو 482913 لا تشاركه مع أحد',
+  'Your verification code is 482913. Never share this code with anyone, including bank staff',
+  'تم استلام طلبك رقم 55821 وسيتم التوصيل خلال يومين عمل',
+  'Your order #55821 has been shipped and will arrive within 2 business days. Track it in the app',
+  'اجتماع الفريق اليوم الساعة 3 في قاعة الاجتماعات، لا تنسى تجيب اللابتوب',
+  'Team meeting moved to 3pm in the main conference room, please bring your laptop',
+  'شكرا لتسوقك معنا، نتمنى لك يوما سعيدا',
+  'Thank you for your payment of AED 350 for your mobile bill. Your next bill is due on the 15th',
+  'الفاتورة الشهرية متوفرة الآن في تطبيق الخدمات، يمكنك الدفع من خلال التطبيق الرسمي',
+  'Your monthly statement is now available in the official app',
+  'مبروك على المولود الجديد، الله يحفظه ويخليه لكم',
+  'Congratulations on your graduation! So proud of you',
+  'ابوي يقول مرو علينا اليوم بعد صلاة المغرب للعشا',
+  'Can you send me the slides from yesterday’s presentation?',
+  'الرحلة إلى العين يوم الجمعة، نتحرك الساعة 7 الصبح',
+  'Flight EK201 is on time. Boarding starts at 14:20 from gate B12',
+  'تم تجديد رخصة القيادة بنجاح، يمكنك تحميل النسخة الرقمية من التطبيق الرسمي',
+  'Your vehicle registration has been renewed successfully. View it in the official app',
+  'وصلت البيت؟ طمني عليك',
+  'Did you get home safely?',
+  'المدرسة: سيكون يوم الخميس إجازة رسمية بمناسبة اليوم الوطني',
+  'School notice: Thursday is a public holiday for National Day',
+  'Your Careem ride has arrived. Look for a white Lexus, plate 12345',
+  'تمت إضافة نقاط الولاء إلى حسابك، شكرا لاختيارك لنا',
+  'Your gym membership renews next week. Visit the front desk if you want to change your plan',
+  'أبغي أحجز طاولة لأربعة أشخاص الساعة 8 الليلة',
+  'Please review the attached contract and send your comments by Sunday',
+  'الله يعطيك العافية على الشغل اليوم، كان عرض ممتاز',
+  'Happy birthday! Wishing you a wonderful year ahead',
+  'ممكن ترسل لي موقع المطعم؟',
+  'The electricity in the building will be off on Saturday from 9 to 11 for maintenance',
+  'تم استلام بلاغك رقم 2231 وسيتم التواصل معك من قبل الفريق المختص',
+  'Your Amazon return has been received. Your refund will appear in 3 to 5 business days',
+  'بكرة الدوام عن بعد بسبب الأحوال الجوية حسب تعميم الجهة',
+  'Weather alert from NCM: fog expected tonight, drive carefully',
+  'هلا اخوي شخبارك؟ نتغدى اليوم مع الشباب؟',
+  'هلا والله، وصلت ولا باقي؟',
+  'اخوي ارسلت لك الملف على الايميل، شوفه وقول لي رايك',
+  'يمه بنمر عليكم الحين، تبين شي من الجمعية؟',
+  'Hey bro, are you coming to the match tonight?',
+  'Sure, I will call you when I get to the office',
+];
+
+module.exports = {
+  samples: [...scam.map((text) => ({ text, label: 'scam' })), ...ham.map((text) => ({ text, label: 'ham' }))],
+};

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>صقر | Saqr</title>
+  <meta name="description" content="Saqr — community fraud detection platform for the UAE">
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="#scan">
+        <img src="/img/logo.svg" alt="" width="40" height="40">
+        <span><strong data-i18n="brand">صقر</strong><small data-i18n="brand_sub"></small></span>
+      </a>
+      <nav class="nav" aria-label="main">
+        <a href="#scan" data-tab="scan" data-i18n="nav_scan"></a>
+        <a href="#report" data-tab="report" data-i18n="nav_report"></a>
+        <a href="#registry" data-tab="registry" data-i18n="nav_registry"></a>
+        <a href="#tips" data-tab="tips" data-i18n="nav_tips"></a>
+      </nav>
+      <div class="top-actions">
+        <a class="link-quiet" href="/dashboard" data-i18n="nav_dashboard"></a>
+        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- SCAN -->
+    <section class="view" id="view-scan">
+      <div class="wrap hero">
+        <h1 data-i18n="hero_title"></h1>
+        <p class="lead" data-i18n="hero_sub"></p>
+
+        <form class="scan-card" id="scanForm" autocomplete="off">
+          <div class="seg" role="radiogroup" id="typeSeg">
+            <button type="button" role="radio" data-type="auto" aria-checked="true" data-i18n="type_auto"></button>
+            <button type="button" role="radio" data-type="message" aria-checked="false" data-i18n="type_message"></button>
+            <button type="button" role="radio" data-type="url" aria-checked="false" data-i18n="type_url"></button>
+            <button type="button" role="radio" data-type="phone" aria-checked="false" data-i18n="type_phone"></button>
+          </div>
+          <textarea id="scanInput" rows="4" maxlength="5000" data-i18n-ph="input_ph" dir="auto"></textarea>
+          <div class="scan-row">
+            <div class="examples">
+              <span data-i18n="try_example"></span>
+              <button type="button" class="chip" data-ex="fine" data-i18n="ex_fine"></button>
+              <button type="button" class="chip" data-ex="bank" data-i18n="ex_bank"></button>
+              <button type="button" class="chip" data-ex="link" data-i18n="ex_link"></button>
+              <button type="button" class="chip" data-ex="safe" data-i18n="ex_safe"></button>
+            </div>
+            <button class="btn-primary" id="scanBtn" type="submit" data-i18n="scan_btn"></button>
+          </div>
+          <p class="form-error" id="scanError" role="alert"></p>
+        </form>
+        <p class="privacy-line"><span class="lock" aria-hidden="true"></span><span data-i18n="privacy_line"></span></p>
+
+        <div id="result" class="result" hidden></div>
+
+        <dl class="stats" id="stats">
+          <div><dt id="stVerified">–</dt><dd data-i18n="stat_verified"></dd></div>
+          <div><dt id="stReports">–</dt><dd data-i18n="stat_reports"></dd></div>
+          <div><dt id="stScans">–</dt><dd data-i18n="stat_scans"></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- REPORT -->
+    <section class="view" id="view-report" hidden>
+      <div class="wrap two-col">
+        <div>
+          <h1 data-i18n="report_title"></h1>
+          <p class="lead" data-i18n="report_sub"></p>
+          <form class="card form" id="reportForm" novalidate>
+            <label><span data-i18n="f_type"></span>
+              <select name="type" id="rType">
+                <option value="message" data-i18n="t_message"></option>
+                <option value="url" data-i18n="t_url"></option>
+                <option value="phone" data-i18n="t_phone"></option>
+              </select>
+            </label>
+            <label><span id="rValueLabel" data-i18n="f_value_message"></span>
+              <textarea name="value" id="rValue" rows="4" maxlength="5000" dir="auto" required></textarea>
+            </label>
+            <div class="grid-2">
+              <label><span data-i18n="f_category"></span><select name="category" id="rCategory" required></select></label>
+              <label><span data-i18n="f_channel"></span><select name="channel" id="rChannel" required></select></label>
+              <label><span data-i18n="f_emirate"></span><select name="emirate" id="rEmirate"></select></label>
+              <label><span data-i18n="f_amount"></span><input name="amount_lost" type="number" min="0" step="1" inputmode="numeric"></label>
+            </div>
+            <label id="rDescWrap" hidden><span data-i18n="f_desc"></span><textarea name="description" rows="2" maxlength="1000" dir="auto"></textarea></label>
+            <p class="form-error" id="reportError" role="alert"></p>
+            <button class="btn-primary" type="submit" id="reportBtn" data-i18n="submit_report"></button>
+          </form>
+          <div class="card success" id="reportOk" hidden>
+            <h2 data-i18n="report_ok"></h2>
+            <p data-i18n="report_ok_d"></p>
+            <p class="note" id="redactedNote" data-i18n="report_redacted" hidden></p>
+            <button class="btn-ghost" type="button" id="reportAgain" data-i18n="report_another"></button>
+          </div>
+        </div>
+        <aside class="card privacy-card">
+          <h3 data-i18n="privacy_title"></h3>
+          <ul class="checks">
+            <li data-i18n="privacy_1"></li>
+            <li data-i18n="privacy_2"></li>
+            <li data-i18n="privacy_3"></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- REGISTRY -->
+    <section class="view" id="view-registry" hidden>
+      <div class="wrap">
+        <h1 data-i18n="registry_title"></h1>
+        <p class="lead" data-i18n="registry_sub"></p>
+        <form class="registry-bar" id="regForm">
+          <input type="search" id="regQ" data-i18n-ph="search_ph" dir="auto">
+          <select id="regType">
+            <option value="" data-i18n="all_types"></option>
+            <option value="url" data-i18n="t_url"></option>
+            <option value="phone" data-i18n="t_phone"></option>
+            <option value="message" data-i18n="t_message"></option>
+          </select>
+          <button class="btn-primary" type="submit" data-i18n="search_btn"></button>
+        </form>
+        <div id="regList" class="reg-list"></div>
+        <div class="pager" id="regPager"></div>
+      </div>
+    </section>
+
+    <!-- TIPS -->
+    <section class="view" id="view-tips" hidden>
+      <div class="wrap">
+        <h1 data-i18n="tips_title"></h1>
+        <div class="tips">
+          <article class="tip"><span class="tip-n">01</span><h3 data-i18n="tip1_t"></h3><p data-i18n="tip1_d"></p></article>
+          <article class="tip"><span class="tip-n">02</span><h3 data-i18n="tip2_t"></h3><p data-i18n="tip2_d"></p></article>
+          <article class="tip"><span class="tip-n">03</span><h3 data-i18n="tip3_t"></h3><p data-i18n="tip3_d"></p></article>
+          <article class="tip"><span class="tip-n">04</span><h3 data-i18n="tip4_t"></h3><p data-i18n="tip4_d"></p></article>
+          <article class="tip"><span class="tip-n">05</span><h3 data-i18n="tip5_t"></h3><p data-i18n="tip5_d"></p></article>
+          <article class="tip tip-alert"><span class="tip-n">06</span><h3 data-i18n="tip6_t"></h3><p data-i18n="tip6_d"></p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap" data-i18n="footer"></div></footer>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

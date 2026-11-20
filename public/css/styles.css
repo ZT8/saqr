@@ -129,6 +129,8 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 /* ---------- Hero: the giant eye ---------- */
 .hero { position: relative; overflow: hidden; min-height: min(92svh, 900px); display: grid; align-items: center; padding-block: 48px 72px; }
 .hero-eye { position: absolute; inset-inline-end: -26vw; top: 50%; width: max(820px, 72vw); height: auto; translate: 0 -50%; pointer-events: none; }
+/* The eye always looks toward the text: mirror it in left-to-right layouts so the iris stays in view. */
+[dir="ltr"] .hero-eye { scale: -1 1; }
 .eye-white { fill: var(--accent); }
 .eye-iris { fill: var(--ink); transition: fill 420ms var(--ease-out); }
 .eye-pupil { fill: var(--ink); transition: rx 420ms var(--ease-out), ry 420ms var(--ease-out), fill 420ms ease; }
@@ -283,7 +285,7 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 
 /* ---------- Footer: the mark, built large ---------- */
 .foot { margin-top: var(--gap-section); background: var(--surface); padding-block: 48px 40px; }
-.foot-mark { display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; gap: 4px; align-items: end; height: clamp(160px, 34svh, 320px); }
+.foot-mark { direction: rtl; display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; gap: 4px; align-items: end; height: clamp(160px, 34svh, 320px); }
 .blk { display: grid; place-items: center; font-weight: 800; font-size: clamp(4rem, 2rem + 8vw, 11rem); line-height: 1; overflow: hidden; height: 100%; }
 .b1 { background: var(--accent); color: #fff; height: 100%; }
 .b2 { background: var(--ink); color: #fff; height: 74%; }

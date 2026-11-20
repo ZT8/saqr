@@ -77,9 +77,11 @@ function setupMotion() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const box = $('#heroEye').getBoundingClientRect();
-        const dx = Math.max(-1, Math.min(1, (e.clientX - (box.left + box.width * 0.54)) / (box.width / 2)));
+        const ltr = document.documentElement.dir === 'ltr';
+        const dx = Math.max(-1, Math.min(1, (e.clientX - (box.left + box.width * (ltr ? 0.46 : 0.54))) / (box.width / 2)));
         const dy = Math.max(-1, Math.min(1, (e.clientY - (box.top + box.height * 0.47)) / (box.height / 2)));
-        eye.style.transform = `translate(${(dx * 60).toFixed(1)}px, ${(dy * 40).toFixed(1)}px)`;
+        const mx = document.documentElement.dir === 'ltr' ? -dx : dx; // the SVG is mirrored in LTR
+        eye.style.transform = `translate(${(mx * 60).toFixed(1)}px, ${(dy * 40).toFixed(1)}px)`;
       });
     }, { passive: true });
   }

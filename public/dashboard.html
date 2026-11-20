@@ -8,74 +8,84 @@
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-  <header class="topbar">
-    <div class="wrap topbar-in">
-      <a class="brand" href="/">
-        <img src="/img/logo.svg" alt="" width="40" height="40">
-        <span><strong data-i18n="brand"></strong><small data-i18n="dash_title"></small></span>
-      </a>
-      <div class="nav"></div>
-      <div class="top-actions">
-        <span class="link-quiet" id="whoami" hidden></span>
-        <button class="btn-ghost" id="logoutBtn" type="button" data-i18n="logout" hidden></button>
-        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
-      </div>
-    </div>
-  </header>
+<body class="app">
+  <svg width="0" height="0" aria-hidden="true" class="defs">
+    <defs>
+      <clipPath id="eyeClip" clipPathUnits="objectBoundingBox"><path d="M0 .5C.24 -.12 .76 -.12 1 .5C.76 1.12 .24 1.12 0 .5Z"/></clipPath>
+      <symbol id="eye" viewBox="0 0 100 60"><path d="M0 30C24 -6 76 -6 100 30C76 66 24 66 0 30Z"/></symbol>
+    </defs>
+  </svg>
 
-  <main>
-    <section id="loginView" class="wrap" hidden>
-      <form class="card form login-box" id="loginForm">
-        <h1 data-i18n="login_title"></h1>
-        <label><span data-i18n="username"></span><input name="username" autocomplete="username" required dir="ltr"></label>
-        <label><span data-i18n="password"></span><input name="password" type="password" autocomplete="current-password" required dir="ltr"></label>
-        <p class="form-error" id="loginError" role="alert"></p>
-        <button class="btn-primary" type="submit" data-i18n="login"></button>
-      </form>
-    </section>
+  <section id="loginView" hidden>
+    <form class="card form login-box" id="loginForm">
+      <a class="mark" href="/"><svg class="mark-eye" viewBox="0 0 100 60" aria-hidden="true"><use href="#eye"/><circle cx="54" cy="30" r="13" class="mark-iris"/></svg><span data-i18n="brand"></span></a>
+      <h1 data-i18n="login_title"></h1>
+      <label><span data-i18n="username"></span><input name="username" autocomplete="username" required dir="ltr"></label>
+      <label><span data-i18n="password"></span><input name="password" type="password" autocomplete="current-password" required dir="ltr"></label>
+      <p class="form-error" id="loginError" role="alert"></p>
+      <button class="btn-primary" type="submit" data-i18n="login"></button>
+    </form>
+  </section>
 
-    <section id="dashView" class="wrap dash" hidden>
-      <div class="dash-head">
-        <h1 data-i18n="dash_title"></h1>
-        <a class="btn-primary" id="exportBtn" href="/api/admin/export.csv?status=verified" data-i18n="export_csv"></a>
-      </div>
+  <div class="app-shell" id="dashView" hidden>
+    <aside class="side">
+      <a class="mark" href="/"><svg class="mark-eye" viewBox="0 0 100 60" aria-hidden="true"><use href="#eye"/><circle cx="54" cy="30" r="13" class="mark-iris"/></svg><span data-i18n="brand"></span></a>
+      <nav class="side-nav" aria-label="dashboard">
+        <a href="#overview" data-view="overview"><span data-i18n="nav_overview"></span></a>
+        <a href="#radar" data-view="radar"><span data-i18n="radar_title"></span><span class="n" id="nRadar"></span></a>
+        <a href="#queue" data-view="queue"><span data-i18n="queue"></span><span class="n" id="nQueue"></span></a>
+        <a href="#cases" data-view="cases"><span data-i18n="cases_title"></span><span class="n" id="nCases"></span></a>
+        <a href="#system" data-view="system"><span data-i18n="nav_system"></span></a>
+      </nav>
+      <p class="side-foot" data-i18n="foot_demo_short"></p>
+    </aside>
 
-      <div class="kpis" id="kpis"></div>
+    <header class="top">
+      <h1 id="viewTitle"></h1>
+      <a class="btn-primary" id="exportBtn" href="/api/admin/export.csv?status=verified" data-i18n="export_csv"></a>
+      <span class="user" id="whoami"></span>
+      <button class="btn-ghost btn-sm" id="logoutBtn" type="button" data-i18n="logout"></button>
+      <button class="lang" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+    </header>
 
-      <section class="panel radar">
-        <div class="radar-head">
-          <div><h2 data-i18n="radar_title"></h2><p class="muted" data-i18n="radar_sub"></p></div>
+    <main class="sheet">
+      <!-- Overview: "Is fraud rising, and what needs a decision?" -->
+      <section data-screen="overview">
+        <div class="sheet-head"><div><h2 data-i18n="nav_overview"></h2><p id="finding"></p></div></div>
+        <div class="kpis" id="kpis"></div>
+        <div class="panels">
+          <div class="panel"><h3 data-i18n="ch_trend"></h3><div id="trendChart"></div></div>
+          <div class="panel"><h3 data-i18n="ch_scans"></h3><div id="scanChart"></div></div>
         </div>
+        <div class="panels-3">
+          <div class="panel"><h3 data-i18n="ch_category"></h3><div class="hbars" id="byCategory"></div></div>
+          <div class="panel"><h3 data-i18n="ch_emirate"></h3><div class="hbars" id="byEmirate"></div></div>
+          <div class="panel"><h3 data-i18n="ch_channel"></h3><div class="hbars" id="byChannel"></div></div>
+        </div>
+      </section>
+
+      <!-- Campaign radar -->
+      <section data-screen="radar" hidden>
+        <div class="sheet-head"><div><h2 data-i18n="radar_title"></h2><p data-i18n="radar_sub"></p></div></div>
         <div class="campaigns" id="campaigns"></div>
       </section>
 
-      <div class="panels">
-        <div class="panel"><h2 data-i18n="ch_trend"></h2><div id="trendChart"></div></div>
-        <div class="panel"><h2 data-i18n="ch_scans"></h2><div id="scanChart"></div></div>
-      </div>
-
-      <div class="panels-3">
-        <div class="panel"><h2 data-i18n="ch_category"></h2><div class="hbars" id="byCategory"></div></div>
-        <div class="panel"><h2 data-i18n="ch_emirate"></h2><div class="hbars" id="byEmirate"></div></div>
-        <div class="panel"><h2 data-i18n="ch_channel"></h2><div class="hbars" id="byChannel"></div></div>
-      </div>
-
-      <div class="panel queue">
-        <h2 data-i18n="queue"></h2>
+      <!-- Review queue -->
+      <section data-screen="queue" hidden>
+        <div class="sheet-head"><div><h2 data-i18n="queue"></h2><p data-i18n="export_hint"></p></div></div>
         <div class="queue-bar">
           <div class="tabs" role="tablist" id="statusTabs">
             <button role="tab" data-status="pending" aria-selected="true" data-i18n="tab_pending"></button>
             <button role="tab" data-status="verified" aria-selected="false" data-i18n="tab_verified"></button>
             <button role="tab" data-status="rejected" aria-selected="false" data-i18n="tab_rejected"></button>
           </div>
-          <select id="qType">
+          <select id="qType" aria-label="type">
             <option value="" data-i18n="all_types"></option>
             <option value="url" data-i18n="t_url"></option>
             <option value="phone" data-i18n="t_phone"></option>
             <option value="message" data-i18n="t_message"></option>
           </select>
-          <input type="search" id="qSearch" data-i18n-ph="search_ph" dir="auto">
+          <input type="search" id="qSearch" data-i18n-ph="search_ph" dir="auto" aria-label="search">
         </div>
         <div class="table-wrap">
           <table>
@@ -87,11 +97,12 @@
           </table>
         </div>
         <div class="pager" id="qPager"></div>
-      </div>
+      </section>
 
-      <section class="panel cases-panel">
-        <div class="queue-bar">
-          <h2 data-i18n="cases_title"></h2>
+      <!-- Extortion cases: inbox triage -->
+      <section data-screen="cases" hidden>
+        <div class="sheet-head">
+          <div><h2 data-i18n="cases_title"></h2></div>
           <div class="tabs" role="tablist" id="caseStatusTabs">
             <button role="tab" data-cs="" aria-selected="true" data-i18n="all"></button>
             <button role="tab" data-cs="new" aria-selected="false" data-i18n="cs_new"></button>
@@ -105,19 +116,23 @@
         </div>
       </section>
 
-      <div class="side-grid">
-        <div class="panel model">
-          <h2 data-i18n="model_title"></h2>
-          <dl id="modelInfo"></dl>
-          <p data-i18n="model_note"></p>
+      <!-- Model and audit -->
+      <section data-screen="system" hidden>
+        <div class="sheet-head"><div><h2 data-i18n="nav_system"></h2></div></div>
+        <div class="side-grid">
+          <div class="panel model">
+            <h3 data-i18n="model_title"></h3>
+            <dl id="modelInfo"></dl>
+            <p data-i18n="model_note"></p>
+          </div>
+          <div class="panel">
+            <h3 data-i18n="audit_title"></h3>
+            <ul class="audit" id="audit"></ul>
+          </div>
         </div>
-        <div class="panel">
-          <h2 data-i18n="audit_title"></h2>
-          <ul class="audit" id="audit"></ul>
-        </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script src="/js/i18n.js"></script>
   <script src="/js/dashboard.js"></script>

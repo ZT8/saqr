@@ -8,10 +8,17 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="elder">
+  <svg width="0" height="0" aria-hidden="true" class="defs">
+    <defs>
+      <clipPath id="eyeClip" clipPathUnits="objectBoundingBox"><path d="M0 .5C.24 -.12 .76 -.12 1 .5C.76 1.12 .24 1.12 0 .5Z"/></clipPath>
+      <symbol id="eye" viewBox="0 0 100 60"><path d="M0 30C24 -6 76 -6 100 30C76 66 24 66 0 30Z"/></symbol>
+    </defs>
+  </svg>
+
   <header class="elder-top">
-    <img src="/img/logo.svg" alt="" width="52" height="52">
+    <svg class="mark-eye" viewBox="0 0 100 60" aria-hidden="true"><use href="#eye"/><circle cx="54" cy="30" r="13" class="mark-iris"/></svg>
     <strong data-i18n="brand"></strong>
-    <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+    <button class="lang" id="langBtn" type="button" data-i18n="lang_toggle"></button>
   </header>
   <main class="elder-main">
     <p class="paired" id="paired"></p>

@@ -17,6 +17,14 @@ Fraud in the UAE mostly arrives as a short message or a call that impersonates s
 - Authorities receive reports late, scattered across channels, and in formats that are hard to aggregate. They **can't easily see a campaign forming** or hand a clean block list to telecom operators and banks.
 - Many people hesitate to report because they **don't want to hand over personal data**.
 
+### The UAE context (sources in [docs/RESEARCH.md](docs/RESEARCH.md))
+- Abu Dhabi Police received **15,642 online-fraud cases** and returned **AED 140m** to victims over about two years (The National, Oct 2025). That is roughly 21 cases a day; the per-day figure is our own calculation.
+- The UAE Cyber Security Council reported fraudulent messages up about **35%** in the year to February 2026.
+- A GASA survey of 1,000 residents (Jan 2026) found **7 in 10** met a scam in 2025, about **one every three days**.
+- The Ministry of Interior calls elderly people *among the most targeted groups*. The State Security Department warned of a spike in online blackmail in January 2026.
+- The UAE has at least six official ways to report, but only one public checker (links only). There is **no public lookup for phone numbers, no message explainer, no family protection, and no help for extortion victims to keep evidence safe before they report**. Saqr fills these gaps and hands cases to the existing police channels.
+- Penalties under **Federal Decree-Law 34/2021** include, for example, online fraud (Art. 40) at a minimum of 1 year and/or AED 250k–1m. A fake site posing as a government body (Art. 11) carries up to 5 years and AED 200k–2m. Extortion (Art. 42) carries up to 2 years and/or AED 250k–500k, or up to 10 years when honour is involved. These are paraphrased from the English translation; check them against the Arabic text before quoting.
+
 ## 2. The solution
 
 | Feature | What it does |
@@ -97,6 +105,8 @@ public/                vanilla HTML/CSS/JS frontend
   elder.html           simplified page for elderly relatives
   dashboard.html       authority dashboard
 test/                  node:test suites (engine + API end-to-end)
+dev/                   worst-case fixtures and the dataset toggle (dev only)
+docs/RESEARCH.md       UAE cybercrime facts, law, existing channels, international comparison
 ```
 
 ## 4. Technical choices and reasoning
@@ -111,6 +121,15 @@ test/                  node:test suites (engine + API end-to-end)
 | Frontend | **Vanilla HTML/CSS/JS, no CDN** | Works offline in a demo room, has no build step, and runs under a strict Content-Security-Policy with no inline scripts or styles. The charts are hand-drawn SVG. The IBM Plex Sans Arabic font is served locally. |
 | Security | Helmet CSP, scrypt hashing, httpOnly + SameSite=Strict session cookie, per-IP rate limits, input size limits, parameterised SQL, admin audit log | Defence in depth for a platform that will itself be a target. |
 
+### Design
+The interface was redesigned with a single motif, **the falcon's eye**, taken from the name صقر.
+- The hero is a giant eye. Its iris takes the verdict colour after each scan and follows the pointer.
+- Every primary button, bullet and picture mask uses the same eye shape.
+- The palette is white, ink and signal red.
+- The type is IBM Plex Sans Arabic for Arabic and Schibsted Grotesk for Latin, both served locally.
+- The authority dashboard uses a quiet "framed sheet" app style. Colour appears only on data: the latest week's bars and the campaign that is spiking.
+- All motion uses `transform` and `opacity`, with a `prefers-reduced-motion` fallback.
+
 ## 5. Privacy design
 
 Privacy is part of the architecture, not an add-on:
@@ -123,9 +142,13 @@ Privacy is part of the architecture, not an add-on:
 6. **Authority accountability.** Every login, verification, rejection and export is written to an audit log.
 7. **Data minimisation.** The location field is the emirate only, and it is optional. The amount lost is optional.
 8. **Local AI.** No message content is sent to third-party AI or cloud services.
-9. **Extortion cases.** There is no identity unless the victim chooses to leave a contact. Details and evidence are encrypted with AES-256-GCM. The key lives outside the database (`EVIDENCE_KEY` or `data/evidence.key`). The access code is stored only as a scrypt hash. The victim can withdraw a case, which deletes the database rows and the encrypted files.
-10. **Evidence integrity.** Each file's SHA-256 is recorded on receipt and checked again every time it is opened. The result (`integrity:ok` or `MISMATCH`) is written to the case's chain-of-custody log.
-11. **Family mode.** Bearer tokens are stored only as SHA-256 hashes. The pairing token travels in the URL fragment, so it never reaches server logs. Guardians see only the verdict and tactics unless the elder chooses to share the text. Unlinking deletes the circle and all of its alerts.
+9. **Legal alignment.**
+   - The public registry lists indicators (numbers and links), never named people, because of the defamation and privacy articles (Arts. 43–44 of Decree-Law 34/2021).
+   - Evidence is encrypted and access is logged, as the PDPL (Decree-Law 45/2021) expects of a platform that holds sensitive data (Art. 20).
+   - Run by a police authority, the PDPL's government and security exclusions may apply.
+10. **Extortion cases.** There is no identity unless the victim chooses to leave a contact. Details and evidence are encrypted with AES-256-GCM. The key lives outside the database (`EVIDENCE_KEY` or `data/evidence.key`). The access code is stored only as a scrypt hash. The victim can withdraw a case, which deletes the database rows and the encrypted files.
+11. **Evidence integrity.** Each file's SHA-256 is recorded on receipt and checked again every time it is opened. The result (`integrity:ok` or `MISMATCH`) is written to the case's chain-of-custody log.
+12. **Family mode.** Bearer tokens are stored only as SHA-256 hashes. The pairing token travels in the URL fragment, so it never reaches server logs. Guardians see only the verdict and tactics unless the elder chooses to share the text. Unlinking deletes the circle and all of its alerts.
 
 ## 6. Trade-offs, what we left out, and next steps
 
@@ -193,6 +216,19 @@ On the Scan page, use the example chips, or paste any of these:
 - `emlratesnbd.com`
 - `+882 1600 4471`
 - `هلا اخوي، نتغدى اليوم؟`
+
+### Stress-test the UI with worst-case data (dev only)
+```bash
+npm run dev:fixtures          # http://localhost:3100/?data=worst
+```
+A small toggle at the bottom of every page switches between **Demo data**, **Worst case** and **Empty**. Each dataset has its own in-memory database and is loaded through the real services. The worst case includes:
+- an indicator with 1,284 reports and an indicator with exactly one;
+- a 600-character message carrying a 180-character URL and three numbers;
+- an extortion case where every field is at its limit, with five evidence files;
+- a family circle with 13 alerts;
+- a campaign spread over 8 domains.
+
+The empty dataset has no data at all. This tool never ships with the production server.
 
 ### API (for bots and extensions)
 | Method | Path | Body or query |

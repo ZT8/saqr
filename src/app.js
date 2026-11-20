@@ -199,6 +199,7 @@ function createApp(config) {
   app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
   // ---------- Static frontend ----------
+  app.use('/fonts/schibsted', express.static(path.join(__dirname, '..', 'node_modules', '@fontsource', 'schibsted-grotesk', 'files'), { maxAge: '30d' }));
   app.use('/fonts', express.static(path.join(__dirname, '..', 'node_modules', '@fontsource', 'ibm-plex-sans-arabic', 'files'), { maxAge: '30d' }));
   app.use(express.static(path.join(__dirname, '..', 'public'), { extensions: ['html'] }));
 

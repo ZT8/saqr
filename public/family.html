@@ -7,28 +7,28 @@
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-  <header class="topbar">
-    <div class="wrap topbar-in">
-      <a class="brand" href="/">
-        <img src="/img/logo.svg" alt="" width="40" height="40">
-        <span><strong data-i18n="brand"></strong><small data-i18n="nav_family"></small></span>
-      </a>
-      <div class="nav"></div>
-      <div class="top-actions">
-        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
-      </div>
+<body class="site">
+  <svg width="0" height="0" aria-hidden="true" class="defs">
+    <defs>
+      <clipPath id="eyeClip" clipPathUnits="objectBoundingBox"><path d="M0 .5C.24 -.12 .76 -.12 1 .5C.76 1.12 .24 1.12 0 .5Z"/></clipPath>
+      <symbol id="eye" viewBox="0 0 100 60"><path d="M0 30C24 -6 76 -6 100 30C76 66 24 66 0 30Z"/></symbol>
+    </defs>
+  </svg>
+  <header class="bar">
+    <div class="frame bar-in">
+      <a class="mark" href="/" aria-label="Saqr"><svg class="mark-eye" viewBox="0 0 100 60" aria-hidden="true"><use href="#eye"/><circle cx="54" cy="30" r="13" class="mark-iris"/></svg><span data-i18n="brand"></span></a>
+      <nav class="nav" aria-label="main"><a href="/" data-i18n="nav_scan"></a><a href="/family" aria-current="page" data-i18n="nav_family"></a></nav>
+      <div class="bar-end"><button class="lang" id="langBtn" type="button" data-i18n="lang_toggle"></button></div>
     </div>
   </header>
-
-  <main class="wrap family">
+  <main class="frame family">
     <h1 data-i18n="fam_title"></h1>
     <p class="lead" data-i18n="fam_sub"></p>
 
     <form class="card form narrow" id="famCreate" hidden>
       <label><span data-i18n="fam_label"></span><input name="label" maxlength="40" required dir="auto"></label>
       <p class="form-error" id="famError" role="alert"></p>
-      <button class="btn-primary" type="submit" data-i18n="fam_create"></button>
+      <button class="btn-eye" type="submit" data-i18n="fam_create"></button>
     </form>
 
     <section class="card pair" id="pairBox" hidden>
@@ -36,7 +36,7 @@
       <div>
         <h2 id="pairTitle"></h2>
         <p data-i18n="fam_pair_d"></p>
-        <code class="pair-link" id="pairLink" dir="ltr"></code>
+        <p class="pair-link val" id="pairLink" dir="ltr"></p>
         <div class="row-actions"><button class="btn-ghost" type="button" id="copyLink" data-i18n="copy"></button></div>
       </div>
     </section>

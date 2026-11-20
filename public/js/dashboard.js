@@ -31,10 +31,33 @@ async function checkSession() {
 function showDash(user) {
   $('#loginView').hidden = true;
   $('#dashView').hidden = false;
-  $('#whoami').hidden = false;
   $('#whoami').textContent = user;
-  $('#logoutBtn').hidden = false;
+  route();
   loadAll();
+}
+
+/* ---------- Screens (sidebar items are screens, not anchors) ---------- */
+const SCREENS = { overview: 'nav_overview', radar: 'radar_title', queue: 'queue', cases: 'cases_title', system: 'nav_system' };
+function route() {
+  const v = (location.hash || '#overview').slice(1);
+  const view = SCREENS[v] ? v : 'overview';
+  $$('[data-screen]').forEach((s) => { s.hidden = s.dataset.screen !== view; });
+  $$('.side-nav a').forEach((a) => a.setAttribute('aria-current', a.dataset.view === view ? 'page' : 'false'));
+  $('#viewTitle').textContent = t('dash_title');
+  if (view === 'overview' && typeof STATS !== 'undefined' && STATS) renderStats();
+}
+
+function renderCounts() {
+  if (STATS) $('#nQueue').textContent = STATS.totals.pending ? fmtNum(STATS.totals.pending) : '';
+  if (CAMPS) { const n = CAMPS.filter((c) => c.spiking).length; $('#nRadar').textContent = n ? fmtNum(n) : ''; }
+  if (CASES) { const n = CASES.counts.new || 0; $('#nCases').textContent = n ? fmtNum(n) : ''; }
+  // The screen's one finding, read first.
+  if (STATS && CAMPS) {
+    const spike = CAMPS.find((c) => c.spiking);
+    $('#finding').textContent = spike
+      ? t('finding_spike', { cat: t('cat_' + spike.categories[0].key), a: fmtNum(spike.last48), b: fmtNum(spike.prev48), n: fmtNum(spike.unverified) })
+      : t('finding_calm', { n: fmtNum(STATS.totals.pending) });
+  }
 }
 
 async function login(e) {
@@ -55,30 +78,32 @@ async function logout() {
 }
 
 /* ---------- Charts (hand-drawn SVG, no external libs) ---------- */
-function barChart(daily, key) {
-  const W = 640, H = 200, P = { t: 10, r: 30, b: 24, l: 30 };
+function barChart(daily, key, W = 640) {
+  const H = 200, P = { t: 10, r: 30, b: 24, l: 30 };
   const max = Math.max(1, ...daily.map((d) => d[key]));
-  const nice = Math.ceil(max / 5) * 5 || 5;
+  const step = Math.max(1, Math.ceil(max / 4));
+  const nice = step * 4;
   const bw = (W - P.l - P.r) / daily.length;
   const y = (v) => H - P.b - (v / nice) * (H - P.t - P.b);
   const rtl = LANG === 'ar';
   const x = (i) => (rtl ? W - P.r - (i + 1) * bw : P.l + i * bw);
   let g = '';
   for (let k = 0; k <= 4; k++) {
-    const v = (nice / 4) * k, yy = y(v);
+    const v = step * k, yy = y(v);
     g += `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${yy}" y2="${yy}"/><text class="axis" x="${rtl ? W - 2 : 2}" y="${yy + 3}" text-anchor="${rtl ? 'end' : 'start'}">${fmtNum(Math.round(v))}</text>`;
   }
   const bars = daily.map((d, i) => {
     const h = H - P.b - y(d[key]);
     return `<rect class="bar${i >= daily.length - 7 ? ' recent' : ''}" x="${(x(i) + bw * 0.18).toFixed(1)}" y="${y(d[key]).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="2"><title>${d.day}: ${d[key]}</title></rect>`;
   }).join('');
-  const labels = daily.map((d, i) => (i % 5 === 0 || i === daily.length - 1)
-    ? `<text class="axis" x="${(x(i) + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${new Intl.DateTimeFormat(LANG === 'ar' ? 'ar-AE' : 'en-AE', { day: 'numeric', month: 'numeric' }).format(new Date(d.day))}</text>` : '').join('');
+  const every = W < 480 ? 10 : 5;
+  const labels = daily.map((d, i) => (i % every === 0 || i === daily.length - 1)
+    ? `<text class="axis" x="${(x(i) + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'numeric' }).format(new Date(d.day))}</text>` : '').join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}${bars}${labels}</svg>`;
 }
 
-function lineChart(daily, key) {
-  const W = 320, H = 200, P = { t: 10, r: 6, b: 24, l: 6 };
+function lineChart(daily, key, W = 320) {
+  const H = 200, P = { t: 10, r: 6, b: 24, l: 6 };
   const max = Math.max(1, ...daily.map((d) => d[key]));
   const rtl = LANG === 'ar';
   const step = (W - P.l - P.r) / (daily.length - 1 || 1);
@@ -107,13 +132,15 @@ function renderStats() {
     kpi('k_reports', fmtNum(s.reports)),
     kpi('k_pending', fmtNum(s.pending), '', s.pending ? 'alert' : ''),
     kpi('k_verified', fmtNum(s.verified)),
-    kpi('k_week', fmtNum(s.last7), `<span class="${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '▲' : '▼'} ${fmtNum(Math.abs(delta))}%</span> ${esc(t('vs_prev'))}`),
+    kpi('k_week', fmtNum(s.last7), s.prev7 ? `<span class="${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '+' : delta < 0 ? '−' : '±'}${fmtNum(Math.abs(delta))}%</span> ${esc(t('vs_prev'))}` : '—'),
     kpi('k_scans', fmtNum(s.scans), `${esc(t('k_dangerous'))}: ${fmtNum(s.dangerousScans)}`),
     kpi('k_cases', fmtNum(STATS.openCases || 0), '', STATS.openCases ? 'alert' : ''),
-    kpi('k_lost', esc(t('amount', { n: fmtNum(Math.round(s.amountLost)) }))),
+    kpi('k_lost', `${fmtNum(Math.round(s.amountLost))}<small>${esc(t('k_lost_unit'))}</small>`),
   ].join('');
-  $('#trendChart').innerHTML = barChart(STATS.daily, 'reports');
-  $('#scanChart').innerHTML = lineChart(STATS.daily, 'scans');
+  // Draw at the container's real width so axis labels stay 11px on a phone.
+  const tw = Math.max(280, $('#trendChart').clientWidth || 640), sw = Math.max(240, $('#scanChart').clientWidth || 320);
+  $('#trendChart').innerHTML = barChart(STATS.daily, 'reports', tw);
+  $('#scanChart').innerHTML = lineChart(STATS.daily, 'scans', sw);
   hbars($('#byCategory'), STATS.byCategory, 'cat_');
   hbars($('#byEmirate'), STATS.byEmirate, 'em_');
   hbars($('#byChannel'), STATS.byChannel, 'ch_');
@@ -140,7 +167,7 @@ function renderQueue() {
     const sample = it.type === 'message' ? (it.reports.find((r) => r.content)?.content || '') : '';
     const ind = it.type === 'message'
       ? `<span class="badge">${esc(t('t_message'))}</span> <span class="msg" dir="auto">${esc(sample)}</span>`
-      : `<span class="badge">${esc(t('t_' + it.type))}</span> <code dir="ltr">${esc(it.value)}</code>`;
+      : `<span class="badge">${esc(t('t_' + it.type))}</span> <span class="val" dir="ltr">${esc(it.value)}</span>`;
     const score = it.score ?? 0;
     const btns = [];
     if (it.status !== 'verified') btns.push(`<button class="btn-danger btn-sm" data-act="verified" data-id="${it.id}">${esc(t('a_verify'))}</button>`);
@@ -181,7 +208,7 @@ async function loadStats() {
 
 async function loadAudit() {
   const rows = await api('/api/admin/audit');
-  $('#audit').innerHTML = rows.map((r) => `<li><span><b>${esc(r.admin)}</b> · <code dir="ltr">${esc(r.action)}</code> ${r.target ? `<code dir="ltr">${esc(r.target.slice(0, 40))}</code>` : ''}</span><span class="muted">${esc(fmtDate(r.created_at))}</span></li>`).join('');
+  $('#audit').innerHTML = rows.map((r) => `<li><span><b>${esc(r.admin)}</b> · <span class="val" dir="ltr">${esc(r.action)}</span> ${r.target ? `<span class="val" dir="ltr">${esc(r.target.slice(0, 40))}</span>` : ''}</span><span class="muted">${esc(fmtDate(r.created_at))}</span></li>`).join('');
 }
 
 /* ---------- Campaign radar ---------- */
@@ -212,23 +239,23 @@ function renderCampaigns() {
     return `<article class="camp ${c.spiking ? 'spiking' : ''}">
       <div class="camp-top">
         <div>
-          ${c.spiking ? `<span class="spike-badge">▲ ${esc(t('spiking'))}</span>` : ''}
-          <h3>${esc(t('cat_' + cat))}${head ? ` · <code dir="ltr">${esc(head)}</code>` : ''}</h3>
+          ${c.spiking ? `<span class="spike-badge">${esc(t('spiking'))}</span>` : ''}
+          <h3>${esc(t('cat_' + cat))}${head ? ` · <span class="val" dir="ltr">${esc(head)}</span>` : ''}</h3>
           <p class="muted">${esc(t('camp_reports', { n: fmtNum(c.reports) }))} · ${esc(t('camp_48', { a: fmtNum(c.last48), b: fmtNum(c.prev48) }))}${c.amountLost ? ' · ' + esc(t('amount', { n: fmtNum(Math.round(c.amountLost)) })) : ''}</p>
         </div>
         <div class="camp-spark" title="${esc(t('camp_14d'))}">${spark(c.daily)}</div>
       </div>
       <div class="camp-meta">
-        ${c.domains.length ? `<span>${esc(t('camp_domains'))}: ${c.domains.map((d) => `<code dir="ltr">${esc(d)}</code>`).join(' ')}</span>` : ''}
+        ${c.domains.length ? `<span>${esc(t('camp_domains'))}: ${c.domains.map((d) => `<span class="val" dir="ltr">${esc(d)}</span>`).join(' ')}</span>` : ''}
         <span>${c.emirates.map((e) => esc(t('em_' + e.key)) + ' ' + fmtNum(e.n)).join(' · ')}</span>
         <span>${c.channels.map((e) => esc(t('ch_' + e.key))).join(' · ')}</span>
       </div>
       ${isOpen ? `<div class="camp-detail">
         ${c.sample ? `<p class="reg-sample" dir="auto"><strong>${esc(t('camp_sample'))}:</strong> ${esc(c.sample)}</p>` : ''}
-        <ul class="camp-inds">${c.indicators.map((i) => `<li><span class="badge">${esc(t('t_' + i.type))}</span> ${i.value ? `<code dir="ltr">${esc(i.value)}</code>` : '<span class="muted">—</span>'} <span class="st st-${esc(i.status)}">${esc(t('tab_' + i.status))}</span> <span class="muted">${esc(t('reports_n', { n: fmtNum(i.reports) }))}</span></li>`).join('')}</ul>
+        <ul class="camp-inds">${c.indicators.map((i) => `<li><span class="badge">${esc(t('t_' + i.type))}</span> ${i.value ? `<span class="val" dir="ltr">${esc(i.value)}</span>` : '<span class="muted">—</span>'} <span class="st st-${esc(i.status)}">${esc(t('tab_' + i.status))}</span> <span class="muted">${esc(t('reports_n', { n: fmtNum(i.reports) }))}</span></li>`).join('')}</ul>
       </div>` : ''}
       <div class="row-actions">
-        ${pending.length ? `<button class="btn-danger btn-sm" data-camp-verify="${esc(c.id)}">${esc(t('camp_verify_all', { n: fmtNum(pending.length) }))}</button>` : `<span class="muted">✓ ${esc(t('camp_all_verified'))}</span>`}
+        ${pending.length ? `<button class="btn-danger btn-sm" data-camp-verify="${esc(c.id)}">${esc(t('camp_verify_all', { n: fmtNum(pending.length) }))}</button>` : `<span class="muted">${esc(t('camp_all_verified'))}</span>`}
         <button class="btn-ghost btn-sm" data-camp-toggle="${esc(c.id)}" aria-expanded="${isOpen}">${esc(t('camp_indicators'))} (${fmtNum(c.indicators.length)})</button>
       </div>
     </article>`;
@@ -247,9 +274,9 @@ function renderCases() {
   if (!CASES) return;
   $('#caseList').innerHTML = CASES.items.length ? CASES.items.map((c) => `
     <li><button type="button" class="case-row ${CASE && CASE.id === c.id ? 'active' : ''}" data-case="${c.id}">
-      <code dir="ltr">${esc(c.ref)}</code>
+      <span class="val" dir="ltr">${esc(c.ref)}</span>
       <span class="case-st cs-${esc(c.status)}">${esc(t('cs_' + c.status))}</span>
-      <span class="muted">${esc(t('pl_' + c.platform))} · ${esc(t('dm_' + c.demand))} · 📎 ${fmtNum(c.evidence)}</span>
+      <span class="muted">${esc(t('pl_' + c.platform))} · ${esc(t('dm_' + c.demand))} · ${esc(t('case_files'))}: ${fmtNum(c.evidence)}</span>
       <span class="muted">${esc(fmtDate(c.created_at))}</span>
     </button></li>`).join('') : `<li class="muted">${esc(t('no_items'))}</li>`;
   renderCase();
@@ -257,10 +284,10 @@ function renderCases() {
 
 function renderCase() {
   const el = $('#caseDetail');
-  if (!CASE) { el.innerHTML = `<p class="muted">${esc(t('case_details'))} ←</p>`; return; }
+  if (!CASE) { el.innerHTML = `<p class="muted">${esc(t(CASES && CASES.items.length ? 'case_pick' : 'no_items'))}</p>`; return; }
   const c = CASE;
   el.innerHTML = `
-    <div class="case-head"><code dir="ltr">${esc(c.ref)}</code> <span class="case-st cs-${esc(c.status)}">${esc(t('cs_' + c.status))}</span></div>
+    <div class="case-head"><span class="val" dir="ltr">${esc(c.ref)}</span> <span class="case-st cs-${esc(c.status)}">${esc(t('cs_' + c.status))}</span></div>
     <dl class="track-dl">
       <dt>${esc(t('f_platform'))}</dt><dd>${esc(t('pl_' + c.platform))}</dd>
       <dt>${esc(t('f_demand'))}</dt><dd>${esc(t('dm_' + c.demand))}</dd>
@@ -272,7 +299,7 @@ function renderCase() {
     <h3>${esc(t('case_desc'))}</h3><p class="reg-sample" dir="auto">${esc(c.details.description)}</p>
     <h3>${esc(t('case_files'))}</h3>
     <ul class="evidence">${c.evidence.map((e) => `<li><span dir="auto">${esc(e.name)}</span> <span class="muted">${esc(e.mime)} · ${(e.size / 1024).toFixed(0)} KB</span>
-      <code dir="ltr" title="SHA-256">${esc(e.sha256.slice(0, 20))}…</code>
+      <span class="val" dir="ltr" title="SHA-256">${esc(e.sha256.slice(0, 20))}…</span>
       <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="/api/admin/cases/${c.id}/evidence/${e.id}">${esc(t('case_view'))}</a></li>`).join('') || `<li class="muted">${esc(t('no_items'))}</li>`}</ul>
     <form id="caseUpdate" class="case-form">
       <select name="status">${['new', 'in_progress', 'closed'].map((s) => `<option value="${s}" ${s === c.status ? 'selected' : ''}>${esc(t('cs_' + s))}</option>`).join('')}</select>
@@ -280,7 +307,7 @@ function renderCase() {
       <button class="btn-primary btn-sm" type="submit">${esc(t('case_save'))}</button>
     </form>
     <h3>${esc(t('case_custody'))}</h3>
-    <ul class="audit">${c.custody.map((l) => `<li><span><b>${esc(l.actor)}</b> · <code dir="ltr">${esc(l.action)}</code> ${l.detail ? `<code dir="ltr">${esc(l.detail.slice(0, 48))}</code>` : ''}</span><span class="muted">${esc(fmtDate(l.created_at))}</span></li>`).join('')}</ul>`;
+    <ul class="audit">${c.custody.map((l) => `<li><span><b>${esc(l.actor)}</b> · <span class="val" dir="ltr">${esc(l.action)}</span> ${l.detail ? `<span class="val" dir="ltr">${esc(l.detail.slice(0, 48))}</span>` : ''}</span><span class="muted">${esc(fmtDate(l.created_at))}</span></li>`).join('')}</ul>`;
   $('#caseUpdate').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.target).entries());
@@ -307,6 +334,7 @@ async function openCase(id) {
 async function loadAll() {
   try {
     await Promise.all([loadStats(), loadQueue(), loadAudit(), loadCampaigns(), loadCases()]);
+    renderCounts();
   } catch (ex) {
     if (ex.status === 401) location.reload();
   }
@@ -325,7 +353,9 @@ async function act(id, status) {
 document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   $('#langBtn').addEventListener('click', toggleLang);
-  document.addEventListener('langchange', () => { renderStats(); renderQueue(); renderCampaigns(); renderCases(); loadAudit().catch(() => {}); });
+  document.addEventListener('langchange', () => { route(); renderStats(); renderQueue(); renderCampaigns(); renderCases(); renderCounts(); loadAudit().catch(() => {}); });
+  window.addEventListener('hashchange', route);
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (STATS) renderStats(); }, 150); });
   $('#campaigns').addEventListener('click', async (e) => {
     const tg = e.target.closest('[data-camp-toggle]');
     if (tg) { const id = tg.dataset.campToggle; openCamps.has(id) ? openCamps.delete(id) : openCamps.add(id); return renderCampaigns(); }

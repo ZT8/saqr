@@ -19,7 +19,7 @@ const I18N = {
     privacy_line: 'خصوصيتك أولاً: الفحص يتم على خوادم صقر فقط، لا نفتح الروابط ولا نخزن النص.',
     stat_verified: 'مؤشر احتيال موثّق', stat_reports: 'بلاغ من المجتمع', stat_scans: 'عملية فحص',
     risk_score: 'درجة الخطورة', detected_as: 'نوع المُدخل',
-    level_safe: 'يبدو آمناً', level_suspicious: 'مشبوه', level_dangerous: 'خطير — احتيال مرجّح',
+    level_safe: 'يبدو آمناً', level_suspicious: 'مشبوه', level_dangerous: 'خطير: احتيال مرجّح',
     level_safe_d: 'ما لقينا مؤشرات احتيال واضحة، لكن خلك منتبه دائماً.',
     level_suspicious_d: 'فيه علامات تستدعي الحذر. تأكد من الجهة عبر قنواتها الرسمية قبل أي خطوة.',
     level_dangerous_d: 'هذا يطابق أساليب احتيال معروفة. لا تضغط، لا ترد، ولا تشارك أي بيانات.',
@@ -29,7 +29,7 @@ const I18N = {
     r_ml_scam_language: 'نموذج الذكاء الاصطناعي يرى أن الصياغة تشبه رسائل الاحتيال بنسبة {pct}٪{terms_part}',
     r_ml_normal_language: 'الصياغة تشبه الرسائل العادية بنسبة {pct}٪',
     terms_part: ' (كلمات مثل: {terms})',
-    r_tactic_credentials: 'تطلب رمز تحقق أو رقم سري أو بيانات بطاقة ({terms}) — الجهات الرسمية لا تطلبها أبداً',
+    r_tactic_credentials: 'تطلب رمز تحقق أو رقم سري أو بيانات بطاقة ({terms})، الجهات الرسمية لا تطلبها أبداً',
     r_tactic_personal_data: 'تطلب تحديث أو إرسال بياناتك الشخصية ({terms})',
     r_tactic_urgency: 'تضغط عليك بالاستعجال ({terms})',
     r_tactic_threat: 'تهديد بإيقاف أو حظر أو إجراء قانوني ({terms})',
@@ -72,10 +72,10 @@ const I18N = {
     r_phone_invalid: 'صيغة الرقم غير صحيحة',
     r_official_emergency: 'رقم طوارئ رسمي ({service})',
     r_uae_service_number: 'رقم خدمة إماراتي (800/600)',
-    r_uae_mobile: 'رقم جوال إماراتي — الجهات الرسمية لا تتصل من أرقام جوال شخصية',
+    r_uae_mobile: 'رقم جوال إماراتي، الجهات الرسمية لا تتصل من أرقام جوال شخصية',
     r_uae_landline: 'رقم أرضي إماراتي',
     r_premium_range: 'نطاق دولي مرتفع التكلفة يُستغل في احتيال المكالمات الفائتة ({prefix})',
-    r_international: 'رقم دولي ({prefix}) — انتبه إذا ادّعى أنه جهة محلية',
+    r_international: 'رقم دولي ({prefix})، انتبه إذا ادّعى أنه جهة محلية',
     svc_police: 'الشرطة', svc_ambulance: 'الإسعاف', svc_civil_defence: 'الدفاع المدني', svc_coast_guard: 'خفر السواحل',
     // advice
     advice_stay_alert: 'خلك منتبه: أي طلب لرمز التحقق أو الرقم السري احتيال حتى لو بدا رسمياً.',
@@ -93,7 +93,7 @@ const I18N = {
     f_category: 'نوع الاحتيال', f_channel: 'وصلك عن طريق', f_emirate: 'الإمارة (اختياري)', f_amount: 'المبلغ المفقود بالدرهم (اختياري)',
     f_desc: 'وصف مختصر (اختياري)', f_choose: 'اختر…', f_none: 'أفضّل عدم الذكر',
     submit_report: 'أرسل البلاغ', sending: 'جاري الإرسال…',
-    report_ok: 'تم استلام بلاغك، شكراً لك 🦅',
+    report_ok: 'تم استلام بلاغك، شكراً لك',
     report_ok_d: 'سيظهر في السجل بعد مراجعة الجهات المختصة أو بعد تكرار البلاغ من أكثر من شخص.',
     report_redacted: 'حذفنا بيانات شخصية من النص قبل الحفظ (مثل رقم بطاقة أو هوية أو رمز).',
     report_another: 'بلاغ جديد',
@@ -106,7 +106,7 @@ const I18N = {
     registry_sub: 'روابط وأرقام ورسائل وثّقتها الجهات المختصة أو بلّغ عنها أكثر من شخص.',
     search_ph: 'ابحث برقم أو رابط…', all_types: 'الكل', search_btn: 'بحث',
     st_verified: 'موثّق', st_reported: 'مُبلّغ عنه', reports_n: '{n} بلاغ', last_seen: 'آخر ظهور',
-    no_results: 'ما فيه نتائج. هذا لا يعني إنه آمن — افحصه أولاً.',
+    no_results: 'ما فيه نتائج. هذا لا يعني إنه آمن، افحصه أولاً.',
     prev: 'السابق', next: 'التالي', page_of: 'صفحة {p} من {t}',
     // tips
     tips_title: 'احمِ نفسك وأهلك',
@@ -116,7 +116,7 @@ const I18N = {
     tip4_t: 'الاستعجال علامة خطر', tip4_d: '"خلال 24 ساعة" و"سيتم إيقاف حسابك" أساليب ضغط عشان ما تفكر.',
     tip5_t: 'قريبك برقم جديد؟ اتصل عليه', tip5_d: 'قبل ما تحوّل لأي أحد يقول إنه قريبك برقم جديد، اتصل على رقمه القديم أو اسأل العائلة.',
     tip6_t: 'إذا وقعت في الفخ', tip6_d: 'اتصل بالبنك فوراً لإيقاف البطاقة، غيّر كلمات المرور، وتواصل مع الشرطة (999 في الطوارئ)، وبلّغ في صقر.',
-    footer: 'صقر — نموذج أولي لمسابقة الابتكار في مكافحة الجريمة الإلكترونية. البيانات المعروضة تجريبية.',
+    footer: 'صقر، نموذج أولي لمسابقة الابتكار في مكافحة الجريمة الإلكترونية. البيانات المعروضة تجريبية.',
     // enums
     cat_fake_fine: 'مخالفة/غرامة مزيفة', cat_bank_otp: 'انتحال بنك / سرقة رمز', cat_parcel: 'شحنة وتوصيل', cat_prize: 'جوائز وسحوبات',
     cat_investment: 'استثمار وعملات رقمية', cat_job: 'وظائف وهمية', cat_impersonation: 'انتحال جهة رسمية', cat_family_emergency: 'قريب برقم جديد',
@@ -133,7 +133,7 @@ const I18N = {
     dash_title: 'لوحة الجهات المختصة', login_title: 'دخول الجهات المختصة', username: 'اسم المستخدم', password: 'كلمة المرور', login: 'دخول', logout: 'خروج',
     k_reports: 'إجمالي البلاغات', k_pending: 'بانتظار المراجعة', k_verified: 'مؤشرات موثّقة', k_scans: 'عمليات الفحص', k_dangerous: 'فحوصات خطيرة', k_lost: 'خسائر مُبلّغ عنها',
     k_week: 'آخر 7 أيام', vs_prev: 'مقارنة بالأسبوع السابق',
-    ch_trend: 'البلاغات اليومية — آخر 30 يوم', ch_scans: 'عمليات الفحص اليومية', ch_category: 'حسب نوع الاحتيال', ch_emirate: 'حسب الإمارة', ch_channel: 'حسب القناة',
+    ch_trend: 'البلاغات اليومية، آخر 30 يوم', ch_scans: 'عمليات الفحص اليومية', ch_category: 'حسب نوع الاحتيال', ch_emirate: 'حسب الإمارة', ch_channel: 'حسب القناة',
     queue: 'قائمة المراجعة', tab_pending: 'قيد المراجعة', tab_verified: 'موثّق', tab_rejected: 'مرفوض',
     col_indicator: 'المؤشر', col_category: 'النوع', col_reports: 'البلاغات', col_score: 'الخطورة', col_last: 'آخر ظهور', col_actions: 'الإجراء',
     a_verify: 'توثيق', a_reject: 'رفض', a_reset: 'إرجاع للمراجعة', a_details: 'التفاصيل',
@@ -150,7 +150,7 @@ const I18N = {
     nav_scan: 'Scan', nav_report: 'Report', nav_registry: 'Registry', nav_tips: 'Stay safe', nav_dashboard: 'Authorities',
     lang_toggle: 'العربية',
     hero_title: 'Check before you click',
-    hero_sub: 'Paste a message, link or phone number. Saqr analyses it in a second — without opening the link and without storing what you type.',
+    hero_sub: 'Paste a message, link or phone number. Saqr analyses it in a second, without opening the link and without storing what you type.',
     input_ph: 'Paste the message, link or number here…',
     type_auto: 'Auto', type_message: 'Message', type_url: 'Link', type_phone: 'Number',
     scan_btn: 'Scan now', scanning: 'Scanning…',
@@ -159,7 +159,7 @@ const I18N = {
     privacy_line: 'Privacy first: scans run on Saqr servers only. We never open links or store your text.',
     stat_verified: 'verified fraud indicators', stat_reports: 'community reports', stat_scans: 'scans',
     risk_score: 'Risk score', detected_as: 'Detected as',
-    level_safe: 'Looks safe', level_suspicious: 'Suspicious', level_dangerous: 'Dangerous — likely fraud',
+    level_safe: 'Looks safe', level_suspicious: 'Suspicious', level_dangerous: 'Dangerous: likely fraud',
     level_safe_d: 'No clear fraud indicators found, but always stay alert.',
     level_suspicious_d: 'There are warning signs. Verify with the organisation through its official channels first.',
     level_dangerous_d: 'This matches known fraud tactics. Do not click, do not reply, do not share any data.',
@@ -168,7 +168,7 @@ const I18N = {
     r_ml_scam_language: 'The AI model finds the wording {pct}% similar to scam messages{terms_part}',
     r_ml_normal_language: 'Wording is {pct}% similar to normal messages',
     terms_part: ' (words like: {terms})',
-    r_tactic_credentials: 'Asks for a verification code, PIN or card details ({terms}) — official bodies never ask for these',
+    r_tactic_credentials: 'Asks for a verification code, PIN or card details ({terms}), official bodies never ask for these',
     r_tactic_personal_data: 'Asks you to update or send personal data ({terms})',
     r_tactic_urgency: 'Pressures you to act fast ({terms})',
     r_tactic_threat: 'Threatens suspension, blocking or legal action ({terms})',
@@ -211,15 +211,15 @@ const I18N = {
     r_phone_invalid: 'Invalid number format',
     r_official_emergency: 'Official emergency number ({service})',
     r_uae_service_number: 'UAE service number (800/600)',
-    r_uae_mobile: 'UAE mobile number — official bodies do not call from personal mobiles',
+    r_uae_mobile: 'UAE mobile number, official bodies do not call from personal mobiles',
     r_uae_landline: 'UAE landline number',
     r_premium_range: 'High-cost international range abused in missed-call fraud ({prefix})',
-    r_international: 'International number ({prefix}) — be careful if it claims to be local',
+    r_international: 'International number ({prefix}), be careful if it claims to be local',
     svc_police: 'Police', svc_ambulance: 'Ambulance', svc_civil_defence: 'Civil Defence', svc_coast_guard: 'Coast Guard',
     advice_stay_alert: 'Stay alert: any request for a verification code or PIN is fraud, even if it looks official.',
     advice_official_channels: 'Deal with organisations only through their official apps and websites.',
     advice_dont_click: 'Do not click links or reply to the message.',
-    advice_verify_official: 'Verify yourself via the organisation’s official number or app — not the one in the message.',
+    advice_verify_official: 'Verify yourself via the organisation’s official number or app, not the one in the message.',
     advice_never_share_otp: 'Never share your OTP or PIN with anyone, even if they say they are the bank or police.',
     advice_report: 'Report it on Saqr to protect others.',
     advice_block: 'Block the sender and delete the message after reporting.',
@@ -230,7 +230,7 @@ const I18N = {
     f_category: 'Type of fraud', f_channel: 'How it reached you', f_emirate: 'Emirate (optional)', f_amount: 'Amount lost in AED (optional)',
     f_desc: 'Short description (optional)', f_choose: 'Choose…', f_none: 'Prefer not to say',
     submit_report: 'Send report', sending: 'Sending…',
-    report_ok: 'Report received — thank you 🦅',
+    report_ok: 'Report received, thank you',
     report_ok_d: 'It will appear in the registry after review by the authorities, or once several people report it.',
     report_redacted: 'We removed personal data from the text before saving (such as a card, ID or code).',
     report_another: 'New report',
@@ -242,7 +242,7 @@ const I18N = {
     registry_sub: 'Links, numbers and messages verified by the authorities or reported by several people.',
     search_ph: 'Search a number or link…', all_types: 'All', search_btn: 'Search',
     st_verified: 'Verified', st_reported: 'Reported', reports_n: '{n} reports', last_seen: 'Last seen',
-    no_results: 'No results. That does not mean it is safe — scan it first.',
+    no_results: 'No results. That does not mean it is safe, scan it first.',
     prev: 'Previous', next: 'Next', page_of: 'Page {p} of {t}',
     tips_title: 'Protect yourself and your family',
     tip1_t: 'Authorities never ask for codes', tip1_d: 'Neither the police, your bank nor any government body will ask for your OTP or PIN. Any such request is fraud.',
@@ -251,7 +251,7 @@ const I18N = {
     tip4_t: 'Urgency is a red flag', tip4_d: '“Within 24 hours” and “your account will be suspended” are pressure tactics so you don’t think.',
     tip5_t: 'Relative on a new number? Call them', tip5_d: 'Before sending money to someone claiming to be family on a new number, call their old number or ask the family.',
     tip6_t: 'If you fell for it', tip6_d: 'Call your bank immediately to block the card, change your passwords, contact the police (999 in emergencies) and report on Saqr.',
-    footer: 'Saqr — prototype for the cybercrime prevention innovation competition. Data shown is demo data.',
+    footer: 'Saqr, prototype for the cybercrime prevention innovation competition. Data shown is demo data.',
     cat_fake_fine: 'Fake fine', cat_bank_otp: 'Bank impersonation / OTP theft', cat_parcel: 'Parcel & delivery', cat_prize: 'Prizes & draws',
     cat_investment: 'Investment & crypto', cat_job: 'Fake jobs', cat_impersonation: 'Authority impersonation', cat_family_emergency: 'Relative on new number',
     cat_shopping: 'Fake shop', cat_other: 'Other',
@@ -265,7 +265,7 @@ const I18N = {
     dash_title: 'Authority dashboard', login_title: 'Authority sign-in', username: 'Username', password: 'Password', login: 'Sign in', logout: 'Sign out',
     k_reports: 'Total reports', k_pending: 'Awaiting review', k_verified: 'Verified indicators', k_scans: 'Scans', k_dangerous: 'Dangerous scans', k_lost: 'Reported losses',
     k_week: 'Last 7 days', vs_prev: 'vs previous week',
-    ch_trend: 'Daily reports — last 30 days', ch_scans: 'Daily scans', ch_category: 'By fraud type', ch_emirate: 'By emirate', ch_channel: 'By channel',
+    ch_trend: 'Daily reports, last 30 days', ch_scans: 'Daily scans', ch_category: 'By fraud type', ch_emirate: 'By emirate', ch_channel: 'By channel',
     queue: 'Review queue', tab_pending: 'Pending', tab_verified: 'Verified', tab_rejected: 'Rejected',
     col_indicator: 'Indicator', col_category: 'Type', col_reports: 'Reports', col_score: 'Risk', col_last: 'Last seen', col_actions: 'Action',
     a_verify: 'Verify', a_reject: 'Reject', a_reset: 'Back to review', a_details: 'Details',
@@ -283,13 +283,27 @@ const LangStore = {
 };
 let LANG = LangStore.get();
 
+const COUNTED = { reports_n: 'n', list_reports: 'n', camp_reports: 'n' };
 function t(key, params = {}) {
+  if (COUNTED[key] && params.n !== undefined) return plural('report', params.n);
   let s = (I18N[LANG] && I18N[LANG][key]) ?? I18N.ar[key] ?? key;
   return s.replace(/\{(\w+)\}/g, (_, k) => {
     const v = params[k];
     if (Array.isArray(v)) return v.join(LANG === 'ar' ? '، ' : ', ');
     return v ?? '';
   });
+}
+
+// Plurals: Arabic has six forms; English two. Counted strings go through here.
+const PLURAL = {
+  ar: { report: { one: 'بلاغ واحد', two: 'بلاغان', few: '{n} بلاغات', many: '{n} بلاغاً', other: '{n} بلاغ', zero: 'لا بلاغات' } },
+  en: { report: { one: '1 report', other: '{n} reports', zero: 'No reports' } },
+};
+function plural(noun, n) {
+  const forms = PLURAL[LANG][noun];
+  const num = Number(String(n).replace(/[^\d.-]/g, '')) || 0;
+  const cat = num === 0 && forms.zero ? 'zero' : new Intl.PluralRules(LANG === 'ar' ? 'ar' : 'en').select(num);
+  return (forms[cat] || forms.other).replace('{n}', typeof n === 'string' ? n : fmtNum(n));
 }
 
 function reasonText(r) {
@@ -313,7 +327,7 @@ function toggleLang() {
   document.dispatchEvent(new CustomEvent('langchange'));
 }
 
-function fmtNum(n) { return new Intl.NumberFormat(LANG === 'ar' ? 'ar-AE' : 'en-AE').format(n); }
+function fmtNum(n) { return new Intl.NumberFormat('en-AE').format(n); }
 function fmtDate(iso) { return new Intl.DateTimeFormat(LANG === 'ar' ? 'ar-AE' : 'en-AE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)); }
 
 async function api(path, opts = {}) {
@@ -334,7 +348,7 @@ function esc(s) {
 
 // ---------- Extended features: extortion help, family protection, training, campaign radar ----------
 Object.assign(I18N.ar, {
-  r_protective_notice: 'رسالة توعوية تحذرك من مشاركة الرمز — هذا أسلوب الجهات الحقيقية',
+  r_protective_notice: 'رسالة توعوية تحذرك من مشاركة الرمز، هذا أسلوب الجهات الحقيقية',
   nav_help: 'تتعرض لابتزاز؟', nav_train: 'تدرّب', nav_family: 'حماية العائلة',
   // help
   quick_exit: 'خروج سريع',
@@ -354,9 +368,9 @@ Object.assign(I18N.ar, {
   case_ok_t: 'تم فتح بلاغك السري', case_ok_d: 'احفظ رقم البلاغ والرمز في مكان آمن. ما نقدر نسترجع الرمز لأنه ما ينحفظ عندنا إلا مشفّر.',
   case_ref: 'رقم البلاغ', case_code: 'الرمز السري', copy: 'نسخ', copied: 'تم النسخ',
   track: 'تابع', case_status: 'حالة البلاغ', case_note: 'رسالة من الجهة المختصة', case_evidence: 'عدد الأدلة',
-  add_evidence: 'أضف أدلة', withdraw: 'سحب البلاغ وحذف كل بياناته', withdraw_confirm: 'اضغط مرة ثانية للتأكيد — الحذف نهائي',
+  add_evidence: 'أضف أدلة', withdraw: 'سحب البلاغ وحذف كل بياناته', withdraw_confirm: 'اضغط مرة ثانية للتأكيد، الحذف نهائي',
   withdrawn: 'تم حذف البلاغ وكل الأدلة نهائياً.',
-  cs_new: 'جديد — بانتظار المراجعة', cs_in_progress: 'قيد المتابعة', cs_closed: 'مغلق',
+  cs_new: 'جديد', cs_in_progress: 'قيد المتابعة', cs_closed: 'مغلق',
   pl_instagram: 'انستقرام', pl_snapchat: 'سناب شات', pl_whatsapp: 'واتساب', pl_tiktok: 'تيك توك', pl_telegram: 'تيليجرام', pl_x: 'X (تويتر)', pl_facebook: 'فيسبوك', pl_other: 'أخرى',
   dm_money: 'فلوس', dm_more_images: 'صور أو فيديو إضافي', dm_meeting: 'لقاء', dm_other: 'شي ثاني',
   e_invalid_platform: 'اختر المنصة.', e_invalid_demand: 'اختر وش يطلب.', e_description_short: 'اكتب وصف مختصر (10 أحرف على الأقل).',
@@ -367,23 +381,23 @@ Object.assign(I18N.ar, {
   is_scam: 'احتيال', is_safe: 'آمنة', correct: 'إجابة صحيحة!', wrong: 'إجابة خاطئة', it_was_scam: 'هذي رسالة احتيال', it_was_safe: 'هذي رسالة آمنة',
   next_q: 'التالي', points: 'النقاط', streak: 'سلسلة', question_n: 'سؤال {n} من {t}', finish_t: 'خلصت التحدي!',
   finish_d: 'جاوبت صح على {c} من {t}', best: 'أفضل نتيجة', play_again: 'العب مرة ثانية', your_badge: 'شارتك',
-  badge_novice: 'مبتدئ', badge_guard: 'حارس', badge_falcon: 'صقر 🦅',
+  badge_novice: 'مبتدئ', badge_guard: 'حارس', badge_falcon: 'صقر',
   badge_novice_d: 'كل خبير بدأ مبتدئ. جرّب مرة ثانية!', badge_guard_d: 'عينك قوية، باقي لك شوي وتصير صقر.', badge_falcon_d: 'ما يفوتك شي! شارك التحدي مع أهلك.',
   train_local: 'نتيجتك تنحفظ في جهازك بس.', tips_quick: 'نصائح سريعة',
   // family
   fam_title: 'حماية العائلة', fam_sub: 'اربط جوال الوالد أو الوالدة بصقر. إذا وصلتهم رسالة مشبوهة وفحصوها، أو ضغطوا "أحتاج مساعدة"، يوصلك تنبيه هنا.',
   fam_label: 'اسم قريبك (مثل: الوالدة)', fam_create: 'أنشئ رابط الحماية',
   fam_pair_t: 'افتح هذا الرابط من جوال {label}', fam_pair_d: 'أو امسح الرمز بكاميرا جواله. بعدها تصير الصفحة المبسطة جاهزة عنده.',
-  fam_alerts: 'التنبيهات', fam_none: 'ما فيه تنبيهات. هذا خبر زين 👍', fam_enable_notif: 'فعّل إشعارات المتصفح',
+  fam_alerts: 'التنبيهات', fam_none: 'ما فيه تنبيهات. هذا خبر زين', fam_enable_notif: 'فعّل إشعارات المتصفح',
   fam_mark_seen: 'تمت القراءة', fam_delete: 'إلغاء الربط وحذف كل البيانات', fam_delete_confirm: 'اضغط مرة ثانية للتأكيد',
   fam_show_link: 'أظهر رابط الربط', fam_privacy: 'خصوصية: نرسل لك الحكم ونوع الاحتيال فقط. نص الرسالة ما يوصلك إلا إذا اختار قريبك يشاركه.',
-  al_scan: '{label}: فحص {type} — النتيجة: {level}', al_help: '{label}: طلب مساعدة عاجل!', al_shared: 'الرسالة اللي شاركها:',
-  notif_title: 'صقر — تنبيه العائلة',
+  al_scan: '{label}: فحص {type}، النتيجة: {level}', al_help: '{label}: طلب مساعدة عاجل!', al_shared: 'الرسالة اللي شاركها:',
+  notif_title: 'صقر، تنبيه العائلة',
   e_label_required: 'اكتب اسم قريبك.', e_family_not_found: 'الرابط غير صالح أو تم إلغاؤه.',
   // elder
-  eld_title: 'هل هذي رسالة احتيال؟', eld_paste: '📋 الصق الرسالة', eld_check: 'افحص', eld_ph: 'الصق الرسالة أو الرابط أو الرقم هنا',
-  eld_paired: '✓ مربوط مع عائلتك ({label})', eld_unpaired: 'غير مربوط مع العائلة — اطلب من ابنك أو بنتك يرسلون لك رابط الحماية.',
-  eld_share: 'أرسل نص الرسالة لعائلتي', eld_listen: '🔊 اسمع النتيجة', eld_help: 'أحتاج مساعدة — نبّه عائلتي', eld_help_sent: 'وصلهم التنبيه ✓',
+  eld_title: 'هل هذي رسالة احتيال؟', eld_paste: ' الصق الرسالة', eld_check: 'افحص', eld_ph: 'الصق الرسالة أو الرابط أو الرقم هنا',
+  eld_paired: 'مربوط مع عائلتك ({label})', eld_unpaired: 'غير مربوط مع العائلة، اطلب من ابنك أو بنتك يرسلون لك رابط الحماية.',
+  eld_share: 'أرسل نص الرسالة لعائلتي', eld_listen: ' اسمع النتيجة', eld_help: 'أحتاج مساعدة، نبّه عائلتي', eld_help_sent: 'وصلهم التنبيه',
   eld_family_told: 'أرسلنا تنبيه لعائلتك.',
   eld_safe: 'تبدو آمنة. بس لا تعطي أي أحد رمز أو رقم سري.', eld_suspicious: 'انتبه! فيها علامات احتيال. لا تضغط على أي رابط، واسأل أحد من عيالك.',
   eld_dangerous: 'هذي احتيال! لا تضغط، لا ترد، ولا تعطي أي رقم أو رمز.',
@@ -399,12 +413,12 @@ Object.assign(I18N.ar, {
 });
 
 Object.assign(I18N.en, {
-  r_protective_notice: 'Security notice warning you not to share the code — this is how real organisations write',
+  r_protective_notice: 'Security notice warning you not to share the code, this is how real organisations write',
   nav_help: 'Being blackmailed?', nav_train: 'Practice', nav_family: 'Family protection',
   quick_exit: 'Quick exit',
   help_title: 'Being blackmailed? You are not alone',
   help_sub: 'Extortion is a crime and the blame is on the extorter, not you. Follow these steps, and open an anonymous confidential report if you want.',
-  hs1_t: 'Don’t pay or send anything', hs1_d: 'Paying does not stop an extorter — it usually makes them ask for more.',
+  hs1_t: 'Don’t pay or send anything', hs1_d: 'Paying does not stop an extorter, it usually makes them ask for more.',
   hs2_t: 'Don’t delete the chat', hs2_d: 'Screenshot everything: the account, messages, threats and any account or wallet number they gave.',
   hs3_t: 'Stop the contact', hs3_d: 'After saving evidence, don’t reply or negotiate. Block and report their account on the platform.',
   hs4_t: 'Report it', hs4_d: 'Contact the police (999 in emergencies), or open a confidential report here and track it with your own number and code.',
@@ -415,12 +429,12 @@ Object.assign(I18N.en, {
   f_files: 'Evidence: screenshots or PDF (up to 5 files, 5MB each)',
   files_note: 'Files are encrypted on arrival, and each gets a SHA-256 fingerprint proving it was not altered.',
   fingerprint: 'Fingerprint', submit_case: 'Send confidential report',
-  case_ok_t: 'Your confidential report is open', case_ok_d: 'Save the report number and code somewhere safe. We cannot recover the code — we only store it hashed.',
+  case_ok_t: 'Your confidential report is open', case_ok_d: 'Save the report number and code somewhere safe. We cannot recover the code, we only store it hashed.',
   case_ref: 'Report number', case_code: 'Secret code', copy: 'Copy', copied: 'Copied',
   track: 'Track', case_status: 'Status', case_note: 'Message from the authority', case_evidence: 'Evidence files',
-  add_evidence: 'Add evidence', withdraw: 'Withdraw report and delete all its data', withdraw_confirm: 'Click again to confirm — deletion is permanent',
+  add_evidence: 'Add evidence', withdraw: 'Withdraw report and delete all its data', withdraw_confirm: 'Click again to confirm, deletion is permanent',
   withdrawn: 'The report and all evidence were permanently deleted.',
-  cs_new: 'New — awaiting review', cs_in_progress: 'In progress', cs_closed: 'Closed',
+  cs_new: 'New', cs_in_progress: 'In progress', cs_closed: 'Closed',
   pl_instagram: 'Instagram', pl_snapchat: 'Snapchat', pl_whatsapp: 'WhatsApp', pl_tiktok: 'TikTok', pl_telegram: 'Telegram', pl_x: 'X (Twitter)', pl_facebook: 'Facebook', pl_other: 'Other',
   dm_money: 'Money', dm_more_images: 'More photos or videos', dm_meeting: 'A meeting', dm_other: 'Something else',
   e_invalid_platform: 'Choose the platform.', e_invalid_demand: 'Choose what they ask for.', e_description_short: 'Write a short description (at least 10 characters).',
@@ -430,23 +444,23 @@ Object.assign(I18N.en, {
   is_scam: 'Scam', is_safe: 'Safe', correct: 'Correct!', wrong: 'Not quite', it_was_scam: 'This is a scam', it_was_safe: 'This message is safe',
   next_q: 'Next', points: 'Points', streak: 'Streak', question_n: 'Question {n} of {t}', finish_t: 'Challenge complete!',
   finish_d: 'You got {c} of {t} right', best: 'Best score', play_again: 'Play again', your_badge: 'Your badge',
-  badge_novice: 'Novice', badge_guard: 'Guardian', badge_falcon: 'Falcon 🦅',
-  badge_novice_d: 'Every expert started as a novice. Try again!', badge_guard_d: 'Sharp eye — you’re close to Falcon level.', badge_falcon_d: 'Nothing gets past you! Share the challenge with your family.',
+  badge_novice: 'Novice', badge_guard: 'Guardian', badge_falcon: 'Falcon',
+  badge_novice_d: 'Every expert started as a novice. Try again!', badge_guard_d: 'Sharp eye, you’re close to Falcon level.', badge_falcon_d: 'Nothing gets past you! Share the challenge with your family.',
   train_local: 'Your score is saved on this device only.', tips_quick: 'Quick tips',
   fam_title: 'Family protection', fam_sub: 'Link your parent’s phone to Saqr. If they scan a suspicious message or tap “I need help”, you get an alert here.',
   fam_label: 'Your relative’s name (e.g. Mum)', fam_create: 'Create protection link',
   fam_pair_t: 'Open this link on {label}’s phone', fam_pair_d: 'Or scan the code with their phone camera. The simplified page will then be ready for them.',
-  fam_alerts: 'Alerts', fam_none: 'No alerts. That’s good news 👍', fam_enable_notif: 'Enable browser notifications',
+  fam_alerts: 'Alerts', fam_none: 'No alerts. That’s good news', fam_enable_notif: 'Enable browser notifications',
   fam_mark_seen: 'Mark as read', fam_delete: 'Unlink and delete all data', fam_delete_confirm: 'Click again to confirm',
   fam_show_link: 'Show pairing link', fam_privacy: 'Privacy: you only receive the verdict and fraud type. The message text reaches you only if your relative chooses to share it.',
-  al_scan: '{label} scanned a {type} — result: {level}', al_help: '{label} needs your help now!', al_shared: 'Message they shared:',
-  notif_title: 'Saqr — family alert',
+  al_scan: '{label} scanned a {type}, result: {level}', al_help: '{label} needs your help now!', al_shared: 'Message they shared:',
+  notif_title: 'Saqr, family alert',
   e_label_required: 'Enter your relative’s name.', e_family_not_found: 'The link is invalid or was removed.',
-  eld_title: 'Is this message a scam?', eld_paste: '📋 Paste message', eld_check: 'Check', eld_ph: 'Paste the message, link or number here',
-  eld_paired: '✓ Linked with your family ({label})', eld_unpaired: 'Not linked with family — ask your son or daughter to send you the protection link.',
-  eld_share: 'Send the message text to my family', eld_listen: '🔊 Listen', eld_help: 'I need help — alert my family', eld_help_sent: 'They have been alerted ✓',
+  eld_title: 'Is this message a scam?', eld_paste: ' Paste message', eld_check: 'Check', eld_ph: 'Paste the message, link or number here',
+  eld_paired: 'Linked with your family ({label})', eld_unpaired: 'Not linked with family, ask your son or daughter to send you the protection link.',
+  eld_share: 'Send the message text to my family', eld_listen: ' Listen', eld_help: 'I need help, alert my family', eld_help_sent: 'They have been alerted',
   eld_family_told: 'We alerted your family.',
-  eld_safe: 'Looks safe. But never give anyone a code or PIN.', eld_suspicious: 'Careful! It has scam signs. Don’t tap any link — ask one of your children.',
+  eld_safe: 'Looks safe. But never give anyone a code or PIN.', eld_suspicious: 'Careful! It has scam signs. Don’t tap any link, ask one of your children.',
   eld_dangerous: 'This is a scam! Don’t tap, don’t reply, and don’t give any number or code.',
   k_cases: 'Open extortion cases',
   radar_title: 'Campaign radar', radar_sub: 'Reports linked by the same links, numbers or message template = one campaign.',
@@ -457,3 +471,115 @@ Object.assign(I18N.en, {
   case_paid: 'Paid?', case_files: 'Evidence', case_view: 'View', case_custody: 'Chain of custody', case_save: 'Save', case_note_ph: 'Message shown to the victim when they track the report…',
   case_saved: 'Case saved', none_given: 'Not given', case_updated: 'Last update',
 });
+
+// ---------- Redesign: landing sections ----------
+Object.assign(I18N.ar, {
+  skip: 'تخطَّ إلى المحتوى',
+  how_title: 'من رسالة إلى حظر',
+  how1_t: 'تفحص', how1_d: 'تلصق الرسالة أو الرابط أو الرقم، وصقر يعطيك الحكم وأسبابه خلال ثانية.',
+  how2_t: 'تبلّغ', how2_d: 'بدون اسم. نحذف بياناتك من النص، ونحفظ رقم المحتال ورابطه كدليل.',
+  how3_t: 'ينحظر', how3_d: 'الجهات المختصة توثّق المؤشر، فيظهر لكل من يفحصه وينضاف لقوائم الحظر.',
+  demo_sms_from: 'AD-Police', demo_sms: 'لديك مخالفة غير مدفوعة 400 درهم، ادفع خلال 24 ساعة adpolice-fines.com',
+  demo_verdict: 'خطير', demo_reason1: 'نطاق غير رسمي', demo_reason2: 'استعجال + طلب دفع',
+  demo_report_t: 'بلاغ جديد', demo_report_cat: 'مخالفة مزيفة · رسالة نصية', demo_report_red: 'بطاقتي [CARD]',
+  demo_reg: 'موثّق كاحتيال', demo_reg_n: '12 بلاغ',
+  list_title: 'الأساليب اللي نشوفها الحين',
+  list_g1: 'باسم جهة رسمية', list_g2: 'وعود وطلبات', list_reports: '{n} بلاغ',
+  sc_fake_fine: 'رسالة "مخالفة" برابط دفع وعدّاد 24 ساعة. المخالفات الحقيقية تُدفع من التطبيق الرسمي فقط.',
+  sc_bank_otp: 'اتصال أو رسالة من "البنك" يطلب الرمز. البنك ما يطلب رمز التحقق أبداً.',
+  sc_parcel: 'طرد "معلّق" ورسوم صغيرة. الرسوم الصغيرة طُعم لسرقة بيانات البطاقة.',
+  sc_impersonation: 'تحديث "إلزامي" للهوية على نطاق يقلّد gov.ae.',
+  sc_prize: 'جائزة ما شاركت فيها، ورسوم تسجيل قبل الاستلام.',
+  sc_investment: 'أرباح مضمونة في أسبوع. ما فيه استثمار بدون مخاطرة.',
+  sc_job: 'دخل يومي مقابل لايكات، ثم رسوم تأشيرة أو "مهام مدفوعة".',
+  sc_family_emergency: 'قريب برقم جديد يطلب تحويل الحين. اتصل على رقمه القديم أولاً.',
+  sc_shopping: 'خصومات خيالية في متجر عمره أيام، والدفع بتحويل فقط.',
+  bait_fake_fine: '400 د', bait_bank_otp: 'OTP', bait_parcel: '12 د', bait_impersonation: 'gov', bait_prize: '50 ألف',
+  bait_investment: '×5', bait_job: '800/يوم', bait_family_emergency: 'رقم جديد', bait_shopping: '−90٪',
+  why_title: 'ليش صقر',
+  w1_t: 'ما يفتح الروابط', w1_d: 'نحلل نص الرابط فقط، فما ينكشف جهازك ولا نشاطك.',
+  w2_t: 'ما يحفظ اللي تفحصه', w2_d: 'نحفظ عدّاد يومي فقط، بدون النص.',
+  w3_t: 'يفهم اللهجة', w3_d: 'الفصحى والخليجي والإنجليزي، مع توحيد الكتابة.',
+  w4_t: 'يشرح السبب', w4_d: 'كل حكم معه الأسباب والكلمات اللي أثّرت فيه.',
+  w5_t: 'بدون حساب', w5_d: 'لا اسم ولا رقم. بصمة يومية تمنع التكرار فقط.',
+  w6_t: 'يحذف بياناتك', w6_d: 'البطاقة والهوية والآيبان والرموز تنحذف من البلاغ.',
+  w7_t: 'سجل منضبط', w7_d: 'غير الموثّق يظهر مخفي جزئياً وبعد ثلاث بلاغات.',
+  w8_t: 'يحمي العائلة', w8_d: 'تنبيه للأبناء إذا فحص الوالدين رسالة خطيرة.',
+  w9_t: 'يساعد في الابتزاز', w9_d: 'أدلة مشفّرة ببصمة تثبت إنها ما تعدّلت.',
+  faq_title: 'أسئلة',
+  q1: 'هل صقر جهة حكومية؟', a1: 'لا. صقر نموذج أولي لمسابقة ابتكار، ويكمّل قنوات الشرطة الرسمية ولا يغني عنها. في الطوارئ اتصل على 999.',
+  q2: 'هل تحفظون اللي أفحصه؟', a2: 'لا. الفحص يتم على خوادم صقر ونحفظ عدّاد يومي فقط (اليوم، النوع، الحكم) بدون النص أو الرابط.',
+  q3: 'كيف يعرف صقر إن الرسالة احتيال؟', a3: 'ثلاث طبقات: نموذج تعلّم آلي مدرّب على رسائل عربية وإنجليزية، وقواعد تكشف أساليب الاحتيال، وفحص كل رابط ورقم داخل الرسالة مع السجل المجتمعي.',
+  q4: 'وش يصير لما أبلّغ؟', a4: 'يدخل البلاغ قائمة المراجعة عند الجهات المختصة. إذا توثّق، يصير أي أحد يفحص نفس الرقم أو الرابط يشوفه خطير، ويدخل قائمة الحظر.',
+  q5: 'دفعت أو عطيت الرمز، وش أسوي؟', a5: 'اتصل بالبنك فوراً عبر الرقم اللي خلف بطاقتك لإيقافها، غيّر كلمات المرور، وتواصل مع الشرطة، وبلّغ في صقر.',
+  q6: 'من يشوف أدلة الابتزاز اللي أرفعها؟', a6: 'تتشفّر فور وصولها، ولا يفتحها إلا المراجع المخوّل، وكل فتح ينسجل. وتقدر تسحب البلاغ ويُحذف كل شي.',
+  foot_tag: 'صقر يكشف الاحتيال قبل ما يوصلك.', foot_use: 'استخدم', foot_more: 'أكثر', foot_demo: 'نموذج أولي لمسابقة الابتكار في مكافحة الجريمة الإلكترونية. البيانات المعروضة تجريبية. صقر غير تابع لأي جهة حكومية.',
+  scan_short: 'افحص الآن', result_meta: 'درجة الخطورة {s} من 100 · {type}',
+});
+Object.assign(I18N.en, {
+  skip: 'Skip to content',
+  how_title: 'From message to blocked',
+  how1_t: 'You scan', how1_d: 'Paste the message, link or number. Saqr gives the verdict and its reasons in a second.',
+  how2_t: 'You report', how2_d: 'No name. We remove your data from the text and keep the scammer’s number and link as evidence.',
+  how3_t: 'It gets blocked', how3_d: 'The authorities verify the indicator, so everyone who checks it sees it, and it joins block lists.',
+  demo_sms_from: 'AD-Police', demo_sms: 'Unpaid fine AED 400. Pay within 24 hours: adpolice-fines.com',
+  demo_verdict: 'Dangerous', demo_reason1: 'Unofficial domain', demo_reason2: 'Urgency + payment',
+  demo_report_t: 'New report', demo_report_cat: 'Fake fine · SMS', demo_report_red: 'my card [CARD]',
+  demo_reg: 'Verified fraud', demo_reg_n: '12 reports',
+  list_title: 'Scams we are seeing now',
+  list_g1: 'In an authority’s name', list_g2: 'Promises and asks', list_reports: '{n} reports',
+  sc_fake_fine: 'A “fine” with a payment link and a 24-hour clock. Real fines are paid only in the official app.',
+  sc_bank_otp: 'A call or text from “the bank” asking for the code. Banks never ask for your OTP.',
+  sc_parcel: 'A parcel “on hold” and a tiny fee. The small fee is bait for your card details.',
+  sc_impersonation: 'A “mandatory” ID update on a domain imitating gov.ae.',
+  sc_prize: 'A prize for a draw you never entered, and a fee before you can collect.',
+  sc_investment: 'Guaranteed profit in a week. No investment is risk-free.',
+  sc_job: 'Daily pay for likes, then a visa fee or “paid tasks”.',
+  sc_family_emergency: 'A relative on a new number who needs money now. Call their old number first.',
+  sc_shopping: 'Unreal discounts in a shop a few days old, bank transfer only.',
+  bait_fake_fine: 'AED 400', bait_bank_otp: 'OTP', bait_parcel: 'AED 12', bait_impersonation: 'gov', bait_prize: '50k',
+  bait_investment: '×5', bait_job: '800/day', bait_family_emergency: 'new no.', bait_shopping: '−90%',
+  why_title: 'Why Saqr',
+  w1_t: 'Never opens links', w1_d: 'We read the link as text, so your device and activity stay unexposed.',
+  w2_t: 'Keeps nothing you scan', w2_d: 'Only a daily counter, never the text.',
+  w3_t: 'Understands dialect', w3_d: 'MSA, Gulf Arabic and English, with spelling normalised.',
+  w4_t: 'Explains why', w4_d: 'Every verdict shows its reasons and the words behind it.',
+  w5_t: 'No account', w5_d: 'No name, no number. A daily fingerprint only stops duplicates.',
+  w6_t: 'Removes your data', w6_d: 'Cards, IDs, IBANs and codes are stripped from reports.',
+  w7_t: 'A careful registry', w7_d: 'Unverified entries appear masked, after three reports.',
+  w8_t: 'Protects family', w8_d: 'Children get an alert if a parent scans something dangerous.',
+  w9_t: 'Helps with extortion', w9_d: 'Encrypted evidence with a fingerprint that proves it is unaltered.',
+  faq_title: 'Questions',
+  q1: 'Is Saqr a government service?', a1: 'No. Saqr is a prototype for an innovation competition. It complements official police channels and does not replace them. In an emergency call 999.',
+  q2: 'Do you keep what I scan?', a2: 'No. Scans run on Saqr’s servers and we keep only a daily counter (day, type, verdict), never the text or link.',
+  q3: 'How does Saqr know a message is a scam?', a3: 'Three layers: a machine-learning model trained on Arabic and English messages, rules for known fraud tactics, and a check of every link and number inside the message against the community registry.',
+  q4: 'What happens when I report?', a4: 'The report joins the authorities’ review queue. Once verified, anyone who checks the same number or link sees it as dangerous, and it joins the block list.',
+  q5: 'I paid or shared the code. What now?', a5: 'Call your bank immediately via the number on your card to block it, change your passwords, contact the police and report on Saqr.',
+  q6: 'Who sees the extortion evidence I upload?', a6: 'It is encrypted on arrival, only an authorised reviewer can open it, and every opening is logged. You can withdraw the report and everything is deleted.',
+  foot_tag: 'Saqr spots fraud before it reaches you.', foot_use: 'Use', foot_more: 'More', foot_demo: 'Prototype for the cybercrime-prevention innovation competition. Data shown is demo data. Saqr is not affiliated with any government entity.',
+  scan_short: 'Scan now', result_meta: 'Risk score {s} of 100 · {type}',
+});
+Object.assign(I18N.ar, {
+  nav_overview: 'نظرة عامة', nav_system: 'النموذج والتدقيق', foot_demo_short: 'نموذج أولي، بيانات تجريبية',
+  finding_spike: 'حملة "{cat}" نشطة: {a} بلاغ في آخر 48 ساعة مقابل {b} قبلها. {n} مؤشر بانتظار التوثيق.',
+  finding_calm: 'لا توجد حملات نشطة. {n} مؤشر بانتظار المراجعة.',
+  k_lost_unit: 'درهم',
+});
+Object.assign(I18N.en, {
+  nav_overview: 'Overview', nav_system: 'Model and audit', foot_demo_short: 'Prototype, demo data',
+  finding_spike: 'Active "{cat}" campaign: {a} reports in the last 48h against {b} before. {n} indicators await verification.',
+  finding_calm: 'No active campaigns. {n} indicators await review.',
+  k_lost_unit: 'AED',
+});
+Object.assign(I18N.ar, {
+  help_safe_t: 'بلاغك السري', help_safe_1: 'بدون اسم أو رقم هاتف، إلا إذا اخترت تترك وسيلة تواصل.',
+  help_safe_2: 'الأدلة تتشفّر فور وصولها، ولكل ملف بصمة تثبت إنه ما تعدّل.', help_safe_3: 'تقدر تسحب البلاغ متى ما تبي، وينحذف كل شي.',
+  help_urgent: 'في خطر الحين؟ اتصل على 999.',
+});
+Object.assign(I18N.en, {
+  help_safe_t: 'Your confidential report', help_safe_1: 'No name or phone number, unless you choose to leave a contact.',
+  help_safe_2: 'Evidence is encrypted on arrival, each file fingerprinted to prove it is unaltered.', help_safe_3: 'Withdraw any time and everything is deleted.',
+  help_urgent: 'In danger right now? Call 999.',
+});
+Object.assign(I18N.ar, { case_pick: 'اختر قضية من القائمة لعرض تفاصيلها.', show_all: 'عرض الرسالة كاملة', show_less: 'عرض أقل' });
+Object.assign(I18N.en, { case_pick: 'Choose a case from the list to see its details.', show_all: 'Show the full message', show_less: 'Show less' });

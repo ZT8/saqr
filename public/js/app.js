@@ -1,6 +1,7 @@
 'use strict';
 /* global t, reasonText, applyI18n, toggleLang, fmtNum, fmtDate, api, esc, LANG */
 
+document.documentElement.classList.add('js');
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -36,7 +37,52 @@ async function loadStats() {
     $('#stVerified').textContent = fmtNum(s.verified);
     $('#stReports').textContent = fmtNum(s.reports);
     $('#stScans').textContent = fmtNum(s.scans);
+    STATS = s;
+    renderScams();
   } catch { /* stats are decorative */ }
+}
+
+let STATS = null;
+const SCAM_GROUPS = [['list_g1', ['fake_fine', 'bank_otp', 'impersonation', 'parcel']], ['list_g2', ['prize', 'investment', 'job', 'family_emergency', 'shopping']]];
+
+function renderScams() {
+  const el = $('#scamGroups');
+  if (!el) return;
+  const by = (STATS && STATS.byCategory) || {};
+  el.innerHTML = SCAM_GROUPS.map(([title, cats]) => {
+    const sorted = cats.slice().sort((a, b) => (by[b] || 0) - (by[a] || 0));
+    const total = cats.reduce((n, c) => n + (by[c] || 0), 0);
+    return `<div class="scam-group"><h3>${esc(t(title))}<span>${esc(t('list_reports', { n: fmtNum(total) }))}</span></h3><ul>${sorted.map((c) => `
+      <li><span class="bait" aria-hidden="true">${esc(t('bait_' + c))}</span>
+        <div><div class="scam-row"><b>${esc(t('cat_' + c))}</b><span>${esc(t('list_reports', { n: fmtNum(by[c] || 0) }))}</span></div>
+        <p>${esc(t('sc_' + c))}</p></div></li>`).join('')}</ul></div>`;
+  }).join('');
+}
+
+/* ---------- Motion: section entrances and the eye that watches ---------- */
+function setupMotion() {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const groups = ['.how > h2', '.tile', '.scams > h2', '.scam-group', '.stats > div', '.why-shape', '.why-text > h2', '.points li', '.faq > h2', '.faq details', '.foot-mark .blk'];
+  const els = [];
+  for (const sel of groups) $$(sel).forEach((el, i) => { el.classList.add('reveal'); el.style.setProperty('--d', `${Math.min(i, 8) * 70}ms`); els.push(el); });
+  if (!('IntersectionObserver' in window)) { els.forEach((e) => e.classList.add('in')); return; }
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+  }, { rootMargin: '0px 0px -8% 0px' });
+  els.forEach((e) => io.observe(e));
+  const eye = $('#heroEye .eye-look');
+  if (eye && !reduce && matchMedia('(pointer: fine)').matches) {
+    let raf = 0;
+    addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const box = $('#heroEye').getBoundingClientRect();
+        const dx = Math.max(-1, Math.min(1, (e.clientX - (box.left + box.width * 0.54)) / (box.width / 2)));
+        const dy = Math.max(-1, Math.min(1, (e.clientY - (box.top + box.height * 0.47)) / (box.height / 2)));
+        eye.style.transform = `translate(${(dx * 60).toFixed(1)}px, ${(dy * 40).toFixed(1)}px)`;
+      });
+    }, { passive: true });
+  }
 }
 
 /* ---------- Scan ---------- */
@@ -56,21 +102,23 @@ function reasonList(reasons) {
 }
 
 function gauge(score, level) {
-  const r = 52, c = 2 * Math.PI * r, off = c * (1 - score / 100);
-  return `<svg class="gauge lvl-${level}" viewBox="0 0 120 120" aria-hidden="true">
-    <circle cx="60" cy="60" r="${r}" class="g-track"/>
-    <circle cx="60" cy="60" r="${r}" class="g-val" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 60 60)"/>
-    <text x="60" y="66" text-anchor="middle" class="g-num">${fmtNum(score)}</text>
+  // The result wears Saqr's eye: the iris carries the verdict colour and the score.
+  return `<svg class="r-eye lvl-${level}" viewBox="0 0 100 60" aria-hidden="true">
+    <path class="w" d="M0 30C24 -6 76 -6 100 30C76 66 24 66 0 30Z"/>
+    <circle class="i" cx="50" cy="30" r="22"/>
+    <text x="50" y="39" text-anchor="middle">${fmtNum(score)}</text>
   </svg>`;
 }
 
 function renderResult() {
   const box = $('#result');
-  if (!lastScan) { box.hidden = true; return; }
+  const eye = $('#heroEye');
+  if (!lastScan) { box.hidden = true; if (eye) eye.setAttribute('class', 'hero-eye'); return; }
   const r = lastScan.result;
+  if (eye) eye.setAttribute('class', 'hero-eye lvl-' + r.level);
   const entities = (r.entities || []).map((e) => `
     <div class="entity lvl-${e.level}">
-      <div class="entity-head"><span class="badge">${esc(t('t_' + e.type))}</span><code dir="ltr">${esc(e.input)}</code><span class="pill lvl-${e.level}">${fmtNum(e.score)}</span></div>
+      <div class="entity-head"><span class="badge">${esc(t('t_' + e.type))}</span><span class="val" dir="ltr" title="${esc(e.input)}">${esc(e.input)}</span><span class="pill lvl-${e.level}">${fmtNum(e.score)}</span></div>
       <ul class="reasons small">${reasonList(e.reasons)}</ul>
     </div>`).join('');
   box.className = 'result lvl-' + r.level;
@@ -78,9 +126,9 @@ function renderResult() {
     <div class="result-head">
       ${gauge(r.score, r.level)}
       <div>
-        <p class="eyebrow">${esc(t('risk_score'))} · ${esc(t('detected_as'))}: ${esc(t('t_' + r.detectedType))}</p>
         <h2>${esc(t('level_' + r.level))}</h2>
         <p>${esc(t('level_' + r.level + '_d'))}</p>
+        <p class="r-meta">${esc(t('result_meta', { s: fmtNum(r.score), type: t('t_' + r.detectedType) }))}</p>
       </div>
     </div>
     <div class="result-body">
@@ -187,7 +235,7 @@ async function loadRegistry(page = regPage) {
           <span class="status">${esc(t('st_' + it.status))}</span>
           <span class="muted">${esc(t('cat_' + it.category))}</span>
         </div>
-        ${it.value ? `<code class="reg-value" dir="ltr">${esc(it.value)}</code>` : ''}
+        ${it.value ? `<p class="reg-value" dir="ltr">${esc(it.value)}</p>` : ''}
         ${it.sample ? `<p class="reg-sample" dir="auto">${esc(it.sample)}</p>` : ''}
         <div class="reg-foot"><span>${esc(t('reports_n', { n: fmtNum(it.reports) }))}</span><span>${esc(t('last_seen'))}: ${esc(fmtDate(it.last_seen))}</span></div>
       </article>`).join('');
@@ -214,6 +262,7 @@ function relabel() {
   renderResult();
   if (!$('#view-registry').hidden) loadRegistry();
   loadStats();
+  renderScams();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -240,4 +289,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { META = await api('/api/meta'); } catch { /* keep empty */ }
   relabel();
   route();
+  setupMotion();
 });

@@ -3,17 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>صقر | Saqr</title>
-  <meta name="description" content="Saqr — community fraud detection platform for the UAE">
+  <title>صقر | افحص قبل ما تضغط</title>
+  <meta name="description" content="صقر — منصة مجتمعية لكشف الاحتيال في الإمارات: افحص الرسائل والروابط والأرقام، بلّغ، وتابع السجل.">
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-  <header class="topbar">
-    <div class="wrap topbar-in">
-      <a class="brand" href="#scan">
-        <img src="/img/logo.svg" alt="" width="40" height="40">
-        <span><strong data-i18n="brand">صقر</strong><small data-i18n="brand_sub"></small></span>
+<body class="site">
+  <svg width="0" height="0" aria-hidden="true" class="defs">
+    <defs>
+      <!-- The falcon's eye: Saqr's one shape. Used for buttons, masks and bullets. -->
+      <clipPath id="eyeClip" clipPathUnits="objectBoundingBox"><path d="M0 .5C.24 -.12 .76 -.12 1 .5C.76 1.12 .24 1.12 0 .5Z"/></clipPath>
+      <symbol id="eye" viewBox="0 0 100 60"><path d="M0 30C24 -6 76 -6 100 30C76 66 24 66 0 30Z"/></symbol>
+    </defs>
+  </svg>
+  <a class="skip" href="#main" data-i18n="skip"></a>
+  <header class="bar">
+    <div class="frame bar-in">
+      <a class="mark" href="#scan" aria-label="Saqr">
+        <svg class="mark-eye" viewBox="0 0 100 60" aria-hidden="true"><use href="#eye"/><circle cx="54" cy="30" r="13" class="mark-iris"/></svg>
+        <span data-i18n="brand"></span>
       </a>
       <nav class="nav" aria-label="main">
         <a href="#scan" data-tab="scan" data-i18n="nav_scan"></a>
@@ -23,55 +32,137 @@
         <a href="/family" data-i18n="nav_family"></a>
         <a href="#help" data-tab="help" class="nav-help" data-i18n="nav_help"></a>
       </nav>
-      <div class="top-actions">
-        <a class="link-quiet" href="/dashboard" data-i18n="nav_dashboard"></a>
-        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+      <div class="bar-end">
+        <a class="quiet" href="/dashboard" data-i18n="nav_dashboard"></a>
+        <button class="lang" id="langBtn" type="button" data-i18n="lang_toggle"></button>
       </div>
     </div>
   </header>
 
-  <main>
-    <!-- SCAN -->
+  <main id="main">
+    <!-- SCAN (landing) -->
     <section class="view" id="view-scan">
-      <div class="wrap hero">
-        <h1 data-i18n="hero_title"></h1>
-        <p class="lead" data-i18n="hero_sub"></p>
-
-        <form class="scan-card" id="scanForm" autocomplete="off">
-          <div class="seg" role="radiogroup" id="typeSeg">
-            <button type="button" role="radio" data-type="auto" aria-checked="true" data-i18n="type_auto"></button>
-            <button type="button" role="radio" data-type="message" aria-checked="false" data-i18n="type_message"></button>
-            <button type="button" role="radio" data-type="url" aria-checked="false" data-i18n="type_url"></button>
-            <button type="button" role="radio" data-type="phone" aria-checked="false" data-i18n="type_phone"></button>
+      <div class="hero">
+        <svg class="hero-eye" id="heroEye" viewBox="0 0 1000 700" aria-hidden="true">
+          <path class="eye-white" d="M0 330C240 -30 760 -30 1000 330C760 690 240 690 0 330Z"/>
+          <g class="eye-look">
+            <circle class="eye-iris" cx="540" cy="330" r="190"/>
+            <ellipse class="eye-pupil" cx="540" cy="330" rx="78" ry="78"/>
+            <circle class="eye-glint" cx="590" cy="276" r="22"/>
+          </g>
+          <path class="eye-stripe" d="M300 560C270 620 240 660 190 700L260 700C300 660 330 620 350 575Z"/>
+        </svg>
+        <div class="frame hero-in">
+          <div class="hero-text">
+            <h1 data-i18n="hero_title"></h1>
+            <p class="lead" data-i18n="hero_sub"></p>
+            <form class="scan" id="scanForm" autocomplete="off">
+              <div class="seg" role="radiogroup" id="typeSeg">
+                <button type="button" role="radio" data-type="auto" aria-checked="true" data-i18n="type_auto"></button>
+                <button type="button" role="radio" data-type="message" aria-checked="false" data-i18n="type_message"></button>
+                <button type="button" role="radio" data-type="url" aria-checked="false" data-i18n="type_url"></button>
+                <button type="button" role="radio" data-type="phone" aria-checked="false" data-i18n="type_phone"></button>
+              </div>
+              <label class="sr" for="scanInput" data-i18n="input_ph"></label>
+              <textarea id="scanInput" rows="3" maxlength="5000" data-i18n-ph="input_ph" dir="auto"></textarea>
+              <div class="scan-row">
+                <button class="btn-eye" id="scanBtn" type="submit" data-i18n="scan_btn"></button>
+                <p class="privacy-line" data-i18n="privacy_line"></p>
+              </div>
+              <p class="form-error" id="scanError" role="alert"></p>
+              <div class="examples">
+                <span data-i18n="try_example"></span>
+                <button type="button" class="chip" data-ex="fine" data-i18n="ex_fine"></button>
+                <button type="button" class="chip" data-ex="bank" data-i18n="ex_bank"></button>
+                <button type="button" class="chip" data-ex="link" data-i18n="ex_link"></button>
+                <button type="button" class="chip" data-ex="safe" data-i18n="ex_safe"></button>
+              </div>
+            </form>
           </div>
-          <textarea id="scanInput" rows="4" maxlength="5000" data-i18n-ph="input_ph" dir="auto"></textarea>
-          <div class="scan-row">
-            <div class="examples">
-              <span data-i18n="try_example"></span>
-              <button type="button" class="chip" data-ex="fine" data-i18n="ex_fine"></button>
-              <button type="button" class="chip" data-ex="bank" data-i18n="ex_bank"></button>
-              <button type="button" class="chip" data-ex="link" data-i18n="ex_link"></button>
-              <button type="button" class="chip" data-ex="safe" data-i18n="ex_safe"></button>
+        </div>
+      </div>
+
+      <div class="frame"><div id="result" class="result" hidden aria-live="polite"></div></div>
+
+      <section class="how frame" aria-labelledby="howTitle">
+        <h2 id="howTitle" data-i18n="how_title"></h2>
+        <ol class="tiles">
+          <li class="tile t1">
+            <div class="tile-art" aria-hidden="true">
+              <div class="phone" data-ui><p class="sms-from" data-i18n="demo_sms_from"></p><p class="sms" dir="auto" data-i18n="demo_sms"></p></div>
             </div>
-            <button class="btn-primary" id="scanBtn" type="submit" data-i18n="scan_btn"></button>
-          </div>
-          <p class="form-error" id="scanError" role="alert"></p>
-        </form>
-        <p class="privacy-line"><span class="lock" aria-hidden="true"></span><span data-i18n="privacy_line"></span></p>
+            <h3 data-i18n="how1_t"></h3><p data-i18n="how1_d"></p>
+          </li>
+          <li class="tile t2">
+            <div class="tile-art" aria-hidden="true">
+              <div class="slip" data-ui>
+                <p class="slip-verdict"><svg viewBox="0 0 100 60"><use href="#eye"/></svg><span data-i18n="demo_verdict"></span><b>96</b></p>
+                <p data-i18n="demo_reason1"></p><p data-i18n="demo_reason2"></p>
+                <p class="slip-red" data-i18n="demo_report_red"></p>
+              </div>
+            </div>
+            <h3 data-i18n="how2_t"></h3><p data-i18n="how2_d"></p>
+          </li>
+          <li class="tile t3">
+            <div class="tile-art" aria-hidden="true">
+              <div class="stamp" data-ui><p class="stamp-val" dir="ltr">adpolice-fines.com</p><p class="stamp-st" data-i18n="demo_reg"></p><p data-i18n="demo_reg_n"></p></div>
+            </div>
+            <h3 data-i18n="how3_t"></h3><p data-i18n="how3_d"></p>
+          </li>
+        </ol>
+      </section>
 
-        <div id="result" class="result" hidden></div>
-
+      <section class="scams frame" aria-labelledby="scamsTitle">
+        <h2 id="scamsTitle" data-i18n="list_title"></h2>
+        <div class="scam-groups" id="scamGroups"></div>
         <dl class="stats" id="stats">
           <div><dt id="stVerified">–</dt><dd data-i18n="stat_verified"></dd></div>
           <div><dt id="stReports">–</dt><dd data-i18n="stat_reports"></dd></div>
           <div><dt id="stScans">–</dt><dd data-i18n="stat_scans"></dd></div>
         </dl>
-      </div>
+      </section>
+
+      <section class="why" aria-labelledby="whyTitle">
+        <div class="why-shape" aria-hidden="true">
+          <div class="why-chat" data-ui>
+            <p class="bub in" dir="auto">هلا اخوي معك موظف البنك، بطاقتك موقوفة</p>
+            <p class="bub in" dir="auto">عطني رمز التحقق اللي وصلك عشان نفعلها</p>
+            <p class="bub out" dir="auto">لحظة، بفحصها في صقر</p>
+            <p class="bub verdict" dir="auto">خطير: البنك ما يطلب الرمز أبداً</p>
+          </div>
+        </div>
+        <div class="why-text">
+          <h2 id="whyTitle" data-i18n="why_title"></h2>
+          <ul class="points">
+            <li><h3 data-i18n="w1_t"></h3><p data-i18n="w1_d"></p></li>
+            <li><h3 data-i18n="w2_t"></h3><p data-i18n="w2_d"></p></li>
+            <li><h3 data-i18n="w3_t"></h3><p data-i18n="w3_d"></p></li>
+            <li><h3 data-i18n="w4_t"></h3><p data-i18n="w4_d"></p></li>
+            <li><h3 data-i18n="w5_t"></h3><p data-i18n="w5_d"></p></li>
+            <li><h3 data-i18n="w6_t"></h3><p data-i18n="w6_d"></p></li>
+            <li><h3 data-i18n="w7_t"></h3><p data-i18n="w7_d"></p></li>
+            <li><h3 data-i18n="w8_t"></h3><p data-i18n="w8_d"></p></li>
+            <li><h3 data-i18n="w9_t"></h3><p data-i18n="w9_d"></p></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="faq frame" aria-labelledby="faqTitle">
+        <h2 id="faqTitle" data-i18n="faq_title"></h2>
+        <div class="faq-list">
+          <details name="faq"><summary><span data-i18n="q1"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a1"></p></details>
+          <details name="faq"><summary><span data-i18n="q2"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a2"></p></details>
+          <details name="faq"><summary><span data-i18n="q3"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a3"></p></details>
+          <details name="faq"><summary><span data-i18n="q4"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a4"></p></details>
+          <details name="faq"><summary><span data-i18n="q5"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a5"></p></details>
+          <details name="faq"><summary><span data-i18n="q6"></span><i class="pm" aria-hidden="true"></i></summary><p data-i18n="a6"></p></details>
+        </div>
+      </section>
     </section>
 
     <!-- REPORT -->
     <section class="view" id="view-report" hidden>
-      <div class="wrap two-col">
+      <div class="frame two-col">
         <div>
           <h1 data-i18n="report_title"></h1>
           <p class="lead" data-i18n="report_sub"></p>
@@ -116,7 +207,7 @@
 
     <!-- REGISTRY -->
     <section class="view" id="view-registry" hidden>
-      <div class="wrap">
+      <div class="frame view-in">
         <h1 data-i18n="registry_title"></h1>
         <p class="lead" data-i18n="registry_sub"></p>
         <form class="registry-bar" id="regForm">
@@ -136,26 +227,26 @@
 
     <!-- TRAINING -->
     <section class="view" id="view-train" hidden>
-      <div class="wrap">
+      <div class="frame view-in">
         <h1 data-i18n="train_title"></h1>
         <p class="lead" data-i18n="train_sub"></p>
         <div class="game card" id="game"></div>
         <p class="muted small-note" data-i18n="train_local"></p>
         <h2 class="section-h" data-i18n="tips_quick"></h2>
         <div class="tips">
-          <article class="tip"><span class="tip-n">01</span><h2 data-i18n="tip1_t"></h2><p data-i18n="tip1_d"></p></article>
-          <article class="tip"><span class="tip-n">02</span><h2 data-i18n="tip2_t"></h2><p data-i18n="tip2_d"></p></article>
-          <article class="tip"><span class="tip-n">03</span><h2 data-i18n="tip3_t"></h2><p data-i18n="tip3_d"></p></article>
-          <article class="tip"><span class="tip-n">04</span><h2 data-i18n="tip4_t"></h2><p data-i18n="tip4_d"></p></article>
-          <article class="tip"><span class="tip-n">05</span><h2 data-i18n="tip5_t"></h2><p data-i18n="tip5_d"></p></article>
-          <article class="tip tip-alert"><span class="tip-n">06</span><h2 data-i18n="tip6_t"></h2><p data-i18n="tip6_d"></p></article>
+          <article class="tip"><h3 data-i18n="tip1_t"></h3><p data-i18n="tip1_d"></p></article>
+          <article class="tip"><h3 data-i18n="tip2_t"></h3><p data-i18n="tip2_d"></p></article>
+          <article class="tip"><h3 data-i18n="tip3_t"></h3><p data-i18n="tip3_d"></p></article>
+          <article class="tip"><h3 data-i18n="tip4_t"></h3><p data-i18n="tip4_d"></p></article>
+          <article class="tip"><h3 data-i18n="tip5_t"></h3><p data-i18n="tip5_d"></p></article>
+          <article class="tip tip-alert"><h3 data-i18n="tip6_t"></h3><p data-i18n="tip6_d"></p></article>
       </div>
     </section>
 
     <!-- EXTORTION HELP -->
     <section class="view" id="view-help" hidden>
       <button type="button" class="quick-exit" id="quickExit" data-i18n="quick_exit"></button>
-      <div class="wrap help">
+      <div class="frame help">
         <h1 data-i18n="help_title"></h1>
         <p class="lead" data-i18n="help_sub"></p>
         <ol class="help-steps">
@@ -165,6 +256,8 @@
           <li><h2 data-i18n="hs4_t"></h2><p data-i18n="hs4_d"></p></li>
         </ol>
 
+        <div class="help-grid">
+          <div>
         <div class="tabs big-tabs" role="tablist" id="caseTabs">
           <button role="tab" data-ct="new" aria-selected="true" data-i18n="tab_new_case"></button>
           <button role="tab" data-ct="track" aria-selected="false" data-i18n="tab_track_case"></button>
@@ -192,8 +285,8 @@
         <div class="card success" id="caseOk" hidden>
           <h2 data-i18n="case_ok_t"></h2>
           <div class="secret-grid">
-            <div><span data-i18n="case_ref"></span><code id="okRef" dir="ltr"></code></div>
-            <div><span data-i18n="case_code"></span><code id="okCode" dir="ltr"></code></div>
+            <div><span data-i18n="case_ref"></span><span class="val" id="okRef" dir="ltr"></span></div>
+            <div><span data-i18n="case_code"></span><span class="val" id="okCode" dir="ltr"></span></div>
           </div>
           <button class="btn-ghost" type="button" id="copyCase" data-i18n="copy"></button>
           <p class="note" data-i18n="case_ok_d"></p>
@@ -210,11 +303,35 @@
           </form>
           <div class="card" id="trackResult" hidden></div>
         </div>
+          </div>
+          <aside class="card help-aside">
+            <h2 data-i18n="help_safe_t"></h2>
+            <ul class="checks">
+              <li data-i18n="help_safe_1"></li>
+              <li data-i18n="help_safe_2"></li>
+              <li data-i18n="help_safe_3"></li>
+            </ul>
+            <p class="urgent" data-i18n="help_urgent"></p>
+          </aside>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer"><div class="wrap" data-i18n="footer"></div></footer>
+  <footer class="foot">
+    <div class="frame">
+      <div class="foot-mark" aria-hidden="true">
+        <span class="blk b1">ص</span><span class="blk b2">ق</span><span class="blk b3">ر</span><span class="blk b4"><svg viewBox="0 0 100 60"><use href="#eye"/><circle cx="54" cy="30" r="13"/></svg></span>
+      </div>
+      <div class="foot-cols">
+        <p class="foot-tag" data-i18n="foot_tag"></p>
+        <ul><li><a href="#scan" data-i18n="nav_scan"></a></li><li><a href="#report" data-i18n="nav_report"></a></li><li><a href="#registry" data-i18n="nav_registry"></a></li></ul>
+        <ul><li><a href="#train" data-i18n="nav_train"></a></li><li><a href="/family" data-i18n="nav_family"></a></li><li><a href="#help" data-i18n="nav_help"></a></li></ul>
+        <ul><li><a href="/dashboard" data-i18n="nav_dashboard"></a></li></ul>
+      </div>
+      <p class="foot-note" data-i18n="foot_demo"></p>
+    </div>
+  </footer>
 
   <script src="/js/i18n.js"></script>
   <script src="/js/app.js"></script>

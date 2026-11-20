@@ -77,7 +77,8 @@ function makeServices(db, engine, config) {
     const type = input.type;
     const raw = String(input.value || '').trim();
     if (!TYPES.includes(type)) throw new ValidationError('invalid_type');
-    if (raw.length < 3 || raw.length > 5000) throw new ValidationError('invalid_value');
+    const MAX = { message: 5000, url: 2048, phone: 32 };
+    if (raw.length < 3 || raw.length > MAX[type]) throw new ValidationError('invalid_value');
     if (!CATEGORIES.includes(input.category)) throw new ValidationError('invalid_category');
     if (!CHANNELS.includes(input.channel)) throw new ValidationError('invalid_channel');
     if (input.emirate && !EMIRATES.includes(input.emirate)) throw new ValidationError('invalid_emirate');
@@ -196,6 +197,7 @@ function makeServices(db, engine, config) {
       reports: one('SELECT COUNT(*) FROM reports'),
       scans: one('SELECT COALESCE(SUM(count),0) FROM scan_stats'),
       blockedThisMonth: one(`SELECT COUNT(*) FROM indicators WHERE status='verified' AND reviewed_at >= date('now','-30 day')`),
+      byCategory: Object.fromEntries(db.prepare("SELECT category k, COUNT(*) c FROM reports WHERE created_at >= date('now','-30 day') GROUP BY category").all().map((r) => [r.k, r.c])),
     };
   }
 

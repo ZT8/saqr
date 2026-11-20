@@ -36,7 +36,7 @@ async function collectFiles(input, listEl) {
     const buf = await readFile(f);
     const hash = await sha256Hex(buf);
     out.push({ name: f.name, data: toBase64(buf), size: f.size, hash });
-    listEl.insertAdjacentHTML('beforeend', `<li><span dir="auto">${esc(f.name)}</span><span class="muted">${(f.size / 1024).toFixed(0)} KB</span>${hash ? `<code dir="ltr" title="SHA-256">${esc(t('fingerprint'))}: ${hash.slice(0, 16)}…</code>` : ''}</li>`);
+    listEl.insertAdjacentHTML('beforeend', `<li><span dir="auto">${esc(f.name)}</span><span class="muted">${(f.size / 1024).toFixed(0)} KB</span>${hash ? `<span class="val" dir="ltr" title="SHA-256">${esc(t('fingerprint'))}: ${hash.slice(0, 16)}…</span>` : ''}</li>`);
   }
   return out;
 }
@@ -82,7 +82,7 @@ function renderTrack(st) {
   box.hidden = false;
   box.innerHTML = `
     <dl class="track-dl">
-      <dt>${esc(t('case_ref'))}</dt><dd><code dir="ltr">${esc(st.ref)}</code></dd>
+      <dt>${esc(t('case_ref'))}</dt><dd><span class="val" dir="ltr">${esc(st.ref)}</span></dd>
       <dt>${esc(t('case_status'))}</dt><dd><span class="case-st cs-${esc(st.status)}">${esc(t('cs_' + st.status))}</span></dd>
       <dt>${esc(t('case_evidence'))}</dt><dd>${fmtNum(st.evidence)}</dd>
       <dt>${esc(t('case_updated'))}</dt><dd>${esc(fmtDate(st.updated_at))}</dd>

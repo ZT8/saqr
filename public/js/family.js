@@ -38,7 +38,7 @@ function renderAlerts() {
     return `<li class="alert-item ${a.kind === 'help' ? 'help' : 'lvl-' + esc(a.level)} ${a.seen ? '' : 'unseen'}">
       <div class="alert-top"><strong>${esc(text)}</strong>${a.score != null ? `<span class="pill lvl-${esc(a.level)}">${fmtNum(a.score)}</span>` : ''}</div>
       ${tactics.length ? `<ul class="alert-tactics">${tactics.map((x) => `<li>${esc(label(x))}</li>`).join('')}</ul>` : ''}
-      ${a.shared_text ? `<div class="shared"><span class="muted">${esc(t('al_shared'))}</span><p dir="auto">${esc(a.shared_text)}</p></div>` : ''}
+      ${a.shared_text ? `<div class="shared"><span class="muted">${esc(t('al_shared'))}</span><p dir="auto">${esc(a.shared_text)}</p>${a.shared_text.length > 220 ? `<button type="button" class="btn-ghost" data-more>${esc(t('show_all'))}</button>` : ''}</div>` : ''}
       <time class="muted">${esc(fmtDate(a.created_at))}</time></li>`;
   }).join('') : `<li class="empty">${esc(t('fam_none'))}</li>`;
 }
@@ -80,6 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
       view();
       startPolling();
     } catch (ex) { $('#famError').textContent = t('e_' + ex.code); }
+  });
+  $('#alerts').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-more]');
+    if (!b) return;
+    const box = b.closest('.shared');
+    box.classList.toggle('open');
+    b.textContent = t(box.classList.contains('open') ? 'show_less' : 'show_all');
   });
   $('#copyLink').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(G.elderLink); $('#copyLink').textContent = t('copied'); } catch { /* ignore */ }

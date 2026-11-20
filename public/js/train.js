@@ -9,7 +9,7 @@ const store = {
 };
 
 async function startTraining() {
-  Object.assign(TRAIN, { questions: [], i: 0, score: 0, correct: 0, streak: 0, answered: null, done: false, lang: LANG });
+  Object.assign(TRAIN, { lastW: 0, questions: [], i: 0, score: 0, correct: 0, streak: 0, answered: null, done: false, lang: LANG });
   renderGame();
   try {
     TRAIN.questions = await api('/api/training?lang=' + LANG);
@@ -57,14 +57,13 @@ function renderGame() {
   if (!TRAIN.questions.length) { g.innerHTML = '<div class="game-loading"></div>'; return; }
   const total = TRAIN.questions.length;
   const hud = `<div class="hud"><span>${esc(t('question_n', { n: fmtNum(Math.min(TRAIN.i + 1, total)), t: fmtNum(total) }))}</span>
-    <span>${esc(t('points'))}: <b>${fmtNum(TRAIN.score)}</b></span><span>${esc(t('streak'))}: <b>${fmtNum(TRAIN.streak)}</b>${TRAIN.streak >= 3 ? ' 🔥' : ''}</span></div>
+    <span>${esc(t('points'))}: <b>${fmtNum(TRAIN.score)}</b></span><span>${esc(t('streak'))}: <b>${fmtNum(TRAIN.streak)}</b></span></div>
     <div class="progress"><span data-w="${((TRAIN.i + (TRAIN.answered ? 1 : 0)) / total) * 100}"></span></div>`;
 
   if (TRAIN.done) {
     const ratio = TRAIN.correct / total;
     const b = badgeFor(ratio);
     g.innerHTML = `${hud}<div class="finish">
-      <p class="eyebrow">${esc(t('your_badge'))}</p>
       <div class="badge-big b-${b}">${esc(t('badge_' + b))}</div>
       <h2>${esc(t('finish_t'))}</h2>
       <p>${esc(t('finish_d', { c: fmtNum(TRAIN.correct), t: fmtNum(total) }))} · ${esc(t('points'))}: <b>${fmtNum(TRAIN.score)}</b></p>
@@ -86,13 +85,19 @@ function renderGame() {
     g.innerHTML = `${hud}
       <div class="bubble" dir="auto">${esc(q.text)}</div>
       <div class="choices">
-        <button type="button" class="choice scam ${a && a.choice === 'scam' ? 'picked' : ''}" data-c="scam" ${a ? 'disabled' : ''}>🚩 ${esc(t('is_scam'))}</button>
-        <button type="button" class="choice safe ${a && a.choice === 'safe' ? 'picked' : ''}" data-c="safe" ${a ? 'disabled' : ''}>✓ ${esc(t('is_safe'))}</button>
+        <button type="button" class="choice scam ${a && a.choice === 'scam' ? 'picked' : ''}" data-c="scam" ${a ? 'disabled' : ''}>${esc(t('is_scam'))}</button>
+        <button type="button" class="choice safe ${a && a.choice === 'safe' ? 'picked' : ''}" data-c="safe" ${a ? 'disabled' : ''}>${esc(t('is_safe'))}</button>
       </div>${feedback}`;
     g.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => answer(b.dataset.c)));
     $('#nextQ')?.addEventListener('click', next);
     $('#nextQ')?.focus();
   }
   // CSP-safe progress width
-  g.querySelectorAll('[data-w]').forEach((el) => { el.style.width = el.dataset.w + '%'; });
+  // The bar is re-rendered each step: start it at the previous value, then move, so it glides.
+  g.querySelectorAll('[data-w]').forEach((el) => {
+    const to = Number(el.dataset.w) / 100;
+    el.style.transform = `scaleX(${(TRAIN.lastW || 0).toFixed(3)})`;
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transform = `scaleX(${to.toFixed(3)})`; }));
+    TRAIN.lastW = to;
+  });
 }

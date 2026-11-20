@@ -143,6 +143,8 @@ Then open:
 
 On first start the database is empty, so Saqr loads **fictional demo data** (about 170 reports over 30 days) so the dashboard and registry aren't blank. Set `DEMO_DATA=false` to start empty, and run `npm run reset` to delete the database.
 
+> **Install troubleshooting:** `better-sqlite3` downloads a prebuilt binary for your Node version. If `npm install` fails while building it, switch to the current Node 22 LTS (or install your OS build tools, e.g. *Visual Studio Build Tools* on Windows) and run `npm install` again.
+
 ### Tests
 ```bash
 npm test

@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "public/index.html"
+        ],
+        "createdAt": "2026-11-20T18:41:40.542Z",
+        "reason": "Claude design decision (not user-confirmed): sand base is part of Saqr's falcon/desert brand palette with ink + falcon-gold, applied deliberately"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "public/dashboard.html"
+        ],
+        "createdAt": "2026-11-20T18:41:40.552Z",
+        "reason": "Claude design decision (not user-confirmed): sand base is part of Saqr's falcon/desert brand palette with ink + falcon-gold, applied deliberately"
+      }
+    ]
+  }
+}

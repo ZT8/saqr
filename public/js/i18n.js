@@ -583,3 +583,15 @@ Object.assign(I18N.en, {
 });
 Object.assign(I18N.ar, { case_pick: 'اختر قضية من القائمة لعرض تفاصيلها.', show_all: 'عرض الرسالة كاملة', show_less: 'عرض أقل' });
 Object.assign(I18N.en, { case_pick: 'Choose a case from the list to see its details.', show_all: 'Show the full message', show_less: 'Show less' });
+Object.assign(I18N.ar, {
+  r_tactic_call_to_action: 'تطلب منك تضغط على رابط أو تسجل دخول ({terms})',
+  r_unknown_domain: 'نطاق غير معروف لدينا ({domain})، تأكد منه قبل ما تدخل أي بيانات',
+  r_uae_service_lookalike: 'نطاق يستخدم اسم الإمارات مع كلمات دفع أو حساب ليقلّد خدمة رسمية ({domain})',
+  r_phone_no_reports: 'ما فيه بلاغات عن هذا الرقم في صقر. هذا ما يعني إنه آمن',
+});
+Object.assign(I18N.en, {
+  r_tactic_call_to_action: 'Asks you to tap a link or log in ({terms})',
+  r_unknown_domain: 'A domain we do not know ({domain}); check it before entering any data',
+  r_uae_service_lookalike: 'Uses the UAE’s name with payment or account words to imitate an official service ({domain})',
+  r_phone_no_reports: 'No reports about this number in Saqr. That does not mean it is safe',
+});

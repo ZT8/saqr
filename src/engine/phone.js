@@ -51,11 +51,12 @@ function analyzePhone(raw, registry = () => null) {
     kind = 'international';
     const premium = PREMIUM_RANGES.find((p) => n.digits.startsWith(p));
     if (premium) add('premium_range', 50, 'high', { prefix: '+' + premium });
-    else add('international', 18, 'medium', { prefix: '+' + n.digits.slice(0, 3) });
+    else add('international', 24, 'medium', { prefix: '+' + n.digits.slice(0, 3) });
     if (n.digits.length < 8 || n.digits.length > 15) add('phone_invalid', 20, 'medium');
   }
 
   const hit = n.e164 ? registry('phone', n.e164) : null;
+  if (!hit && kind !== 'emergency' && kind !== 'invalid') add('phone_no_reports', 0, 'info');
   score += reasons.reduce((s, r) => s + r.points, 0);
   if (hit && hit.status === 'verified') {
     reasons.unshift({ code: 'registry_verified', points: 0, severity: 'high', params: { reports: hit.report_count } });

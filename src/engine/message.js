@@ -8,18 +8,21 @@ const { analyzePhone } = require('./phone');
 
 // Each tactic: keywords in Arabic (any dialect/spelling, normalised at load) and English.
 const TACTICS = {
-  credentials: { points: 24, severity: 'high', words: ['رمز التحقق', 'رمز التفعيل', 'الرمز السري', 'الرقم السري', 'كلمه المرور', 'كلمة السر', 'الكود', 'كود التفعيل', 'عطني الكود', 'رقم البطاقه', 'تاريخ انتهاء البطاقه', 'cvv', 'otp', 'pin', 'password', 'verification code', 'card number', 'security code', 'the code you received', 'code we just sent'] },
-  personal_data: { points: 12, severity: 'medium', words: ['تحديث بياناتك', 'حدث بياناتك', 'تحديث البيانات', 'بيانات حسابك', 'رقم الهويه', 'الهويه الاماراتيه', 'جواز السفر', 'update your details', 'bank details', 'emirates id', 'confirm your address', 'personal information', 'payment information'] },
-  urgency: { points: 12, severity: 'medium', words: ['عاجل', 'فورا', 'خلال 24 ساعه', 'خلال ساعه', 'اليوم فقط', 'اخر فرصه', 'ضروري الحين', 'بسرعه', 'urgent', 'urgently', 'immediately', 'within 24 hours', 'today only', 'last chance', 'right now', 'act now', 'limited places'] },
-  threat: { points: 15, severity: 'high', words: ['ايقاف', 'تم ايقاف', 'معلق', 'حظر', 'حجز المركبه', 'الاجراءات القانونيه', 'قضيه', 'بلاغ ضدك', 'القبض', 'قطع الخدمه', 'حذف حسابك', 'suspended', 'blocked', 'deactivated', 'legal action', 'arrest', 'case has been filed', 'impound', 'disconnected', 'will be deleted'] },
-  prize: { points: 18, severity: 'high', words: ['مبروك', 'ربحت', 'فزت', 'جايزه', 'الفايز', 'السحب', 'هديه مجانيه', 'congratulations', 'you won', 'you have won', 'winner', 'prize', 'lottery', 'lucky', 'free gift', 'claim your'] },
-  payment: { points: 10, severity: 'medium', words: ['ادفع', 'دفع الرسوم', 'رسوم', 'سداد', 'حول', 'تحويل', 'غرامه', 'مخالفه', 'الكفاله', 'الجمارك', 'pay now', 'pay the', 'fee', 'transfer', 'fine', 'customs', 'bail', 'deposit', 'overdue'] },
-  impersonation: { points: 8, severity: 'low', words: ['الشرطه', 'شرطه ابوظبي', 'شرطه دبي', 'وزاره الداخليه', 'النيابه', 'الضابط', 'البنك', 'المصرف', 'موظف البنك', 'اتصالات', 'بريد الامارات', 'ارامكس', 'هييه الكهرباء', 'police', 'ministry', 'bank', 'aramex', 'dhl', 'emirates post', 'etisalat', 'dewa', 'officer', 'customer service', 'whatsapp account'] },
-  parcel: { points: 6, severity: 'low', words: ['شحنتك', 'طردك', 'الشحنه', 'التوصيل', 'parcel', 'package', 'shipment', 'delivery', 'redelivery'] },
-  investment: { points: 18, severity: 'high', words: ['ارباح مضمونه', 'استثمر', 'فرصه استثماريه', 'العملات الرقميه', 'بدون مخاطره', 'guaranteed profit', 'guaranteed returns', 'double your money', 'invest', 'bitcoin', 'crypto', 'trading platform', 'passive income'] },
-  job: { points: 12, severity: 'medium', words: ['وظيفه من البيت', 'دخل يومي', 'دوام جزيي', 'بدون خبره', 'رسوم التاشيره', 'part time job', 'earn aed', 'daily income', 'work from home', 'liking videos', 'no experience'] },
-  off_platform: { points: 6, severity: 'low', words: ['واتساب', 'الواتساب', 'تيليجرام', 'تلجرام', 'whatsapp', 'telegram', 'dm me'] },
-  new_number: { points: 14, severity: 'medium', words: ['رقمي الجديد', 'تلفوني خربان', 'new number', 'my phone broke'] },
+  // floor: a tactic this telling makes the message at least that risky on its own.
+  credentials: { points: 26, floor: 55, severity: 'high', words: ['رمز التحقق', 'رمز التفعيل', 'الرمز السري', 'الرقم السري', 'كلمه المرور', 'كلمة السر', 'الباسورد', 'كود التفعيل', 'عطني الكود', 'ارسل الكود', 'ارسل لي الكود', 'الكود اللي وصلك', 'الكود الي وصلك', 'الرمز اللي وصلك', 'الرمز الي وصلك', 'الرقم اللي وصلك', 'رقم البطاقه', 'رقم بطاقتك', 'بيانات البطاقه', 'بيانات بطاقتك', 'تاريخ انتهاء البطاقه', 'الرقم اللي ورا البطاقه', 'cvv', 'otp', 'pin', 'password', 'passcode', 'verification code', 'card number', 'card details', 'security code', 'the code you received', 'the code you got', 'code we just sent', 'send me the code', 'share the code', 'send the code'] },
+  personal_data: { points: 14, floor: 40, severity: 'medium', words: ['تحديث بياناتك', 'حدث بياناتك', 'حدّث بياناتك', 'تحديث البيانات', 'تحديث المعلومات', 'بيانات حسابك', 'رقم الهويه', 'صوره الهويه', 'صوره الجواز', 'الهويه من الوجهين', 'الهويه الاماراتيه', 'جواز السفر', 'تاكيد هويتك', 'اكد هويتك', 'نتاكد من بياناتك', 'تاكيد بياناتك', 'اكد بياناتك', 'ارسل بياناتك', 'عطني بياناتك', 'update your details', 'bank details', 'emirates id', 'confirm your address', 'personal information', 'payment information', 'confirm your identity', 'verify your identity', 'photo of your id', 'passport copy'] },
+  urgency: { points: 12, severity: 'medium', words: ['عاجل', 'فورا', 'خلال 24 ساعه', 'خلال 48 ساعه', 'خلال ساعه', 'خلال يومين', 'اليوم فقط', 'اخر فرصه', 'ضروري الحين', 'جدد الحين', 'ادفع الحين', 'حول الحين', 'بسرعه', 'قبل منتصف الليل', 'urgent', 'urgently', 'immediately', 'within 24 hours', 'within 48 hours', 'today only', 'last chance', 'right now', 'act now', 'limited places', 'expires today', 'before midnight'] },
+  threat: { points: 16, floor: 35, severity: 'high', words: ['ايقاف', 'تم ايقاف', 'موقوف', 'معلق', 'تعليق حسابك', 'تم تعليق', 'بينقفل', 'ينقفل', 'بيتسكر', 'سيتم اغلاق', 'سيتم حذف', 'اغلاق حسابك', 'حظر', 'حجز المركبه', 'الاجراءات القانونيه', 'قضيه', 'بلاغ ضدك', 'القبض', 'قطع الخدمه', 'حذف حسابك', 'انتهت صلاحيه', 'منتهي الصلاحيه', 'نشاط غير معتاد', 'عمليه مشبوهه', 'suspended', 'blocked', 'locked', 'deactivated', 'legal action', 'arrest', 'case has been filed', 'impound', 'disconnected', 'will be deleted', 'will be closed', 'unusual activity', 'suspicious activity', 'has expired', 'expired'] },
+  prize: { points: 18, floor: 40, severity: 'high', words: ['مبروك ربحت', 'مبروك فزت', 'ربحت', 'فزت', 'جايزه', 'جايزتك', 'الفايز', 'السحب', 'هديه مجانيه', 'هديتك', 'اربح', 'كاش باك', 'congratulations you', 'you won', 'you have won', 'winner', 'prize', 'reward', 'lottery', 'lucky', 'free gift', 'claim your', 'giveaway'] },
+  payment: { points: 10, severity: 'medium', words: ['ادفع', 'دفع الرسوم', 'رسوم', 'سداد', 'سدد', 'حول لي', 'حولي لي', 'حول المبلغ', 'حول مبلغ', 'تحويل', 'غرامه', 'مخالفه', 'الكفاله', 'الجمارك', 'جدد', 'تجديد الاشتراك', 'pay now', 'pay the', 'fee', 'transfer', 'fine', 'customs', 'bail', 'deposit', 'overdue', 'renew now', 'top up'] },
+  impersonation: { points: 8, severity: 'low', words: ['الشرطه', 'شرطه ابوظبي', 'شرطه دبي', 'من الشرطه', 'وزاره الداخليه', 'النيابه', 'الضابط', 'البنك', 'المصرف', 'موظف البنك', 'خدمه العملاء', 'خدمه عملاء', 'اتصالات', 'بريد الامارات', 'ارامكس', 'هييه الكهرباء', 'الهويه الاتحاديه', 'police', 'ministry', 'bank', 'aramex', 'dhl', 'emirates post', 'etisalat', 'dewa', 'officer', 'customer service', 'support team', 'whatsapp account'] },
+  parcel: { points: 6, severity: 'low', words: ['شحنتك', 'طردك', 'طرد', 'الشحنه', 'التوصيل', 'parcel', 'package', 'shipment', 'delivery', 'redelivery'] },
+  investment: { points: 18, floor: 40, severity: 'high', words: ['ارباح مضمونه', 'ربح مضمون', 'استثمر', 'فرصه استثماريه', 'العملات الرقميه', 'بدون مخاطره', 'دبل فلوسك', 'ضاعف فلوسك', 'ضاعف ارباحك', 'ضعف المبلغ', 'قرض بدون فوايد', 'قرض فوري', 'تمويل فوري', 'قرض بدون كفيل', 'guaranteed profit', 'guaranteed returns', 'double your money', 'invest', 'bitcoin', 'crypto', 'trading platform', 'passive income', 'loan approved', 'instant loan'] },
+  job: { points: 12, floor: 35, severity: 'medium', words: ['وظيفه من البيت', 'دخل يومي', 'يوميا من البيت', 'دوام جزيي', 'بدون خبره', 'رسوم التاشيره', 'راتب عالي', 'براتب عالي', 'part time job', 'earn aed', 'daily income', 'work from home', 'liking videos', 'no experience', 'easy money'] },
+  off_platform: { points: 6, severity: 'low', words: ['واتساب', 'الواتساب', 'تيليجرام', 'تلجرام', 'كلمنا', 'تواصل معنا', 'whatsapp', 'telegram', 'dm me', 'contact us'] },
+  new_number: { points: 14, floor: 40, severity: 'medium', words: ['رقمي الجديد', 'تلفوني خربان', 'تلفوني طاح', 'جوالي خربان', 'new number', 'my phone broke'] },
+  // Asks you to click/visit even when no link is visible yet (often sent in a follow-up message).
+  call_to_action: { points: 10, severity: 'medium', words: ['اضغط على الرابط', 'اضغط هنا', 'اضغط الرابط', 'ادخل على الرابط', 'الدخول للرابط', 'الدخول على الرابط', 'عبر الرابط', 'من خلال الرابط', 'افتح الرابط', 'سجل دخولك', 'click here', 'click the link', 'tap the link', 'tap here', 'login to', 'log in to', 'sign in to', 'verify now', 'open the link'] },
 };
 
 const PROTECTIVE = ['لا تشاركه', 'لا تشارك هذا', 'لا تشاركها', 'لا تعطه', 'never share', 'do not share', "don't share"].map((w) => normalizeText(w));
@@ -27,6 +30,8 @@ const PROTECTIVE = ['لا تشاركه', 'لا تشارك هذا', 'لا تشا�
 function compile(word) {
   const w = normalizeText(word);
   if (/^[a-z0-9 ]+$/.test(w)) return { w, re: new RegExp(`(^|[^a-z0-9])${w.replace(/ /g, '\\s+')}([^a-z0-9]|$)`) };
+  // Short Arabic words must stand alone (so "حظر" does not match inside a longer word).
+  if (w.length <= 4 && !w.includes(' ')) return { w, re: new RegExp(`(^|[^\\p{L}])(و|ف|ب|ل|ال|وال|بال)?${w}([^\\p{L}]|$)`, 'u') };
   return { w, re: null };
 }
 const COMPILED = Object.fromEntries(Object.entries(TACTICS).map(([k, v]) => [k, { ...v, words: v.words.map(compile) }]));
@@ -78,7 +83,7 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
 
   // 4) Dangerous combinations
   const officialClaim = tactics.impersonation;
-  if (officialClaim && (tactics.credentials || tactics.payment || links.length)) {
+  if (officialClaim && (tactics.credentials || tactics.payment || tactics.personal_data || tactics.threat || links.length)) {
     add('combo_impersonation', 15, 'high');
     rulePoints += 15;
   }
@@ -88,8 +93,14 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
   }
 
   let score = mlPoints + Math.min(rulePoints, 50) + Math.round(maxLink * 0.5) + Math.round(maxPhone * 0.35);
-  // A message with no tactics, no links/numbers and normal language stays low even if long.
-  if (!Object.keys(tactics).length && !links.length && !phones.length) score = Math.min(score, pred.probability >= 0.9 ? 45 : 25);
+  // With no tactic, link or number, only a confident language model can lift the score.
+  if (!Object.keys(tactics).length && !links.length && !phones.length && pred.probability < 0.6) score = Math.min(score, 25);
+  // Telling tactics set a minimum: asking for a code is suspicious however friendly the wording.
+  const floor = Object.keys(tactics).reduce((m, k) => Math.max(m, TACTICS[k].floor || 0), 0);
+  score = Math.max(score, floor);
+  // Two or more distinct tactics together are the shape of a scam script.
+  const strong = Object.keys(tactics).filter((k) => !['impersonation', 'parcel', 'off_platform'].includes(k)).length;
+  if (strong >= 2) score = Math.max(score, 55 + 8 * (strong - 2));
   // A verified scam indicator inside the message decides the verdict.
   const entities = [...links, ...phones];
   if (entities.some((e) => e.reasons.some((r) => r.code === 'registry_verified'))) {

@@ -54,6 +54,15 @@ const scam = [
   'هلا يمه هذا رقمي الجديد، تلفوني خربان، ممكن تحولين لي 2000 درهم ضروري الحين',
   'Hi mum this is my new number, my phone broke. Can you transfer me some money urgently, I will explain later',
   'Hello dear, I am a widow with a large inheritance and I need your help to transfer funds to your account',
+  'حسابك بينقفل اليوم اذا ما حدثت بياناتك، ادخل على الرابط',
+  'معك خدمة العملاء، نحتاج نتأكد من بياناتك، عطني الرقم اللي وصلك',
+  'تم تعليق حسابك بسبب نشاط غير معتاد، يرجى الدخول للرابط وتأكيد هويتك',
+  'قرض فوري بدون كفيل وبدون فوائد، تواصل معنا واتساب',
+  'دبل فلوسك خلال يومين مع منصتنا، ربح مضمون',
+  'ارسل صورة الهوية من الوجهين عشان نكمل التحويل',
+  'انتهت صلاحية بطاقتك، حدث بيانات البطاقة عبر الرابط',
+  'Your account is locked due to suspicious activity, login to verify now',
+  'Instant loan approved, no documents needed, contact us on WhatsApp',
 ];
 
 const ham = [
@@ -104,6 +113,12 @@ const ham = [
   'يمه بنمر عليكم الحين، تبين شي من الجمعية؟',
   'Hey bro, are you coming to the match tonight?',
   'Sure, I will call you when I get to the office',
+  'عطني رقمك الجديد عشان اسجله عندي',
+  'ارسل لي رقمك عشان اضيفك في القروب',
+  'الكود حق الواي فاي مكتوب على الراوتر',
+  'جدد جوازك قبل السفر لا تنسى',
+  'مبروك الترقية يا بطل، تستاهل',
+  'Congratulations on the new job, well deserved',
 ];
 
 module.exports = {

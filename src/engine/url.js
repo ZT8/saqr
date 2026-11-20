@@ -144,7 +144,7 @@ function analyzeUrl(raw, registry = () => null) {
   const authHit = AUTHORITIES.find((a) => tokens.includes(a) || (a.length >= 6 && host.includes(a)));
   if (authHit && !reasons.some((r) => r.code === 'gov_spoof')) add('authority_unofficial', 45, 'high', { name: authHit, domain: reg });
   const brandHit = BRANDS.find((b) => tokens.includes(b) || (b.length >= 5 && host.includes(b)));
-  if (brandHit) add('brand_unofficial', 40, 'high', { name: brandHit, domain: reg });
+  if (brandHit) add('brand_unofficial', 48, 'high', { name: brandHit, domain: reg });
 
   // Typosquatting / homoglyphs against trusted brands.
   if (!brandHit) {
@@ -170,7 +170,13 @@ function analyzeUrl(raw, registry = () => null) {
 
   const full = (host + url.pathname + url.search).toLowerCase();
   const words = PHISH_WORDS.filter((w) => new RegExp(`(^|[^a-z])${w}([^a-z]|$)`).test(full));
-  if (words.length) add('phish_words', Math.min(20, words.length * 7), words.length > 1 ? 'medium' : 'low', { terms: words.slice(0, 4) });
+  if (words.length) add('phish_words', Math.min(30, words.length * 11), words.length > 1 ? 'medium' : 'low', { terms: words.slice(0, 4) });
+  // A domain that names the UAE together with payment or account words imitates an official service.
+  if (tokens.includes('uae') || tokens.includes('ae') || /emirates|dubai|abudhabi/.test(host)) {
+    if (words.length && !reasons.some((r) => ['gov_spoof', 'authority_unofficial', 'brand_unofficial'].includes(r.code))) add('uae_service_lookalike', 22, 'high', { domain: reg });
+  }
+  // Every domain we cannot vouch for starts with a small caution, so an unknown link is never called "safe" outright.
+  add('unknown_domain', 10, 'info', { domain: reg });
 
   return finish(raw, { host, reg }, reasons, registry);
 }

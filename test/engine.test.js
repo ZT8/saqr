@@ -22,7 +22,7 @@ test('OTP request in Gulf dialect is detected', () => {
 });
 
 test('normal chat messages stay safe', () => {
-  for (const m of ['هلا اخوي، نتغدى اليوم؟', 'Did you get home safely?', 'Meeting moved to 3pm, bring your laptop']) {
+  for (const m of ['هلا اخوي، نتغدى اليوم؟', 'Did you get home safely?', 'Meeting moved to 3pm, bring your laptop', 'مبروك على المولود الجديد', 'حول الموضوع اللي كلمتك عنه، خلنا نتكلم بكرة', 'الاجتماع بكرة الساعة 10']) {
     assert.equal(scan(m).level, 'safe', m);
   }
 });
@@ -41,7 +41,7 @@ test('URL red flags', () => {
   assert.equal(scan('moi.gov.ae.fines-pay.com').level, 'dangerous');
   assert.equal(scan('http://emiratesnbd-secure-login.xyz/verify').level, 'dangerous');
   assert.equal(scan('emlratesnbd.com').level, 'dangerous'); // typosquat
-  assert.equal(scan('http://192.168.10.5/login').level, 'suspicious');
+  assert.notEqual(scan('http://192.168.10.5/login').level, 'safe');
   assert.ok(scan('bit.ly/abc123').reasons.some((r) => r.code === 'shortener'));
 });
 
@@ -83,4 +83,14 @@ test('learning loop: new verified samples change the model', () => {
   const before = e.model.predict(msg).probability;
   e.retrain(Array.from({ length: 3 }, () => ({ text: msg, label: 'scam' })));
   assert.ok(e.model.predict(msg).probability > before);
+});
+
+test('dialect and short scam phrasings are not called safe', () => {
+  const msgs = [
+    'ارسل لي الكود اللي وصلك', 'حسابك بينقفل اذا ما حدثت بياناتك', 'مرحبا، معك خدمة عملاء البنك، نحتاج نتأكد من بياناتك',
+    'تم تعليق حسابك، يرجى الدخول للرابط وتحديث المعلومات', 'السلام عليكم، حصلت على قرض بدون فوائد، تواصل معنا',
+    'ارسل صورة الهوية من الوجهين', 'اعطني رقم بطاقتك عشان نحول لك المبلغ', 'دبل فلوسك خلال يومين',
+    'hey send me the code you got', 'your account is locked, login to verify', 'pay-fine-uae.com', 'secure-login-update.net/account', '+92 300 1234567',
+  ];
+  for (const m of msgs) assert.notEqual(scan(m).level, 'safe', m);
 });

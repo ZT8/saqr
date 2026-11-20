@@ -201,8 +201,8 @@ On first start the database is empty, so Saqr loads **fictional demo data** (abo
 ```bash
 npm test
 ```
-17 tests cover:
-- **The engine:** Arabic and English scams, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, and the learning loop.
+18 tests cover:
+- **The engine:** Arabic and English scams, Gulf-dialect and short scam phrasings, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, and the learning loop.
 - **The report flow, end to end:** report → redaction → dedupe → admin login → verify → registry → scan → CSV → audit.
 - **Extortion cases:** files are ciphertext on disk, the integrity hash is checked, tracking works, admin notes reach the victim, and withdrawal erases the files.
 - **Family alerts:** only risky scans trigger an alert, the text is not shared without consent, the elder token can't read alerts, and unlinking works.

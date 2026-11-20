@@ -19,7 +19,9 @@
         <a href="#scan" data-tab="scan" data-i18n="nav_scan"></a>
         <a href="#report" data-tab="report" data-i18n="nav_report"></a>
         <a href="#registry" data-tab="registry" data-i18n="nav_registry"></a>
-        <a href="#tips" data-tab="tips" data-i18n="nav_tips"></a>
+        <a href="#train" data-tab="train" data-i18n="nav_train"></a>
+        <a href="/family" data-i18n="nav_family"></a>
+        <a href="#help" data-tab="help" class="nav-help" data-i18n="nav_help"></a>
       </nav>
       <div class="top-actions">
         <a class="link-quiet" href="/dashboard" data-i18n="nav_dashboard"></a>
@@ -132,10 +134,14 @@
       </div>
     </section>
 
-    <!-- TIPS -->
-    <section class="view" id="view-tips" hidden>
+    <!-- TRAINING -->
+    <section class="view" id="view-train" hidden>
       <div class="wrap">
-        <h1 data-i18n="tips_title"></h1>
+        <h1 data-i18n="train_title"></h1>
+        <p class="lead" data-i18n="train_sub"></p>
+        <div class="game card" id="game"></div>
+        <p class="muted small-note" data-i18n="train_local"></p>
+        <h2 class="section-h" data-i18n="tips_quick"></h2>
         <div class="tips">
           <article class="tip"><span class="tip-n">01</span><h2 data-i18n="tip1_t"></h2><p data-i18n="tip1_d"></p></article>
           <article class="tip"><span class="tip-n">02</span><h2 data-i18n="tip2_t"></h2><p data-i18n="tip2_d"></p></article>
@@ -143,6 +149,66 @@
           <article class="tip"><span class="tip-n">04</span><h2 data-i18n="tip4_t"></h2><p data-i18n="tip4_d"></p></article>
           <article class="tip"><span class="tip-n">05</span><h2 data-i18n="tip5_t"></h2><p data-i18n="tip5_d"></p></article>
           <article class="tip tip-alert"><span class="tip-n">06</span><h2 data-i18n="tip6_t"></h2><p data-i18n="tip6_d"></p></article>
+      </div>
+    </section>
+
+    <!-- EXTORTION HELP -->
+    <section class="view" id="view-help" hidden>
+      <button type="button" class="quick-exit" id="quickExit" data-i18n="quick_exit"></button>
+      <div class="wrap help">
+        <h1 data-i18n="help_title"></h1>
+        <p class="lead" data-i18n="help_sub"></p>
+        <ol class="help-steps">
+          <li><h2 data-i18n="hs1_t"></h2><p data-i18n="hs1_d"></p></li>
+          <li><h2 data-i18n="hs2_t"></h2><p data-i18n="hs2_d"></p></li>
+          <li><h2 data-i18n="hs3_t"></h2><p data-i18n="hs3_d"></p></li>
+          <li><h2 data-i18n="hs4_t"></h2><p data-i18n="hs4_d"></p></li>
+        </ol>
+
+        <div class="tabs big-tabs" role="tablist" id="caseTabs">
+          <button role="tab" data-ct="new" aria-selected="true" data-i18n="tab_new_case"></button>
+          <button role="tab" data-ct="track" aria-selected="false" data-i18n="tab_track_case"></button>
+        </div>
+
+        <form class="card form" id="caseForm" novalidate>
+          <div class="grid-2">
+            <label><span data-i18n="f_platform"></span><select name="platform" id="cPlatform" required></select></label>
+            <label><span data-i18n="f_demand"></span><select name="demand" id="cDemand" required></select></label>
+            <label><span data-i18n="f_paid"></span>
+              <select name="paid"><option value="no" data-i18n="no"></option><option value="yes" data-i18n="yes"></option></select>
+            </label>
+            <label><span data-i18n="f_emirate"></span><select name="emirate" id="cEmirate"></select></label>
+          </div>
+          <label><span data-i18n="f_case_desc"></span><textarea name="description" rows="4" maxlength="3000" dir="auto" required></textarea></label>
+          <label><span data-i18n="f_extorter"></span><input name="extorter" maxlength="200" dir="auto"></label>
+          <label><span data-i18n="f_contact"></span><input name="contact" maxlength="200" dir="auto"><small class="hint" data-i18n="f_contact_hint"></small></label>
+          <label><span data-i18n="f_files"></span><input type="file" id="cFiles" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"></label>
+          <ul class="file-list" id="cFileList"></ul>
+          <p class="hint" data-i18n="files_note"></p>
+          <p class="form-error" id="caseError" role="alert"></p>
+          <button class="btn-primary" type="submit" id="caseBtn" data-i18n="submit_case"></button>
+        </form>
+
+        <div class="card success" id="caseOk" hidden>
+          <h2 data-i18n="case_ok_t"></h2>
+          <div class="secret-grid">
+            <div><span data-i18n="case_ref"></span><code id="okRef" dir="ltr"></code></div>
+            <div><span data-i18n="case_code"></span><code id="okCode" dir="ltr"></code></div>
+          </div>
+          <button class="btn-ghost" type="button" id="copyCase" data-i18n="copy"></button>
+          <p class="note" data-i18n="case_ok_d"></p>
+        </div>
+
+        <div id="trackBox" hidden>
+          <form class="card form" id="trackForm">
+            <div class="grid-2">
+              <label><span data-i18n="case_ref"></span><input name="ref" required dir="ltr" autocomplete="off" placeholder="SQR-XXXXXX"></label>
+              <label><span data-i18n="case_code"></span><input name="code" required dir="ltr" autocomplete="off" placeholder="XXXX-XXXX"></label>
+            </div>
+            <p class="form-error" id="trackError" role="alert"></p>
+            <button class="btn-primary" type="submit" data-i18n="track"></button>
+          </form>
+          <div class="card" id="trackResult" hidden></div>
         </div>
       </div>
     </section>
@@ -152,5 +218,7 @@
 
   <script src="/js/i18n.js"></script>
   <script src="/js/app.js"></script>
+  <script src="/js/help.js"></script>
+  <script src="/js/train.js"></script>
 </body>
 </html>

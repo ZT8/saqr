@@ -43,6 +43,13 @@
 
       <div class="kpis" id="kpis"></div>
 
+      <section class="panel radar">
+        <div class="radar-head">
+          <div><h2 data-i18n="radar_title"></h2><p class="muted" data-i18n="radar_sub"></p></div>
+        </div>
+        <div class="campaigns" id="campaigns"></div>
+      </section>
+
       <div class="panels">
         <div class="panel"><h2 data-i18n="ch_trend"></h2><div id="trendChart"></div></div>
         <div class="panel"><h2 data-i18n="ch_scans"></h2><div id="scanChart"></div></div>
@@ -81,6 +88,22 @@
         </div>
         <div class="pager" id="qPager"></div>
       </div>
+
+      <section class="panel cases-panel">
+        <div class="queue-bar">
+          <h2 data-i18n="cases_title"></h2>
+          <div class="tabs" role="tablist" id="caseStatusTabs">
+            <button role="tab" data-cs="" aria-selected="true" data-i18n="all"></button>
+            <button role="tab" data-cs="new" aria-selected="false" data-i18n="cs_new"></button>
+            <button role="tab" data-cs="in_progress" aria-selected="false" data-i18n="cs_in_progress"></button>
+            <button role="tab" data-cs="closed" aria-selected="false" data-i18n="cs_closed"></button>
+          </div>
+        </div>
+        <div class="cases-grid">
+          <ul class="case-list" id="caseList"></ul>
+          <div class="case-detail" id="caseDetail"></div>
+        </div>
+      </section>
 
       <div class="side-grid">
         <div class="panel model">

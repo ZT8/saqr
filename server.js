@@ -3,10 +3,10 @@ const config = require('./src/config');
 const { createApp } = require('./src/app');
 const { seedDemo } = require('./src/seed');
 
-const { app, db, svc } = createApp(config);
+const { app, db, svc, cases } = createApp(config);
 
 if (config.demoData && db.prepare('SELECT COUNT(*) c FROM reports').get().c === 0) {
-  const n = seedDemo(svc, db);
+  const n = seedDemo(svc, db, { cases });
   svc.retrain();
   console.log(`[saqr] demo data loaded (${n} reports). Set DEMO_DATA=false to start empty.`);
 }

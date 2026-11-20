@@ -6,12 +6,22 @@ const { openDb } = require('./db');
 const { Engine } = require('./engine');
 const { makeServices, CATEGORIES, CHANNELS, EMIRATES } = require('./services');
 const { rateLimit, hashPassword, verifyPassword, parseCookies, sessionStore } = require('./security');
+const { makeVault } = require('./vault');
+const { makeCases, PLATFORMS, DEMANDS } = require('./cases');
+const { makeFamily } = require('./family');
+const { makeCampaigns } = require('./campaigns');
+const { makeTraining } = require('./training');
+const QRCode = require('qrcode');
 
 function createApp(config) {
   const db = openDb(config.dbPath);
   const engine = new Engine();
   const svc = makeServices(db, engine, config);
   svc.retrain();
+  const cases = makeCases(db, makeVault(config));
+  const family = makeFamily(db);
+  const campaigns = makeCampaigns(db);
+  const training = makeTraining(engine, svc.registry);
 
   // Ensure the admin account exists (credentials from env).
   if (!db.prepare('SELECT 1 FROM admins WHERE username = ?').get(config.adminUser)) {
@@ -27,11 +37,14 @@ function createApp(config) {
     contentSecurityPolicy: { directives: { 'default-src': ["'self'"], 'img-src': ["'self'", 'data:'], 'style-src': ["'self'"], 'script-src': ["'self'"] } },
     crossOriginEmbedderPolicy: false,
   }));
-  app.use(express.json({ limit: '20kb' }));
+  // Evidence uploads (base64 JSON) get a larger body limit; everything else stays small.
+  const bigJson = express.json({ limit: '40mb' });
+  const smallJson = express.json({ limit: '20kb' });
+  app.use((req, res, next) => (req.path.startsWith('/api/help/case') ? bigJson : smallJson)(req, res, next));
 
-  const wrap = (fn) => (req, res) => {
+  const wrap = (fn) => async (req, res) => {
     try {
-      const out = fn(req, res);
+      const out = await fn(req, res);
       if (out !== undefined) res.json(out);
     } catch (e) {
       if (e.status) return res.status(e.status).json({ error: e.code || e.message });
@@ -42,7 +55,7 @@ function createApp(config) {
 
   // ---------- Public API ----------
   const api = express.Router();
-  api.get('/meta', (req, res) => res.json({ categories: CATEGORIES, channels: CHANNELS, emirates: EMIRATES }));
+  api.get('/meta', (req, res) => res.json({ categories: CATEGORIES, channels: CHANNELS, emirates: EMIRATES, platforms: PLATFORMS, demands: DEMANDS }));
   api.get('/stats', wrap(() => svc.publicStats()));
 
   api.post('/scan', rateLimit({ windowMs: 60e3, max: 60 }), wrap((req) => {
@@ -50,8 +63,41 @@ function createApp(config) {
     if (!['auto', 'message', 'url', 'phone'].includes(type)) throw new svc.ValidationError('invalid_type');
     if (typeof value !== 'string' || !value.trim()) throw new svc.ValidationError('empty_value');
     if (value.length > 5000) throw new svc.ValidationError('too_long');
-    return svc.scan(type, value);
+    const result = svc.scan(type, value);
+    // Elderly mode: risky results on a paired device alert the family guardian.
+    const elder = req.get('X-Elder-Token');
+    if (elder) result.familyAlerted = family.onElderScan(elder, result, { shareText: req.body.share === true, text: value });
+    return result;
   }));
+
+  // ----- Extortion help (anonymous, encrypted) -----
+  api.post('/help/case', rateLimit({ windowMs: 60 * 60e3, max: 5 }), wrap((req, res) => {
+    res.status(201);
+    return cases.create(req.body || {});
+  }));
+  const caseLimit = rateLimit({ windowMs: 10 * 60e3, max: 20 });
+  api.post('/help/case/status', caseLimit, wrap((req) => cases.status(req.body?.ref, req.body?.code)));
+  api.post('/help/case/evidence', caseLimit, wrap((req) => cases.addEvidence(req.body?.ref, req.body?.code, req.body?.files)));
+  api.post('/help/case/withdraw', caseLimit, wrap((req) => cases.withdraw(req.body?.ref, req.body?.code)));
+
+  // ----- Family protection -----
+  api.post('/family', rateLimit({ windowMs: 60 * 60e3, max: 10 }), wrap(async (req, res) => {
+    const out = family.create(req.body?.label);
+    const origin = config.publicUrl || `${req.protocol}://${req.get('host')}`;
+    out.elderLink = `${origin}/elder#pair=${out.elderToken}`;
+    out.qrSvg = await QRCode.toString(out.elderLink, { type: 'svg', margin: 1, color: { dark: '#12222d', light: '#ffffff' } });
+    res.status(201);
+    return out;
+  }));
+  const famLimit = rateLimit({ windowMs: 60e3, max: 30 });
+  api.get('/family/alerts', famLimit, wrap((req) => family.alerts(req.get('X-Guardian-Token'))));
+  api.post('/family/seen', famLimit, wrap((req) => family.markSeen(req.get('X-Guardian-Token'))));
+  api.delete('/family', famLimit, wrap((req) => family.remove(req.get('X-Guardian-Token'))));
+  api.get('/family/elder', famLimit, wrap((req) => family.elderInfo(req.get('X-Elder-Token'))));
+  api.post('/family/help', famLimit, wrap((req) => family.help(req.get('X-Elder-Token'))));
+
+  // ----- Awareness training -----
+  api.get('/training', wrap((req) => training.questions(req.query.lang === 'en' ? 'en' : 'ar', 8)));
 
   api.post('/report', rateLimit({ windowMs: 10 * 60e3, max: 10 }), wrap((req, res) => {
     const out = svc.createReport(req.body || {}, { ip: req.ip });
@@ -108,6 +154,37 @@ function createApp(config) {
     if (out.learned) out.model = svc.retrain();
     return out;
   }));
+  admin.get('/campaigns', requireAdmin, wrap(() => campaigns.compute()));
+  admin.post('/campaigns/verify', requireAdmin, wrap((req) => {
+    const ids = Array.isArray(req.body?.indicatorIds) ? req.body.indicatorIds.map(Number).filter(Number.isInteger).slice(0, 200) : [];
+    let learned = false, n = 0;
+    for (const id of ids) {
+      const row = db.prepare("SELECT status FROM indicators WHERE id = ?").get(id);
+      if (!row || row.status !== 'pending') continue;
+      learned = svc.setStatus(id, 'verified', req.admin).learned || learned;
+      n++;
+    }
+    return { verified: n, model: learned ? svc.retrain() : undefined };
+  }));
+  admin.get('/cases', requireAdmin, wrap((req) => ({ counts: cases.counts(), items: cases.list({ status: String(req.query.status || '') }) })));
+  admin.get('/cases/:id', requireAdmin, wrap((req) => cases.get(Number(req.params.id), req.admin)));
+  admin.post('/cases/:id', requireAdmin, wrap((req) => cases.update(Number(req.params.id), { status: req.body?.status, note: req.body?.note }, req.admin)));
+  admin.get('/cases/:id/evidence/:eid', requireAdmin, (req, res) => {
+    try {
+      const f = cases.evidenceFile(Number(req.params.id), Number(req.params.eid), req.admin);
+      res.set({
+        'Content-Type': f.mime,
+        'Content-Disposition': `inline; filename="evidence-${req.params.eid}"`,
+        'Content-Security-Policy': "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'",
+        'Cache-Control': 'no-store',
+        'X-Evidence-SHA256': f.sha256,
+        'X-Evidence-Integrity': f.intact ? 'ok' : 'mismatch',
+      });
+      res.send(f.buf);
+    } catch (e) {
+      res.status(e.status || 500).json({ error: e.code || 'server_error' });
+    }
+  });
   admin.get('/audit', requireAdmin, wrap(() => db.prepare('SELECT * FROM audit_log ORDER BY id DESC LIMIT 50').all()));
   admin.get('/export.csv', requireAdmin, (req, res) => {
     const status = ['verified', 'pending', 'rejected'].includes(req.query.status) ? req.query.status : 'verified';
@@ -125,7 +202,7 @@ function createApp(config) {
   app.use('/fonts', express.static(path.join(__dirname, '..', 'node_modules', '@fontsource', 'ibm-plex-sans-arabic', 'files'), { maxAge: '30d' }));
   app.use(express.static(path.join(__dirname, '..', 'public'), { extensions: ['html'] }));
 
-  return { app, db, engine, svc };
+  return { app, db, engine, svc, cases, family, campaigns };
 }
 
 module.exports = { createApp };

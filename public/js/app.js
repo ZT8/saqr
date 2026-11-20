@@ -18,12 +18,14 @@ let regPage = 1;
 
 /* ---------- Routing ---------- */
 function route() {
-  const tab = (location.hash || '#scan').slice(1);
-  const valid = ['scan', 'report', 'registry', 'tips'].includes(tab) ? tab : 'scan';
+  let tab = (location.hash || '#scan').slice(1);
+  if (tab === 'tips') tab = 'train';
+  const valid = ['scan', 'report', 'registry', 'train', 'help'].includes(tab) ? tab : 'scan';
   $$('.view').forEach((v) => { v.hidden = v.id !== 'view-' + valid; });
   $$('.nav a').forEach((a) => a.setAttribute('aria-current', a.dataset.tab === valid ? 'page' : 'false'));
   if (valid === 'registry') loadRegistry();
   if (valid === 'scan') loadStats();
+  if (valid === 'train' && typeof startTraining === 'function' && !TRAIN.questions.length) startTraining();
   window.scrollTo({ top: 0 });
 }
 
@@ -204,6 +206,10 @@ function relabel() {
   fillSelect($('#rCategory'), META.categories, 'cat_');
   fillSelect($('#rChannel'), META.channels, 'ch_');
   fillSelect($('#rEmirate'), META.emirates, 'em_', { optional: true });
+  fillSelect($('#cPlatform'), META.platforms || [], 'pl_');
+  fillSelect($('#cDemand'), META.demands || [], 'dm_');
+  fillSelect($('#cEmirate'), META.emirates, 'em_', { optional: true });
+  if (typeof renderGame === 'function') renderGame();
   syncReportType();
   renderResult();
   if (!$('#view-registry').hidden) loadRegistry();

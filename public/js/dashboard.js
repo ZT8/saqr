@@ -109,6 +109,7 @@ function renderStats() {
     kpi('k_verified', fmtNum(s.verified)),
     kpi('k_week', fmtNum(s.last7), `<span class="${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '▲' : '▼'} ${fmtNum(Math.abs(delta))}%</span> ${esc(t('vs_prev'))}`),
     kpi('k_scans', fmtNum(s.scans), `${esc(t('k_dangerous'))}: ${fmtNum(s.dangerousScans)}`),
+    kpi('k_cases', fmtNum(STATS.openCases || 0), '', STATS.openCases ? 'alert' : ''),
     kpi('k_lost', esc(t('amount', { n: fmtNum(Math.round(s.amountLost)) }))),
   ].join('');
   $('#trendChart').innerHTML = barChart(STATS.daily, 'reports');
@@ -183,9 +184,129 @@ async function loadAudit() {
   $('#audit').innerHTML = rows.map((r) => `<li><span><b>${esc(r.admin)}</b> · <code dir="ltr">${esc(r.action)}</code> ${r.target ? `<code dir="ltr">${esc(r.target.slice(0, 40))}</code>` : ''}</span><span class="muted">${esc(fmtDate(r.created_at))}</span></li>`).join('');
 }
 
+/* ---------- Campaign radar ---------- */
+let CAMPS = null;
+const openCamps = new Set();
+
+function spark(arr) {
+  const W = 140, H = 34, max = Math.max(1, ...arr);
+  const rtl = LANG === 'ar';
+  const bw = W / arr.length;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true">${arr.map((v, i) => {
+    const h = Math.max(1.5, (v / max) * (H - 2));
+    const x = rtl ? W - (i + 1) * bw : i * bw;
+    return `<rect x="${(x + 1).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="1" class="${i >= arr.length - 2 ? 'hot' : ''}"/>`;
+  }).join('')}</svg>`;
+}
+
+function renderCampaigns() {
+  const el = $('#campaigns');
+  if (!CAMPS) return;
+  const list = CAMPS.slice(0, 6);
+  if (!list.length) { el.innerHTML = `<p class="muted">${esc(t('camp_none'))}</p>`; return; }
+  el.innerHTML = list.map((c) => {
+    const cat = c.categories[0]?.key;
+    const head = c.domains[0] || c.indicators.find((i) => i.value)?.value || '';
+    const pending = c.indicators.filter((i) => i.status === 'pending');
+    const isOpen = openCamps.has(c.id);
+    return `<article class="camp ${c.spiking ? 'spiking' : ''}">
+      <div class="camp-top">
+        <div>
+          ${c.spiking ? `<span class="spike-badge">▲ ${esc(t('spiking'))}</span>` : ''}
+          <h3>${esc(t('cat_' + cat))}${head ? ` · <code dir="ltr">${esc(head)}</code>` : ''}</h3>
+          <p class="muted">${esc(t('camp_reports', { n: fmtNum(c.reports) }))} · ${esc(t('camp_48', { a: fmtNum(c.last48), b: fmtNum(c.prev48) }))}${c.amountLost ? ' · ' + esc(t('amount', { n: fmtNum(Math.round(c.amountLost)) })) : ''}</p>
+        </div>
+        <div class="camp-spark" title="${esc(t('camp_14d'))}">${spark(c.daily)}</div>
+      </div>
+      <div class="camp-meta">
+        ${c.domains.length ? `<span>${esc(t('camp_domains'))}: ${c.domains.map((d) => `<code dir="ltr">${esc(d)}</code>`).join(' ')}</span>` : ''}
+        <span>${c.emirates.map((e) => esc(t('em_' + e.key)) + ' ' + fmtNum(e.n)).join(' · ')}</span>
+        <span>${c.channels.map((e) => esc(t('ch_' + e.key))).join(' · ')}</span>
+      </div>
+      ${isOpen ? `<div class="camp-detail">
+        ${c.sample ? `<p class="reg-sample" dir="auto"><strong>${esc(t('camp_sample'))}:</strong> ${esc(c.sample)}</p>` : ''}
+        <ul class="camp-inds">${c.indicators.map((i) => `<li><span class="badge">${esc(t('t_' + i.type))}</span> ${i.value ? `<code dir="ltr">${esc(i.value)}</code>` : '<span class="muted">—</span>'} <span class="st st-${esc(i.status)}">${esc(t('tab_' + i.status))}</span> <span class="muted">${esc(t('reports_n', { n: fmtNum(i.reports) }))}</span></li>`).join('')}</ul>
+      </div>` : ''}
+      <div class="row-actions">
+        ${pending.length ? `<button class="btn-danger btn-sm" data-camp-verify="${esc(c.id)}">${esc(t('camp_verify_all', { n: fmtNum(pending.length) }))}</button>` : `<span class="muted">✓ ${esc(t('camp_all_verified'))}</span>`}
+        <button class="btn-ghost btn-sm" data-camp-toggle="${esc(c.id)}" aria-expanded="${isOpen}">${esc(t('camp_indicators'))} (${fmtNum(c.indicators.length)})</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function loadCampaigns() {
+  CAMPS = await api('/api/admin/campaigns');
+  renderCampaigns();
+}
+
+/* ---------- Extortion cases ---------- */
+let CASES = null, CASE_FILTER = '', CASE = null;
+
+function renderCases() {
+  if (!CASES) return;
+  $('#caseList').innerHTML = CASES.items.length ? CASES.items.map((c) => `
+    <li><button type="button" class="case-row ${CASE && CASE.id === c.id ? 'active' : ''}" data-case="${c.id}">
+      <code dir="ltr">${esc(c.ref)}</code>
+      <span class="case-st cs-${esc(c.status)}">${esc(t('cs_' + c.status))}</span>
+      <span class="muted">${esc(t('pl_' + c.platform))} · ${esc(t('dm_' + c.demand))} · 📎 ${fmtNum(c.evidence)}</span>
+      <span class="muted">${esc(fmtDate(c.created_at))}</span>
+    </button></li>`).join('') : `<li class="muted">${esc(t('no_items'))}</li>`;
+  renderCase();
+}
+
+function renderCase() {
+  const el = $('#caseDetail');
+  if (!CASE) { el.innerHTML = `<p class="muted">${esc(t('case_details'))} ←</p>`; return; }
+  const c = CASE;
+  el.innerHTML = `
+    <div class="case-head"><code dir="ltr">${esc(c.ref)}</code> <span class="case-st cs-${esc(c.status)}">${esc(t('cs_' + c.status))}</span></div>
+    <dl class="track-dl">
+      <dt>${esc(t('f_platform'))}</dt><dd>${esc(t('pl_' + c.platform))}</dd>
+      <dt>${esc(t('f_demand'))}</dt><dd>${esc(t('dm_' + c.demand))}</dd>
+      <dt>${esc(t('case_paid'))}</dt><dd>${esc(c.paid ? t('yes') : t('no'))}</dd>
+      <dt>${esc(t('f_emirate'))}</dt><dd>${esc(t('em_' + (c.emirate || 'unknown')))}</dd>
+      <dt>${esc(t('case_extorter'))}</dt><dd dir="auto">${esc(c.details.extorter || t('none_given'))}</dd>
+      <dt>${esc(t('case_contact'))}</dt><dd dir="auto">${esc(c.details.contact || t('none_given'))}</dd>
+    </dl>
+    <h3>${esc(t('case_desc'))}</h3><p class="reg-sample" dir="auto">${esc(c.details.description)}</p>
+    <h3>${esc(t('case_files'))}</h3>
+    <ul class="evidence">${c.evidence.map((e) => `<li><span dir="auto">${esc(e.name)}</span> <span class="muted">${esc(e.mime)} · ${(e.size / 1024).toFixed(0)} KB</span>
+      <code dir="ltr" title="SHA-256">${esc(e.sha256.slice(0, 20))}…</code>
+      <a class="btn-ghost btn-sm" target="_blank" rel="noopener" href="/api/admin/cases/${c.id}/evidence/${e.id}">${esc(t('case_view'))}</a></li>`).join('') || `<li class="muted">${esc(t('no_items'))}</li>`}</ul>
+    <form id="caseUpdate" class="case-form">
+      <select name="status">${['new', 'in_progress', 'closed'].map((s) => `<option value="${s}" ${s === c.status ? 'selected' : ''}>${esc(t('cs_' + s))}</option>`).join('')}</select>
+      <textarea name="note" rows="2" dir="auto" placeholder="${esc(t('case_note_ph'))}">${esc(c.public_note || '')}</textarea>
+      <button class="btn-primary btn-sm" type="submit">${esc(t('case_save'))}</button>
+    </form>
+    <h3>${esc(t('case_custody'))}</h3>
+    <ul class="audit">${c.custody.map((l) => `<li><span><b>${esc(l.actor)}</b> · <code dir="ltr">${esc(l.action)}</code> ${l.detail ? `<code dir="ltr">${esc(l.detail.slice(0, 48))}</code>` : ''}</span><span class="muted">${esc(fmtDate(l.created_at))}</span></li>`).join('')}</ul>`;
+  $('#caseUpdate').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target).entries());
+    try {
+      await api(`/api/admin/cases/${c.id}`, { method: 'POST', body: f });
+      toast(t('case_saved'));
+      await openCase(c.id);
+      await loadCases();
+      loadStats();
+    } catch (ex) { toast(t('e_' + ex.code)); }
+  });
+}
+
+async function loadCases() {
+  CASES = await api('/api/admin/cases?status=' + CASE_FILTER);
+  renderCases();
+}
+
+async function openCase(id) {
+  CASE = await api('/api/admin/cases/' + id);
+  renderCases();
+}
+
 async function loadAll() {
   try {
-    await Promise.all([loadStats(), loadQueue(), loadAudit()]);
+    await Promise.all([loadStats(), loadQueue(), loadAudit(), loadCampaigns(), loadCases()]);
   } catch (ex) {
     if (ex.status === 401) location.reload();
   }
@@ -204,7 +325,29 @@ async function act(id, status) {
 document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   $('#langBtn').addEventListener('click', toggleLang);
-  document.addEventListener('langchange', () => { renderStats(); renderQueue(); loadAudit().catch(() => {}); });
+  document.addEventListener('langchange', () => { renderStats(); renderQueue(); renderCampaigns(); renderCases(); loadAudit().catch(() => {}); });
+  $('#campaigns').addEventListener('click', async (e) => {
+    const tg = e.target.closest('[data-camp-toggle]');
+    if (tg) { const id = tg.dataset.campToggle; openCamps.has(id) ? openCamps.delete(id) : openCamps.add(id); return renderCampaigns(); }
+    const v = e.target.closest('[data-camp-verify]');
+    if (v) {
+      const c = CAMPS.find((x) => x.id === v.dataset.campVerify);
+      v.disabled = true;
+      try {
+        const out = await api('/api/admin/campaigns/verify', { method: 'POST', body: { indicatorIds: c.indicators.filter((i) => i.status === 'pending').map((i) => i.id) } });
+        toast(t('camp_verified_toast', { n: fmtNum(out.verified) }));
+        await loadAll();
+      } catch (ex) { toast(t('e_' + ex.code)); v.disabled = false; }
+    }
+  });
+  $('#caseStatusTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cs]');
+    if (!b) return;
+    CASE_FILTER = b.dataset.cs;
+    $$('#caseStatusTabs button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    loadCases();
+  });
+  $('#caseList').addEventListener('click', (e) => { const b = e.target.closest('[data-case]'); if (b) openCase(Number(b.dataset.case)); });
   $('#loginForm').addEventListener('submit', login);
   $('#logoutBtn').addEventListener('click', logout);
   $('#statusTabs').addEventListener('click', (e) => {

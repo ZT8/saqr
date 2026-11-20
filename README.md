@@ -2,7 +2,7 @@
 
 > **عين الصقر على الاحتيال** — *Eyes sharp on fraud.*
 
-Saqr is a privacy-first community platform that protects people in the UAE from phone, SMS, WhatsApp and online fraud. Anyone can **scan** a suspicious message, link or phone number and get an explainable verdict in under a second. They can **report** scams anonymously, and the reports build a **community registry** of verified fraud indicators. The relevant authorities get a **live dashboard** to review reports, verify indicators, spot trends and export block lists. Every decision they make also **retrains the detection model**.
+Saqr is a privacy-first community platform that protects people in the UAE from phone, SMS, WhatsApp and online fraud, and from online extortion. Anyone can **scan** a suspicious message, link or phone number and get an explainable verdict in under a second. They can **report** scams anonymously, and the reports build a **community registry** of verified fraud indicators. The relevant authorities get a **live dashboard** to review reports, verify indicators, spot trends and export block lists. Every decision they make also **retrains the detection model**.
 
 The interface is Arabic-first (RTL) with an English toggle, and everything runs locally. No external AI service is used, and Saqr never opens a link a user submits.
 
@@ -25,6 +25,10 @@ Fraud in the UAE mostly arrives as a short message or a call that impersonates s
 | **Report** | Anonymous, with no account. Victim PII (cards, Emirates ID, IBAN, emails, OTP codes, passport numbers) is removed automatically before anything is stored. One report about a message also registers the links and numbers inside it. |
 | **Community registry** | Public, searchable list of indicators. Verified ones appear in full. Unverified ones appear only after several independent reports, and then masked, so the registry can't be abused to defame a number or domain. |
 | **Authority dashboard** | KPIs, a 30-day trend, and breakdowns by fraud type, emirate and channel. A review queue lets authorities verify, reject or reset indicators. It also includes a CSV export of verified indicators (for telecoms and banks to block), an audit log of every admin action, and model status. |
+| **Campaign radar** | Groups individual reports into fraud *campaigns*. Reports are linked when they share a link or number, use the same domain, or follow the same message template (Jaccard similarity on normalised words, so different links and amounts still match). Shows reports in the last 48h against the 48h before, flags spiking campaigns, and lets an officer verify every indicator of a campaign in one click. |
+| **Extortion help (confidential)** | A guided page for blackmail victims: what to do and what not to do, plus an anonymous case with evidence upload. Evidence is **encrypted at rest (AES-256-GCM)** and fingerprinted with **SHA-256** on receipt. A **chain-of-custody log** records every view, and integrity is re-checked each time an officer opens a file. The victim tracks the case with a reference and a secret code, can add evidence, and can **withdraw and erase** everything. A *quick exit* button leaves the page instantly. |
+| **Family protection (elderly mode)** | A guardian creates a link or QR code for a parent's phone. The parent gets a very simple page with large text and one button, and the verdict is read aloud (Web Speech API). Risky scans and an "I need help" button send alerts to the guardian, with browser notifications. The message text is shared only if the parent ticks a box. |
+| **Awareness training** | A "Scam or safe?" game with points, streaks and badges (Novice, Guardian, Falcon). Each answer is explained by the live detection engine, so people learn the same red flags Saqr checks. Scores stay on the device. |
 | **Learning loop** | Verifying or rejecting a reported message adds it to the training set and retrains the classifier immediately. The model gets better as the community reports. |
 
 ## 3. Architecture
@@ -35,6 +39,9 @@ flowchart LR
   U -->|POST /api/report| API
   U -->|GET /api/registry| API
   A[Authority browser] -->|/api/admin/* session cookie| API
+  V[Victim — confidential help] -->|/api/help/case ref + code| API
+  G[Guardian] <-->|/api/family alerts| API
+  E[Elder device] -->|scan / help + elder token| API
   subgraph Saqr server — Node.js / Express
     API[REST API<br/>validation · rate limits · CSP] --> ENG
     API --> SVC[Services<br/>reports · registry · stats · review]
@@ -46,7 +53,14 @@ flowchart LR
       PH[Phone analyser<br/>E.164 + UAE plan]
       RED[PII redactor]
     end
-    SVC --> DB[(SQLite<br/>indicators · reports<br/>scan_stats · audit_log<br/>learned_samples)]
+    API --> CASES[Cases + vault<br/>AES-256-GCM · SHA-256 · custody]
+    API --> FAM[Family alerts]
+    API --> RADAR[Campaign radar<br/>union-find clustering]
+    CASES --> VAULT[(Encrypted evidence files)]
+    SVC --> DB[(SQLite<br/>indicators · reports · cases<br/>scan_stats · audit_log<br/>learned_samples · family)]
+    CASES --> DB
+    FAM --> DB
+    RADAR --> DB
     DB -. verified samples .-> NB
   end
 ```
@@ -63,6 +77,11 @@ src/
   db.js                SQLite schema
   security.js          rate limiter, scrypt passwords, sessions
   seed.js              fictional demo data
+  cases.js             extortion cases: encrypted details, evidence, custody log
+  vault.js             AES-256-GCM encryption at rest
+  family.js            guardian/elder pairing and alerts
+  campaigns.js         campaign radar (clustering + spike detection)
+  training.js          awareness game question bank
   engine/
     index.js           Engine: type detection, scoring, levels, advice
     classifier.js      Naive Bayes
@@ -72,7 +91,11 @@ src/
     phone.js           phone analyser
     redact.js          PII redaction
     normalize.js       Arabic/digit normalisation, tokeniser, extractors
-public/                vanilla HTML/CSS/JS frontend (citizen site + dashboard)
+public/                vanilla HTML/CSS/JS frontend
+  index.html           citizen site: scan, report, registry, training, extortion help
+  family.html          guardian page (alerts)
+  elder.html           simplified page for elderly relatives
+  dashboard.html       authority dashboard
 test/                  node:test suites (engine + API end-to-end)
 ```
 
@@ -100,6 +123,9 @@ Privacy is part of the architecture, not an add-on:
 6. **Authority accountability.** Every login, verification, rejection and export is written to an audit log.
 7. **Data minimisation.** The location field is the emirate only, and it is optional. The amount lost is optional.
 8. **Local AI.** No message content is sent to third-party AI or cloud services.
+9. **Extortion cases.** There is no identity unless the victim chooses to leave a contact. Details and evidence are encrypted with AES-256-GCM. The key lives outside the database (`EVIDENCE_KEY` or `data/evidence.key`). The access code is stored only as a scrypt hash. The victim can withdraw a case, which deletes the database rows and the encrypted files.
+10. **Evidence integrity.** Each file's SHA-256 is recorded on receipt and checked again every time it is opened. The result (`integrity:ok` or `MISMATCH`) is written to the case's chain-of-custody log.
+11. **Family mode.** Bearer tokens are stored only as SHA-256 hashes. The pairing token travels in the URL fragment, so it never reaches server logs. Guardians see only the verdict and tactics unless the elder chooses to share the text. Unlinking deletes the circle and all of its alerts.
 
 ## 6. Trade-offs, what we left out, and next steps
 
@@ -111,13 +137,15 @@ Privacy is part of the architecture, not an add-on:
 
 **Left out (time constraints)**
 - WhatsApp or SMS bot and a browser extension for scanning where the message arrives. The `/api/scan` endpoint is ready for both.
+- Push notifications to the guardian when their page is closed (Web Push or SMS). Today alerts arrive while the guardian page is open.
+- Evidence screenshots: automatic blurring of intimate content for reviewers, and OCR to pull the extorter's handle out of the image.
 - OCR for screenshots of messages.
 - Integration with official threat feeds, telecom block lists, or domain registration-age (WHOIS) data.
 - Multi-role authority accounts (reviewer and supervisor), 2FA, and case management.
 
 **With more time we would**
 - Fine-tune a small multilingual transformer (for example, an Arabic BERT variant) and keep Naive Bayes as a fast first pass and an explainer.
-- Add campaign clustering to group reports by shared links, numbers and message templates, and alert authorities when a campaign spikes.
+- Push campaign-spike alerts to the on-duty officer, and share campaign packages with telecoms and banks automatically.
 - Move to PostgreSQL + Redis, containerise, and add OpenAPI docs.
 - Run an evaluation on a larger labelled dataset and publish precision and recall per fraud type.
 
@@ -138,6 +166,7 @@ npm start
 
 Then open:
 - Citizen site: **http://localhost:3000**
+- Family protection: **http://localhost:3000/family** (create a link, then open it in another browser or on a phone)
 - Authority dashboard: **http://localhost:3000/dashboard**
   - demo login: `admin` / `saqr-demo-2026` (set `ADMIN_PASS` in `.env` to change it)
 
@@ -149,7 +178,13 @@ On first start the database is empty, so Saqr loads **fictional demo data** (abo
 ```bash
 npm test
 ```
-13 tests cover the engine (Arabic and English scams, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, learning loop) and an end-to-end API flow (report → redaction → dedupe → admin login → verify → registry → scan → CSV → audit).
+17 tests cover:
+- **The engine:** Arabic and English scams, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, and the learning loop.
+- **The report flow, end to end:** report → redaction → dedupe → admin login → verify → registry → scan → CSV → audit.
+- **Extortion cases:** files are ciphertext on disk, the integrity hash is checked, tracking works, admin notes reach the victim, and withdrawal erases the files.
+- **Family alerts:** only risky scans trigger an alert, the text is not shared without consent, the elder token can't read alerts, and unlinking works.
+- **Campaign radar:** template variants across three domains form one campaign, the spike is detected, and bulk verify works.
+- **Training:** each answer matches the engine's verdict.
 
 ### Try it
 On the Scan page, use the example chips, or paste any of these:
@@ -167,7 +202,13 @@ On the Scan page, use the example chips, or paste any of these:
 | GET | `/api/registry` | `?q=&type=&page=` |
 | GET | `/api/stats` | public counters |
 | GET | `/api/meta` | categories, channels and emirates |
-| * | `/api/admin/*` | `login`, `logout`, `me`, `stats`, `indicators`, `indicators/:id/status`, `audit`, `export.csv` |
+| POST | `/api/help/case` | `{ platform, demand, paid, description, extorter?, contact?, emirate?, files: [{name, data(base64)}] }` → `{ ref, code }` |
+| POST | `/api/help/case/status`, `/evidence`, `/withdraw` | `{ ref, code, files? }` |
+| POST | `/api/family` | `{ label }` → guardian and elder tokens, link and QR SVG |
+| GET/POST/DELETE | `/api/family/alerts`, `/seen`, `/api/family` | header `X-Guardian-Token` |
+| GET/POST | `/api/family/elder`, `/api/family/help` | header `X-Elder-Token` (also on `/api/scan`) |
+| GET | `/api/training` | `?lang=ar|en` |
+| * | `/api/admin/*` | `login`, `logout`, `me`, `stats`, `indicators`, `indicators/:id/status`, `campaigns`, `campaigns/verify`, `cases`, `cases/:id`, `cases/:id/evidence/:eid`, `audit`, `export.csv` |
 
 ## 8. Team
 

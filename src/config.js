@@ -23,4 +23,8 @@ module.exports = {
   sessionHours: Number(process.env.SESSION_HOURS || 8),
   // A pending indicator is shown (masked) in the public registry after this many independent reports.
   publicThreshold: Number(process.env.PUBLIC_THRESHOLD || 3),
+  // Evidence vault: encrypted files live here. Key: EVIDENCE_KEY (64 hex chars) or generated once into data/evidence.key
+  evidenceDir: process.env.EVIDENCE_DIR || path.join(__dirname, '..', 'data', 'evidence'),
+  evidenceKey: process.env.EVIDENCE_KEY || '',
+  publicUrl: process.env.PUBLIC_URL || '',
 };

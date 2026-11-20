@@ -32,7 +32,37 @@ const SCAMS = [
 ];
 const EMIRATE_W = [['abu_dhabi', 28], ['dubai', 34], ['sharjah', 16], ['ajman', 8], ['ras_al_khaimah', 6], ['fujairah', 4], ['umm_al_quwain', 2], [null, 6]];
 
-function seedDemo(svc, db) {
+// A tiny valid PNG (solid colour) used as placeholder "screenshot" evidence in demo cases.
+function placeholderPng(w = 240, h = 140, rgb = [222, 214, 198]) {
+  const zlib = require('zlib');
+  const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc = (buf) => { let c = 0xffffffff; for (const b of buf) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, data) => {
+    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const td = Buffer.concat([Buffer.from(type), data]);
+    const c = Buffer.alloc(4); c.writeUInt32BE(crc(td));
+    return Buffer.concat([len, td, c]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
+  const row = Buffer.concat([Buffer.from([0]), Buffer.from(Array.from({ length: w }, () => rgb).flat())]);
+  const raw = Buffer.concat(Array.from({ length: h }, () => row));
+  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
+}
+
+// Campaign variants: same template, different domains/amounts — the radar should group them.
+const FINE_VARIANTS = [
+  'شرطة أبوظبي: لديك مخالفة مرورية غير مدفوعة بقيمة 300 درهم، ادفع خلال 24 ساعة لتجنب حجز المركبة adpolice-pay.com',
+  'شرطة أبوظبي: لديك مخالفة مرورية غير مدفوعة بقيمة 750 درهم، يرجى الدفع خلال 24 ساعة لتجنب حجز المركبة ad-police-fines.xyz',
+];
+const ICP_SPIKE = [
+  'الهوية الإماراتية: يجب تحديث بياناتك خلال 48 ساعة وإلا سيتم إيقاف الهوية، حدث بياناتك الآن icp-uae-renew.top/id',
+  'الهوية الإماراتية: يجب تحديث بياناتك خلال 48 ساعة وإلا سيتم ايقاف الهوية نهائياً، حدث بياناتك icp-update.cfd/emirates-id',
+  'تنبيه الهوية الإماراتية: يجب تحديث بياناتك خلال 48 ساعة وإلا سيتم إيقاف الهوية uae-id-update.sbs',
+  'Emirates ID alert: you must update your details within 48 hours or your ID will be suspended uae-id-update.sbs/renew',
+];
+
+function seedDemo(svc, db, extras = {}) {
   const rand = prng(42);
   const pick = (w) => { let r = rand() * w.reduce((s, x) => s + x[1], 0); for (const [v, n] of w) { if ((r -= n) < 0) return v; } return w[0][0]; };
   const now = Date.now();
@@ -52,6 +82,27 @@ function seedDemo(svc, db) {
   const top = db.prepare("SELECT id FROM indicators WHERE status='pending' ORDER BY report_count DESC LIMIT 12").all();
   top.forEach((r, i) => svc.setStatus(r.id, i === 11 ? 'rejected' : 'verified', 'system-seed'));
 
+  // Campaign variants spread over the month, plus an Emirates ID campaign spiking in the last 48 hours.
+  for (let i = 0; i < 14; i++) {
+    const when = new Date(now - Math.floor(rand() * 25) * 864e5 - Math.floor(rand() * 864e5)).toISOString();
+    try { svc.createReport({ type: 'message', value: FINE_VARIANTS[i % 2], category: 'fake_fine', channel: 'sms', emirate: pick(EMIRATE_W) }, { when, hash: crypto.randomBytes(8).toString('hex') }); made++; } catch { /* skip */ }
+  }
+  for (let i = 0; i < 30; i++) {
+    const hoursAgo = i < 26 ? rand() * 46 : 50 + rand() * 40;
+    const when = new Date(now - hoursAgo * 3600e3).toISOString();
+    try {
+      svc.createReport({ type: 'message', value: ICP_SPIKE[i % ICP_SPIKE.length], category: 'impersonation', channel: i % 3 ? 'sms' : 'whatsapp', emirate: pick(EMIRATE_W), amount_lost: rand() < 0.1 ? Math.round(300 + rand() * 2000) : null }, { when, hash: crypto.randomBytes(8).toString('hex') });
+      made++;
+    } catch { /* skip */ }
+  }
+
+  // Demo extortion cases (encrypted like real ones).
+  if (extras.cases) {
+    const png = placeholderPng().toString('base64');
+    extras.cases.create({ platform: 'instagram', demand: 'money', paid: 'no', emirate: 'dubai', description: 'شخص تواصل معي في انستقرام وبعد فترة هددني ينشر صور خاصة إذا ما حولت له 5000 درهم خلال يومين.', extorter: '@demo_account_123', files: [{ name: 'chat-screenshot.png', data: png }] });
+    extras.cases.create({ platform: 'snapchat', demand: 'more_images', paid: 'no', description: 'Someone I met online is threatening to share a video unless I send more pictures. I blocked them but they created a new account.', extorter: 'snap: demo.user.77', contact: 'prefers email, provided in person' });
+  }
+
   // Aggregate scan counters (no content is ever stored for scans).
   const ins = db.prepare('INSERT INTO scan_stats (day, type, level, count) VALUES (?, ?, ?, ?) ON CONFLICT(day,type,level) DO UPDATE SET count = count + excluded.count');
   for (let d = 0; d < 30; d++) {
@@ -66,4 +117,4 @@ function seedDemo(svc, db) {
   return made;
 }
 
-module.exports = { seedDemo };
+module.exports = { seedDemo, placeholderPng };

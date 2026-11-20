@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>صقر | حماية العائلة</title>
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="/">
+        <img src="/img/logo.svg" alt="" width="40" height="40">
+        <span><strong data-i18n="brand"></strong><small data-i18n="nav_family"></small></span>
+      </a>
+      <div class="nav"></div>
+      <div class="top-actions">
+        <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap family">
+    <h1 data-i18n="fam_title"></h1>
+    <p class="lead" data-i18n="fam_sub"></p>
+
+    <form class="card form narrow" id="famCreate" hidden>
+      <label><span data-i18n="fam_label"></span><input name="label" maxlength="40" required dir="auto"></label>
+      <p class="form-error" id="famError" role="alert"></p>
+      <button class="btn-primary" type="submit" data-i18n="fam_create"></button>
+    </form>
+
+    <section class="card pair" id="pairBox" hidden>
+      <div class="qr" id="qr"></div>
+      <div>
+        <h2 id="pairTitle"></h2>
+        <p data-i18n="fam_pair_d"></p>
+        <code class="pair-link" id="pairLink" dir="ltr"></code>
+        <div class="row-actions"><button class="btn-ghost" type="button" id="copyLink" data-i18n="copy"></button></div>
+      </div>
+    </section>
+
+    <section class="card" id="alertsBox" hidden>
+      <div class="alerts-head">
+        <h2><span data-i18n="fam_alerts"></span> <span class="count" id="unseen" hidden></span></h2>
+        <div class="row-actions">
+          <button class="btn-ghost btn-sm" type="button" id="notifBtn" data-i18n="fam_enable_notif"></button>
+          <button class="btn-ghost btn-sm" type="button" id="seenBtn" data-i18n="fam_mark_seen"></button>
+          <button class="btn-ghost btn-sm" type="button" id="showLink" data-i18n="fam_show_link"></button>
+        </div>
+      </div>
+      <ul class="alerts" id="alerts"></ul>
+      <p class="hint" data-i18n="fam_privacy"></p>
+      <button class="btn-ghost btn-sm danger-text" type="button" id="unlink" data-i18n="fam_delete"></button>
+    </section>
+  </main>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/family.js"></script>
+</body>
+</html>

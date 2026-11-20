@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>صقر</title>
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="elder">
+  <header class="elder-top">
+    <img src="/img/logo.svg" alt="" width="52" height="52">
+    <strong data-i18n="brand"></strong>
+    <button class="btn-ghost" id="langBtn" type="button" data-i18n="lang_toggle"></button>
+  </header>
+  <main class="elder-main">
+    <p class="paired" id="paired"></p>
+    <h1 data-i18n="eld_title"></h1>
+    <button type="button" class="elder-paste" id="pasteBtn" data-i18n="eld_paste"></button>
+    <textarea id="eInput" rows="4" dir="auto" data-i18n-ph="eld_ph"></textarea>
+    <label class="elder-share" id="shareWrap" hidden><input type="checkbox" id="share"> <span data-i18n="eld_share"></span></label>
+    <button type="button" class="elder-check" id="checkBtn" data-i18n="eld_check"></button>
+    <div class="elder-result" id="eResult" hidden aria-live="assertive"></div>
+    <button type="button" class="elder-help" id="helpBtn" hidden data-i18n="eld_help"></button>
+  </main>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/elder.js"></script>
+</body>
+</html>

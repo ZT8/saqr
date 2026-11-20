@@ -229,6 +229,7 @@ function makeServices(db, engine, config) {
       byEmirate: all("SELECT COALESCE(emirate,'unknown') k, COUNT(*) c FROM reports GROUP BY k ORDER BY c DESC"),
       byType: all('SELECT type k, COUNT(*) c FROM indicators GROUP BY type ORDER BY c DESC'),
       model: { ...engine.retrainInfo, learned: one('SELECT COUNT(*) FROM learned_samples') },
+      openCases: one("SELECT COUNT(*) FROM cases WHERE status != 'closed'"),
     };
   }
 

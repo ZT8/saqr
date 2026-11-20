@@ -22,6 +22,8 @@ const TACTICS = {
   new_number: { points: 14, severity: 'medium', words: ['رقمي الجديد', 'تلفوني خربان', 'new number', 'my phone broke'] },
 };
 
+const PROTECTIVE = ['لا تشاركه', 'لا تشارك هذا', 'لا تشاركها', 'لا تعطه', 'never share', 'do not share', "don't share"].map((w) => normalizeText(w));
+
 function compile(word) {
   const w = normalizeText(word);
   if (/^[a-z0-9 ]+$/.test(w)) return { w, re: new RegExp(`(^|[^a-z0-9])${w.replace(/ /g, '\\s+')}([^a-z0-9]|$)`) };
@@ -51,6 +53,14 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
 
   // 2) Fraud tactics (explainable rules)
   const tactics = detectTactics(text);
+  // Legitimate OTP/security notices *warn* you not to share the code. When the message only
+  // delivers a code with that warning, the credential/brand words are not a request.
+  const nt = normalizeText(text);
+  if (PROTECTIVE.some((p) => nt.includes(p)) && !tactics.payment && !tactics.prize && !tactics.threat && !extractUrls(text).length) {
+    delete tactics.credentials;
+    delete tactics.impersonation;
+    add('protective_notice', 0, 'safe');
+  }
   let rulePoints = 0;
   for (const [name, terms] of Object.entries(tactics)) {
     const tac = TACTICS[name];

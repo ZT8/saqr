@@ -199,8 +199,8 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 .entity-head { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
 .entity-head .val { order: 3; flex-basis: 100%; min-width: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-align: start; }
 .entity-head .pill { margin-inline-start: auto; }
-.badge { background: var(--surface-2); padding: 2px 8px; font-size: var(--step-small); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
-.pill { padding: 2px 10px; font-weight: 700; font-size: var(--step-small); font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0; }
+.badge { background: var(--surface-2); padding: 4px 10px; font-size: var(--step-small); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.pill { padding: 4px 12px; font-weight: 700; font-size: var(--step-small); font-variant-numeric: tabular-nums; white-space: nowrap; flex-shrink: 0; }
 .pill.lvl-safe { background: var(--safe-bg); color: var(--safe); }
 .pill.lvl-suspicious { background: var(--warn-bg); color: var(--warn); }
 .pill.lvl-dangerous { background: var(--danger-bg); color: var(--danger); }
@@ -240,7 +240,7 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 .scam-group + .scam-group h3 { margin-top: 96px; }
 .scam-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; }
 .scam-group li { display: grid; grid-template-columns: 76px 1fr; gap: 20px; align-items: start; }
-.bait { width: 76px; height: 46px; clip-path: url(#eyeClip); background: var(--surface); display: grid; place-items: center; font-weight: 800; font-size: 0.82rem; text-align: center; line-height: 1; padding-inline: 10px; }
+.bait { width: 76px; height: 46px; clip-path: url(#eyeClip); background: var(--surface); display: grid; place-items: center; font-weight: 800; font-size: 0.82rem; text-align: center; line-height: 1; padding-inline: 14px; }
 .scam-group li:nth-child(1) .bait { background: var(--accent); color: #fff; }
 .scam-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
 .scam-row b { font-size: 1.1rem; }
@@ -410,7 +410,7 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 .track-dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; margin: 0 0 18px; }
 .track-dl dt { color: var(--muted); }
 .track-dl dd { margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.case-st { display: inline-block; font-size: var(--step-small); font-weight: 700; padding: 2px 10px; white-space: nowrap; }
+.case-st { display: inline-block; font-size: var(--step-small); font-weight: 700; padding: 4px 12px; white-space: nowrap; }
 .cs-new { background: var(--warn-bg); color: var(--warn); }
 .cs-in_progress { background: var(--info-bg); color: var(--info); }
 .cs-closed { background: var(--safe-bg); color: var(--safe); }
@@ -458,8 +458,8 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 }
 @media (max-width: 600px) { .stats { grid-template-columns: 1fr; gap: 28px; } }
 @media (max-width: 480px) {
-  .scam-group li { grid-template-columns: 56px 1fr; gap: 14px; }
-  .bait { width: 56px; height: 34px; font-size: 0.68rem; padding-inline: 6px; }
+  .scam-group li { grid-template-columns: 64px 1fr; gap: 14px; }
+  .bait { width: 64px; height: 40px; font-size: 0.72rem; padding-inline: 12px; }
 }
 
 /* =========================================================================
@@ -476,7 +476,7 @@ code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; unicode-
 .pair-link { display: block; background: var(--bg); padding: 10px 12px; margin: 12px 0; font-size: var(--step-small); font-weight: 400; direction: ltr; text-align: left; }
 .alerts-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .alerts-head h2 { font-size: 1.5rem; display: flex; gap: 10px; align-items: center; }
-.count { background: var(--accent); color: #fff; font-size: var(--step-small); padding: 2px 10px; font-variant-numeric: tabular-nums; }
+.count { background: var(--accent); color: #fff; font-size: var(--step-small); padding: 4px 12px; font-variant-numeric: tabular-nums; }
 .alerts { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }
 .alert-item { background: #fff; padding: 16px 18px; display: grid; gap: 8px; }
 .alert-item.unseen { background: #fff3f2; }

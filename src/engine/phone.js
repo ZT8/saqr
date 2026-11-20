@@ -55,10 +55,13 @@ function analyzePhone(raw, registry = () => null) {
     if (n.digits.length < 8 || n.digits.length > 15) add('phone_invalid', 20, 'medium');
   }
 
-  const hit = n.e164 ? registry('phone', n.e164) : null;
+  const hit = n.e164 && kind !== 'emergency' ? registry('phone', n.e164, 'exact') : null;
   if (!hit && kind !== 'emergency' && kind !== 'invalid') add('phone_no_reports', 0, 'info');
   score += reasons.reduce((s, r) => s + r.points, 0);
-  if (hit && hit.status === 'verified') {
+  if (hit && hit.status === 'feed') {
+    reasons.unshift({ code: 'feed_listed', points: 0, severity: 'high', params: { source: hit.name } });
+    score = Math.max(score, 90);
+  } else if (hit && hit.status === 'verified') {
     reasons.unshift({ code: 'registry_verified', points: 0, severity: 'high', params: { reports: hit.report_count } });
     score = Math.max(score, 95);
   } else if (hit && hit.status === 'pending' && hit.report_count > 0) {

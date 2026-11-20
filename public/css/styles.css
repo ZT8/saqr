@@ -605,7 +605,7 @@ tr:hover td { background: #fbfafa; }
 td.ind { max-width: 420px; min-width: 220px; }
 td.ind .val { font-weight: 600; }
 td.ind .msg { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #3f3f3f; overflow-wrap: anywhere; }
-td.num { font-variant-numeric: tabular-nums; font-weight: 600; text-align: end; }
+td.num { font-weight: 600; text-align: end; }
 .actions { display: flex; gap: 6px; flex-wrap: nowrap; }
 .details-row td { background: #faf8f8; }
 .rep { padding: 8px 0; font-size: 13.5px; }
@@ -695,3 +695,19 @@ td.num { font-variant-numeric: tabular-nums; font-weight: 600; text-align: end; 
   .progress span { transition: none; }
 }
 @keyframes fadeonly { from { opacity: 0; } }
+
+/* Data sources screen */
+.src-grid { margin-top: 16px; }
+.form-app { display: grid; gap: 12px; align-content: start; }
+.form-app label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.form-app input, .form-app select, .form-app textarea, .term-add input, .term-add select { border: 1px solid #e0dbdb; border-radius: 8px; padding: 7px 10px; font-size: 14px; background: #fff; width: 100%; min-width: 0; font-weight: 400; } /* taste-skill-ignore: app form fields */
+.form-app .btn-primary, .form-app .btn-ghost { justify-self: start; }
+.term-add { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 8px; margin: 10px 0 6px; }
+.terms { list-style: none; padding: 0; margin: 8px 0 16px; display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
+.terms li { display: flex; gap: 10px; align-items: center; padding: 4px 0; min-width: 0; }
+.terms li > span[dir] { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.small { font-size: 12.5px; }
+.st-ok { color: var(--safe); font-weight: 600; }
+.st-err { color: var(--danger); font-weight: 600; }
+.st-off { color: var(--muted); }
+@media (max-width: 960px) { .term-add { grid-template-columns: 1fr; } }

@@ -51,12 +51,21 @@ function makeServices(db, engine, config) {
     return crypto.createHmac('sha256', config.hashSecret).update(`${ip}|${dayOf(when)}`).digest('hex').slice(0, 32);
   }
 
-  /** Registry lookup used by the engine. Rejected indicators are ignored. */
-  function registry(type, value) {
+  let feedLookup = null;
+  /**
+   * Registry lookup used by the engine. Community registry first (rejected entries ignored),
+   * then external threat feeds — exact matches only (scope 'parent' never consults feeds).
+   */
+  function registry(type, value, scope = 'exact') {
     const row = q.findInd.get(type, value);
-    if (!row || row.status === 'rejected') return null;
-    return { status: row.status, report_count: row.report_count };
+    if (row && row.status !== 'rejected') return { status: row.status, report_count: row.report_count };
+    if (feedLookup && scope !== 'parent') {
+      const f = feedLookup(type, value);
+      if (f) return { status: 'feed', name: f.name, source: f.source };
+    }
+    return null;
   }
+  const setFeedLookup = (fn) => { feedLookup = fn; };
 
   function scan(type, value) {
     const result = engine.analyze({ type, value }, registry);
@@ -262,7 +271,7 @@ function makeServices(db, engine, config) {
   }
 
   return {
-    registry, scan, createReport, setStatus, retrain, publicRegistry, publicStats, adminStats, adminIndicators, exportCsv,
+    registry, setFeedLookup, scan, createReport, setStatus, retrain, publicRegistry, publicStats, adminStats, adminIndicators, exportCsv,
     reporterHash, ValidationError,
   };
 }

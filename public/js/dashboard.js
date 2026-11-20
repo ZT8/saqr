@@ -37,7 +37,7 @@ function showDash(user) {
 }
 
 /* ---------- Screens (sidebar items are screens, not anchors) ---------- */
-const SCREENS = { overview: 'nav_overview', radar: 'radar_title', queue: 'queue', cases: 'cases_title', system: 'nav_system' };
+const SCREENS = { overview: 'nav_overview', radar: 'radar_title', queue: 'queue', cases: 'cases_title', sources: 'nav_sources', system: 'nav_system' };
 function route() {
   const v = (location.hash || '#overview').slice(1);
   const view = SCREENS[v] ? v : 'overview';
@@ -331,9 +331,36 @@ async function openCase(id) {
   renderCases();
 }
 
+/* ---------- Data sources ---------- */
+let SOURCES = null;
+function feedStatus(f) {
+  if (!f.enabled) return `<span class="st-off">${esc(t('st_off'))}</span>`;
+  if (!f.last_run) return `<span class="muted">${esc(t('st_never'))}</span>`;
+  if (String(f.last_status).startsWith('error')) return `<span class="st-err" title="${esc(f.last_status)}">${esc(t('st_error'))}</span>`;
+  return `<span class="st-ok">${esc(t('st_ok'))}</span>`;
+}
+function renderSources() {
+  if (!SOURCES) return;
+  $('#feedBody').innerHTML = SOURCES.feeds.map((f) => `<tr>
+    <td class="ind"><b dir="auto">${esc(f.name)}</b><div class="muted small">${esc(f.builtin ? f.license : t('src_uploaded'))} · ${esc(t('t_' + f.type))}</div></td>
+    <td class="num">${fmtNum(f.count)}</td>
+    <td>${f.last_run ? esc(fmtDate(f.last_run)) : '—'}</td>
+    <td>${feedStatus(f)}</td>
+    <td><div class="actions">
+      ${f.url ? `<button class="btn-primary btn-sm" data-feed-update="${esc(f.id)}">${esc(t('a_update'))}</button>` : ''}
+      <button class="btn-ghost btn-sm" data-feed-enable="${esc(f.id)}" data-on="${f.enabled ? 0 : 1}">${esc(t(f.enabled ? 'a_disable' : 'a_enable'))}</button>
+      ${f.builtin ? '' : `<button class="btn-ghost btn-sm" data-feed-remove="${esc(f.id)}">${esc(t('a_remove'))}</button>`}
+    </div></td></tr>`).join('');
+  const sel = $('#termTactic'), cur = sel.value;
+  sel.innerHTML = SOURCES.tactics.map((k) => `<option value="${esc(k)}">${esc(t('tac_' + k))}</option>`).join('');
+  if (cur) sel.value = cur;
+  $('#termList').innerHTML = SOURCES.terms.length ? SOURCES.terms.map((x) => `<li><span class="badge">${esc(t('tac_' + x.tactic))}</span><span dir="auto">${esc(x.term)}</span><button class="btn-ghost btn-sm" data-term-remove="${x.id}" aria-label="${esc(t('a_remove'))}">${esc(t('a_remove'))}</button></li>`).join('') : `<li class="muted">${esc(t('no_terms'))}</li>`;
+}
+async function loadSources() { SOURCES = await api('/api/admin/sources'); renderSources(); }
+
 async function loadAll() {
   try {
-    await Promise.all([loadStats(), loadQueue(), loadAudit(), loadCampaigns(), loadCases()]);
+    await Promise.all([loadStats(), loadQueue(), loadAudit(), loadCampaigns(), loadCases(), loadSources()]);
     renderCounts();
   } catch (ex) {
     if (ex.status === 401) location.reload();
@@ -355,6 +382,52 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#langBtn').addEventListener('click', toggleLang);
   document.addEventListener('langchange', () => { route(); renderStats(); renderQueue(); renderCampaigns(); renderCases(); renderCounts(); loadAudit().catch(() => {}); });
   window.addEventListener('hashchange', route);
+  document.addEventListener('langchange', renderSources);
+  $('#feedBody').addEventListener('click', async (e) => {
+    const u = e.target.closest('[data-feed-update]'), en = e.target.closest('[data-feed-enable]'), rm = e.target.closest('[data-feed-remove]');
+    try {
+      if (u) { u.disabled = true; u.textContent = t('updating'); const r = await api(`/api/admin/sources/${u.dataset.feedUpdate}/update`, { method: 'POST' }); toast(t('updated_n', { n: fmtNum(r.count) })); }
+      else if (en) await api(`/api/admin/sources/${en.dataset.feedEnable}/enabled`, { method: 'POST', body: { enabled: en.dataset.on === '1' } });
+      else if (rm) await api(`/api/admin/sources/${rm.dataset.feedRemove}`, { method: 'DELETE' });
+      else return;
+    } catch (ex) { toast(t(ex.code === 'feed_failed' ? 'feed_failed_toast' : 'e_' + ex.code)); }
+    loadSources(); loadAudit();
+  });
+  $('#updateAll').addEventListener('click', async (e) => {
+    const b = e.currentTarget; b.disabled = true; b.textContent = t('updating');
+    try { await api('/api/admin/sources/update-all', { method: 'POST' }); } catch { /* per-feed status shows failures */ }
+    b.disabled = false; b.textContent = t('a_update_all');
+    loadSources(); loadAudit();
+  });
+  $('#listFile').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (f) { $('#uploadForm textarea[name=text]').value = await f.text(); if (!$('#uploadForm input[name=name]').value) $('#uploadForm input[name=name]').value = f.name.replace(/\.[^.]+$/, ''); }
+  });
+  $('#uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('#uploadError').textContent = '';
+    const body = Object.fromEntries(new FormData(e.target).entries());
+    try { const r = await api('/api/admin/sources/upload', { method: 'POST', body }); toast(t('uploaded_toast', { n: fmtNum(r.count) })); e.target.reset(); loadSources(); loadAudit(); }
+    catch (ex) { $('#uploadError').textContent = t('e_' + ex.code); }
+  });
+  $('#termForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('#termError').textContent = '';
+    const body = Object.fromEntries(new FormData(e.target).entries());
+    try { await api('/api/admin/terms', { method: 'POST', body }); toast(t('term_added')); e.target.term.value = ''; loadSources(); loadAudit(); }
+    catch (ex) { $('#termError').textContent = t('e_' + ex.code); }
+  });
+  $('#termList').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-term-remove]');
+    if (!b) return;
+    await api('/api/admin/terms/' + b.dataset.termRemove, { method: 'DELETE' }).catch(() => {});
+    loadSources(); loadAudit();
+  });
+  $('#termImport').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try { const r = await api('/api/admin/terms/import', { method: 'POST', body: { text: e.target.text.value, tactic: $('#termTactic').value } }); toast(t('imported_toast', { a: fmtNum(r.added), s: fmtNum(r.skipped) })); e.target.reset(); loadSources(); loadAudit(); }
+    catch (ex) { toast(t('e_' + ex.code)); }
+  });
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (STATS) renderStats(); }, 150); });
   $('#campaigns').addEventListener('click', async (e) => {
     const tg = e.target.closest('[data-camp-toggle]');

@@ -11,6 +11,8 @@ const { makeCases, PLATFORMS, DEMANDS } = require('./cases');
 const { makeFamily } = require('./family');
 const { makeCampaigns } = require('./campaigns');
 const { makeTraining } = require('./training');
+const { makeFeeds } = require('./feeds');
+const { makeTerms } = require('./terms');
 const QRCode = require('qrcode');
 
 function createApp(config) {
@@ -22,6 +24,9 @@ function createApp(config) {
   const family = makeFamily(db);
   const campaigns = makeCampaigns(db);
   const training = makeTraining(engine, svc.registry);
+  const feeds = makeFeeds(db, { fetchImpl: config.fetchImpl });
+  svc.setFeedLookup(feeds.lookup);
+  const terms = makeTerms(db);
 
   // Ensure the admin account exists (credentials from env).
   if (!db.prepare('SELECT 1 FROM admins WHERE username = ?').get(config.adminUser)) {
@@ -40,7 +45,7 @@ function createApp(config) {
   // Evidence uploads (base64 JSON) get a larger body limit; everything else stays small.
   const bigJson = express.json({ limit: '40mb' });
   const smallJson = express.json({ limit: '20kb' });
-  app.use((req, res, next) => (req.path.startsWith('/api/help/case') ? bigJson : smallJson)(req, res, next));
+  app.use((req, res, next) => (req.path.startsWith('/api/help/case') || req.path === '/api/admin/sources/upload' || req.path === '/api/admin/terms/import' ? bigJson : smallJson)(req, res, next));
 
   const wrap = (fn) => async (req, res) => {
     try {
@@ -185,6 +190,17 @@ function createApp(config) {
       res.status(e.status || 500).json({ error: e.code || 'server_error' });
     }
   });
+  // ----- Data sources: threat feeds, uploaded lists, scam phrases -----
+  const audit = (admin, action, target) => db.prepare('INSERT INTO audit_log (admin, action, target, created_at) VALUES (?, ?, ?, ?)').run(admin, action, target || null, new Date().toISOString());
+  admin.get('/sources', requireAdmin, wrap(() => ({ feeds: feeds.list(), terms: terms.list(), tactics: terms.tactics() })));
+  admin.post('/sources/update-all', requireAdmin, wrap(async (req) => { audit(req.admin, 'feeds_update_all'); return { results: await feeds.updateAll() }; }));
+  admin.post('/sources/upload', requireAdmin, wrap((req) => { const r = feeds.upload(req.body || {}); audit(req.admin, 'list_uploaded:' + req.body?.type, `${r.id} (${r.count})`); return r; }));
+  admin.post('/sources/:id/update', requireAdmin, wrap(async (req) => { audit(req.admin, 'feed_update', req.params.id); return feeds.update(req.params.id); }));
+  admin.post('/sources/:id/enabled', requireAdmin, wrap((req) => { audit(req.admin, 'feed_enabled:' + !!req.body?.enabled, req.params.id); return feeds.setEnabled(req.params.id, !!req.body?.enabled); }));
+  admin.delete('/sources/:id', requireAdmin, wrap((req) => { audit(req.admin, 'feed_removed', req.params.id); return feeds.remove(req.params.id); }));
+  admin.post('/terms', requireAdmin, wrap((req) => { const r = terms.add(req.body?.tactic, req.body?.term, req.admin); audit(req.admin, 'term_added:' + r.tactic, r.term); return r; }));
+  admin.post('/terms/import', requireAdmin, wrap((req) => { const r = terms.importText(req.body?.text, req.admin, req.body?.tactic); audit(req.admin, 'terms_imported', `${r.added} added`); return r; }));
+  admin.delete('/terms/:id', requireAdmin, wrap((req) => { audit(req.admin, 'term_removed', req.params.id); return terms.remove(Number(req.params.id)); }));
   admin.get('/audit', requireAdmin, wrap(() => db.prepare('SELECT * FROM audit_log ORDER BY id DESC LIMIT 50').all()));
   admin.get('/export.csv', requireAdmin, (req, res) => {
     const status = ['verified', 'pending', 'rejected'].includes(req.query.status) ? req.query.status : 'verified';
@@ -203,7 +219,7 @@ function createApp(config) {
   app.use('/fonts', express.static(path.join(__dirname, '..', 'node_modules', '@fontsource', 'ibm-plex-sans-arabic', 'files'), { maxAge: '30d' }));
   app.use(express.static(path.join(__dirname, '..', 'public'), { extensions: ['html'] }));
 
-  return { app, db, engine, svc, cases, family, campaigns };
+  return { app, db, engine, svc, cases, family, campaigns, feeds, terms };
 }
 
 module.exports = { createApp };

@@ -125,3 +125,46 @@ test('training questions come with engine explanations', async () => {
     assert.equal((q.analysis.level !== 'safe'), q.answer === 'scam', q.text);
   }
 });
+
+test('threat feeds and uploaded lists: exact matching, trusted hosts protected, scam phrases added live', async () => {
+  const H = await adminCookie();
+  // Uploaded list of scam numbers (e.g. from a telecom operator)
+  const up = await (await req('/api/admin/sources/upload', 'POST', { name: 'Telecom scam numbers', type: 'phone', text: '+971 50 111 2233\n0559998877\nnot a number' }, H)).json();
+  assert.equal(up.count, 2);
+  const p = await (await req('/api/scan', 'POST', { value: '055 999 8877' })).json();
+  assert.equal(p.level, 'dangerous');
+  assert.equal(p.reasons[0].code, 'feed_listed');
+
+  // URL list: a host-only entry on a trusted platform is ignored; a specific path is kept.
+  await req('/api/admin/sources/upload', 'POST', { name: 'Police links', type: 'url', text: 'google.com\nhttps://sites.google.com/view/uae-fine-pay\nbad-portal-login.top' }, H);
+  assert.equal((await (await req('/api/scan', 'POST', { value: 'https://google.com' })).json()).level, 'safe');
+  assert.equal((await (await req('/api/scan', 'POST', { value: 'https://sites.google.com/view/uae-fine-pay' })).json()).level, 'dangerous');
+  assert.equal((await (await req('/api/scan', 'POST', { value: 'https://sites.google.com/view/my-school' })).json()).reasons.some((r) => r.code === 'feed_listed'), false);
+  assert.equal((await (await req('/api/scan', 'POST', { value: 'http://bad-portal-login.top/x' })).json()).reasons.some((r) => r.code === 'feed_listed'), true, 'host entry covers its paths');
+
+  // Disabling a source stops its matches
+  const src = (await (await req('/api/admin/sources', 'GET', null, H)).json()).feeds.find((f) => f.name === 'Telecom scam numbers');
+  await req(`/api/admin/sources/${src.id}/enabled`, 'POST', { enabled: false }, H);
+  assert.notEqual((await (await req('/api/scan', 'POST', { value: '055 999 8877' })).json()).reasons[0].code, 'feed_listed');
+
+  // A new scam phrase added by the authority is used immediately
+  const msg = 'عندك نقاط مكافأة بتنتهي الليلة';
+  const before = await (await req('/api/scan', 'POST', { value: msg })).json();
+  await req('/api/admin/terms', 'POST', { tactic: 'prize', term: 'نقاط مكافأة' }, H);
+  await req('/api/admin/terms/import', 'POST', { text: 'urgency,بتنتهي الليلة' }, H);
+  const after = await (await req('/api/scan', 'POST', { value: msg })).json();
+  assert.ok(after.score > before.score);
+  assert.ok(after.reasons.some((r) => r.code === 'tactic_prize'));
+  assert.notEqual(after.level, 'safe');
+});
+
+test('feed download parses a remote list (mocked network)', async () => {
+  const { openDb } = require('../src/db');
+  const { makeFeeds } = require('../src/feeds');
+  const db = openDb(':memory:');
+  const feeds = makeFeeds(db, { fetchImpl: async () => ({ ok: true, text: async () => '# comment\nphish-one.xyz\nhttps://phish-two.top/login\n\n' }) });
+  const r = await feeds.update('openphish');
+  assert.equal(r.count, 2);
+  assert.ok(feeds.lookup('url', 'phish-one.xyz'));
+  assert.ok(feeds.lookup('url', 'phish-two.top/login'));
+});

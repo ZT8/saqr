@@ -35,6 +35,7 @@
         <a href="#radar" data-view="radar"><span data-i18n="radar_title"></span><span class="n" id="nRadar"></span></a>
         <a href="#queue" data-view="queue"><span data-i18n="queue"></span><span class="n" id="nQueue"></span></a>
         <a href="#cases" data-view="cases"><span data-i18n="cases_title"></span><span class="n" id="nCases"></span></a>
+        <a href="#sources" data-view="sources"><span data-i18n="nav_sources"></span></a>
         <a href="#system" data-view="system"><span data-i18n="nav_system"></span></a>
       </nav>
       <p class="side-foot" data-i18n="foot_demo_short"></p>
@@ -113,6 +114,52 @@
         <div class="cases-grid">
           <ul class="case-list" id="caseList"></ul>
           <div class="case-detail" id="caseDetail"></div>
+        </div>
+      </section>
+
+      <!-- Data sources: threat feeds, uploaded lists, scam phrases -->
+      <section data-screen="sources" hidden>
+        <div class="sheet-head">
+          <div><h2 data-i18n="nav_sources"></h2><p data-i18n="src_sub"></p></div>
+          <button class="btn-primary" type="button" id="updateAll" data-i18n="a_update_all"></button>
+        </div>
+        <div class="panel">
+          <h3 data-i18n="src_feeds"></h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th data-i18n="col_source"></th><th data-i18n="col_entries"></th><th data-i18n="col_updated"></th><th data-i18n="col_status"></th><th data-i18n="col_actions"></th></tr></thead>
+              <tbody id="feedBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="side-grid src-grid">
+          <form class="panel form-app" id="uploadForm">
+            <h3 data-i18n="src_upload_t"></h3>
+            <p class="hint" data-i18n="src_upload_d"></p>
+            <label><span data-i18n="f_list_name"></span><input name="name" maxlength="80" required dir="auto"></label>
+            <label><span data-i18n="f_list_type"></span>
+              <select name="type"><option value="phone" data-i18n="t_phone"></option><option value="url" data-i18n="t_url"></option></select>
+            </label>
+            <label><span data-i18n="f_list_file"></span><input type="file" id="listFile" accept=".txt,.csv,text/plain,text/csv"></label>
+            <label><span data-i18n="f_list_text"></span><textarea name="text" rows="4" dir="ltr"></textarea></label>
+            <p class="form-error" id="uploadError" role="alert"></p>
+            <button class="btn-primary" type="submit" data-i18n="upload_btn"></button>
+          </form>
+          <div class="panel">
+            <h3 data-i18n="terms_t"></h3>
+            <p class="hint" data-i18n="terms_d"></p>
+            <form class="term-add" id="termForm">
+              <select name="tactic" id="termTactic" aria-label="tactic"></select>
+              <input name="term" maxlength="80" required dir="auto" data-i18n-ph="f_term" aria-label="phrase">
+              <button class="btn-primary" type="submit" data-i18n="add_term"></button>
+            </form>
+            <p class="form-error" id="termError" role="alert"></p>
+            <ul class="terms" id="termList"></ul>
+            <form class="form-app" id="termImport">
+              <label><span data-i18n="terms_import"></span><textarea name="text" rows="3" dir="auto" placeholder="credentials,ارسل الرمز السري&#10;investment,ضاعف راتبك"></textarea></label>
+              <button class="btn-ghost btn-sm" type="submit" data-i18n="import_btn"></button>
+            </form>
+          </div>
         </div>
       </section>
 

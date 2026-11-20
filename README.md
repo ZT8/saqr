@@ -37,6 +37,7 @@ Fraud in the UAE mostly arrives as a short message or a call that impersonates s
 | **Extortion help (confidential)** | A guided page for blackmail victims: what to do and what not to do, plus an anonymous case with evidence upload. Evidence is **encrypted at rest (AES-256-GCM)** and fingerprinted with **SHA-256** on receipt. A **chain-of-custody log** records every view, and integrity is re-checked each time an officer opens a file. The victim tracks the case with a reference and a secret code, can add evidence, and can **withdraw and erase** everything. A *quick exit* button leaves the page instantly. |
 | **Family protection (elderly mode)** | A guardian creates a link or QR code for a parent's phone. The parent gets a very simple page with large text and one button, and the verdict is read aloud (Web Speech API). Risky scans and an "I need help" button send alerts to the guardian, with browser notifications. The message text is shared only if the parent ticks a box. |
 | **Awareness training** | A "Scam or safe?" game with points, streaks and badges (Novice, Guardian, Falcon). Each answer is explained by the live detection engine, so people learn the same red flags Saqr checks. Scores stay on the device. |
+| **Threat feeds and scam phrases** | Saqr imports public phishing and malware lists into the database: [Phishing.Database](https://github.com/mitchellkrogza/Phishing.Database) (about 386,000 active phishing domains), the OpenPhish community feed and URLhaus by abuse.ch. They refresh every 12 hours. Authorities can also upload their own lists (for example scam numbers from a telecom operator) and add new scam phrases from the dashboard. Everything joins the scan at once. Feed entries match exactly (a host, or a host plus path), never a parent domain, so one bad page on a shared platform cannot flag the whole platform. |
 | **Learning loop** | Verifying or rejecting a reported message adds it to the training set and retrains the classifier immediately. The model gets better as the community reports. |
 
 ## 3. Architecture
@@ -90,6 +91,8 @@ src/
   family.js            guardian/elder pairing and alerts
   campaigns.js         campaign radar (clustering + spike detection)
   training.js          awareness game question bank
+  feeds.js             threat feeds and uploaded lists (exact-match lookup)
+  terms.js             scam phrases added from the dashboard
   engine/
     index.js           Engine: type detection, scoring, levels, advice
     classifier.js      Naive Bayes
@@ -201,13 +204,14 @@ On first start the database is empty, so Saqr loads **fictional demo data** (abo
 ```bash
 npm test
 ```
-18 tests cover:
+20 tests cover:
 - **The engine:** Arabic and English scams, Gulf-dialect and short scam phrasings, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, and the learning loop.
 - **The report flow, end to end:** report → redaction → dedupe → admin login → verify → registry → scan → CSV → audit.
 - **Extortion cases:** files are ciphertext on disk, the integrity hash is checked, tracking works, admin notes reach the victim, and withdrawal erases the files.
 - **Family alerts:** only risky scans trigger an alert, the text is not shared without consent, the elder token can't read alerts, and unlinking works.
 - **Campaign radar:** template variants across three domains form one campaign, the spike is detected, and bulk verify works.
 - **Training:** each answer matches the engine's verdict.
+- **Threat feeds:** uploaded lists match exactly, trusted platforms are protected, disabling a source stops its matches, new phrases take effect at once, and a remote list is parsed (mocked network).
 
 ### Try it
 On the Scan page, use the example chips, or paste any of these:
@@ -216,6 +220,17 @@ On the Scan page, use the example chips, or paste any of these:
 - `emlratesnbd.com`
 - `+882 1600 4471`
 - `هلا اخوي، نتغدى اليوم؟`
+
+### Threat feeds and scam phrases
+```bash
+npm run feeds:update     # download every enabled feed now
+```
+- The server also refreshes the feeds in the background every `FEED_REFRESH_HOURS` (default 12; set `0` to turn this off). It does the first download on first start.
+- **Dashboard → Data sources** shows each feed's entry count, last update and status. From there you can update, disable or remove a feed.
+- You can also **upload a list** there: a `.txt` or `.csv` file with one link or number per line (the first CSV column is used).
+- You can **add scam phrases** too, one at a time or in bulk as `tactic,phrase` lines. The tactics are `credentials`, `personal_data`, `urgency`, `threat`, `prize`, `payment`, `impersonation`, `parcel`, `investment`, `job`, `off_platform`, `new_number` and `call_to_action`.
+- A match shows as *"Listed in a known threat feed (source)"*, with a risk score of at least 90.
+- Each feed has its own terms of use; check them before production use. No reliable public database of UAE scam *phone numbers* exists, so numbers come from community reports and the lists authorities upload.
 
 ### Stress-test the UI with worst-case data (dev only)
 ```bash

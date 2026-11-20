@@ -87,6 +87,21 @@ function openDb(file) {
       shared_text TEXT,                 -- only if the elder explicitly chose to share the message
       seen INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
     );
+    -- External threat feeds and uploaded lists (kept apart from the community registry)
+    CREATE TABLE IF NOT EXISTS feed_sources (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, url TEXT, type TEXT NOT NULL, format TEXT NOT NULL,
+      license TEXT, enabled INTEGER NOT NULL DEFAULT 1, builtin INTEGER NOT NULL DEFAULT 0,
+      last_run TEXT, last_status TEXT, count INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS feed_indicators (
+      type TEXT NOT NULL, value TEXT NOT NULL, source TEXT NOT NULL REFERENCES feed_sources(id) ON DELETE CASCADE,
+      PRIMARY KEY (type, value, source)
+    ) WITHOUT ROWID;
+    -- Scam phrases added by the authority, merged into the detection rules at runtime
+    CREATE TABLE IF NOT EXISTS custom_terms (
+      id INTEGER PRIMARY KEY, tactic TEXT NOT NULL, term TEXT NOT NULL, added_by TEXT NOT NULL, created_at TEXT NOT NULL,
+      UNIQUE (tactic, term)
+    );
     CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at);
     CREATE INDEX IF NOT EXISTS idx_reports_indicator ON reports(indicator_id);
     CREATE INDEX IF NOT EXISTS idx_indicators_status ON indicators(status);

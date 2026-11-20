@@ -8,7 +8,8 @@
     "dev": "node --watch server.js",
     "test": "node --test test/*.test.js",
     "reset": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\"",
-    "dev:fixtures": "node dev/server.js"
+    "dev:fixtures": "node dev/server.js",
+    "feeds:update": "node scripts/update-feeds.js"
   },
   "keywords": [
     "fraud",
@@ -24,7 +25,8 @@
     "better-sqlite3": "^13.2.0",
     "express": "^5.3.0",
     "helmet": "^8.3.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "undici": "^8.13.1"
   },
   "engines": {
     "node": ">=22"

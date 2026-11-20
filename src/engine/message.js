@@ -34,7 +34,15 @@ function compile(word) {
   if (w.length <= 4 && !w.includes(' ')) return { w, re: new RegExp(`(^|[^\\p{L}])(و|ف|ب|ل|ال|وال|بال)?${w}([^\\p{L}]|$)`, 'u') };
   return { w, re: null };
 }
-const COMPILED = Object.fromEntries(Object.entries(TACTICS).map(([k, v]) => [k, { ...v, words: v.words.map(compile) }]));
+let COMPILED = Object.fromEntries(Object.entries(TACTICS).map(([k, v]) => [k, { ...v, words: v.words.map(compile) }]));
+
+/** Merge phrases added by the authority (dashboard) into the built-in tactic lexicon. */
+function setCustomTerms(rows = []) {
+  COMPILED = Object.fromEntries(Object.entries(TACTICS).map(([k, v]) => {
+    const extra = rows.filter((r) => r.tactic === k).map((r) => r.term);
+    return [k, { ...v, words: [...v.words, ...extra].map(compile) }];
+  }));
+}
 
 function detectTactics(text) {
   const t = normalizeText(text);
@@ -119,4 +127,4 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
   };
 }
 
-module.exports = { analyzeMessage, detectTactics, TACTICS };
+module.exports = { analyzeMessage, detectTactics, TACTICS, setCustomTerms };

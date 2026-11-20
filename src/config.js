@@ -27,4 +27,6 @@ module.exports = {
   evidenceDir: process.env.EVIDENCE_DIR || path.join(__dirname, '..', 'data', 'evidence'),
   evidenceKey: process.env.EVIDENCE_KEY || '',
   publicUrl: process.env.PUBLIC_URL || '',
+  // Threat feeds refresh interval in hours (0 = only when triggered from the dashboard or `npm run feeds:update`).
+  feedRefreshHours: Number(process.env.FEED_REFRESH_HOURS ?? 12),
 };

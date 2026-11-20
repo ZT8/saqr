@@ -83,6 +83,12 @@ function registrableDomain(host) {
   return MULTI_SUFFIXES.has(lastTwo) ? parts.slice(-3).join('.') : lastTwo;
 }
 
+/** True for official government hosts and well-known trusted services (and their subdomains). */
+function isTrustedHost(host) {
+  const h = String(host).toLowerCase().replace(/^www\./, '');
+  return isOfficial(h) || TRUSTED_DOMAINS.has(h) || TRUSTED_DOMAINS.has(registrableDomain(h)) || SHORTENERS.has(h) || FREE_HOSTING.some((f) => h === f);
+}
+
 function isOfficial(host) {
   return OFFICIAL_SUFFIXES.some((s) => host === s || host.endsWith('.' + s));
 }
@@ -184,9 +190,13 @@ function analyzeUrl(raw, registry = () => null) {
 function finish(raw, info, reasons, registry, trusted = false) {
   const key = urlKey(raw);
   // Check the full URL first, then the bare domain (a verified bad domain taints every path on it).
-  const hit = registry('url', key) || (info ? registry('url', info.host) || registry('url', info.reg) : null);
+  // Exact link, then exact host; the parent domain is checked against the community registry only.
+  const hit = registry('url', key, 'exact') || (info ? registry('url', info.host, 'exact') || registry('url', info.reg, 'parent') : null);
   let score = reasons.reduce((s, r) => s + r.points, trusted ? 5 : 8);
-  if (hit && hit.status === 'verified') {
+  if (hit && hit.status === 'feed') {
+    reasons.unshift({ code: 'feed_listed', points: 0, severity: 'high', params: { source: hit.name } });
+    score = Math.max(score, 90);
+  } else if (hit && hit.status === 'verified') {
     reasons.unshift({ code: 'registry_verified', points: 0, severity: 'high', params: { reports: hit.report_count } });
     score = Math.max(score, 95);
   } else if (hit && hit.status === 'pending' && hit.report_count > 0) {
@@ -197,4 +207,4 @@ function finish(raw, info, reasons, registry, trusted = false) {
   return { type: 'url', input: String(raw), key, host: info?.host || null, domain: info?.reg || null, score, reasons };
 }
 
-module.exports = { analyzeUrl, urlKey, registrableDomain, levenshtein };
+module.exports = { analyzeUrl, urlKey, registrableDomain, levenshtein, isTrustedHost };

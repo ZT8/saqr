@@ -152,7 +152,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Clipboard.setData(ClipboardData(text: link));
             toast(context, t('copied'));
           }),
-          TextButton.icon(icon: const Icon(Icons.share, color: C.ink), label: Text(t('app_share_link'), style: const TextStyle(color: C.ink)), onPressed: () => Share.share(link)),
+          TextButton.icon(icon: const Icon(Icons.share, color: C.ink), label: Text(t('app_share_link'), style: const TextStyle(color: C.ink)), onPressed: () => SharePlus.instance.share(ShareParams(text: link))),
         ]),
       ]),
     );

@@ -632,7 +632,7 @@ Object.assign(I18N.en, {
 // ---------- Mobile app (Flutter) strings ----------
 Object.assign(I18N.ar, {
   app_more: 'المزيد', app_settings: 'الإعدادات', app_server: 'عنوان خادم صقر', app_server_hint: 'مثال: https://saqr.example أو http://10.0.2.2:3000 لمحاكي أندرويد',
-  app_save: 'حفظ', app_saved: 'تم الحفظ', app_language: 'اللغة', app_offline: 'تعذّر الوصول للخادم. تأكد من الاتصال أو من عنوان الخادم في الإعدادات.',
+  app_save: 'حفظ', app_saved: 'تم الحفظ', app_language: 'اللغة', app_offline: 'تعذّر الوصول للخادم. تأكد من الاتصال أو من عنوان الخادم في الإعدادات.', app_offline_result: 'فُحصت على جهازك لأن الخادم غير متصل. سجل البلاغات وقوائم التهديدات تحتاج الاتصال.',
   app_paste: 'لصق', app_clear: 'مسح', app_elder_mode: 'وضع كبار السن', app_elder_d: 'شاشة مبسطة بخط كبير، والنتيجة تنقرأ بصوت، وتنبيه للعائلة.',
   app_guardian: 'أنا ابن أو بنت: أبي أحمي أهلي', app_pair: 'ربط مع العائلة', app_pair_d: 'الصق رابط أو رمز الحماية اللي أرسله لك ابنك أو بنتك.',
   app_pair_ph: 'الرابط أو الرمز', app_paired_ok: 'تم الربط مع العائلة', app_unpair: 'إلغاء الربط', app_share_link: 'مشاركة الرابط',
@@ -641,7 +641,7 @@ Object.assign(I18N.ar, {
 });
 Object.assign(I18N.en, {
   app_more: 'More', app_settings: 'Settings', app_server: 'Saqr server address', app_server_hint: 'e.g. https://saqr.example, or http://10.0.2.2:3000 for the Android emulator',
-  app_save: 'Save', app_saved: 'Saved', app_language: 'Language', app_offline: 'Could not reach the server. Check your connection or the server address in Settings.',
+  app_save: 'Save', app_saved: 'Saved', app_language: 'Language', app_offline: 'Could not reach the server. Check your connection or the server address in Settings.', app_offline_result: 'Checked on your phone because the server is offline. The report registry and threat lists need a connection.',
   app_paste: 'Paste', app_clear: 'Clear', app_elder_mode: 'Elder mode', app_elder_d: 'A simple screen with large text, the verdict read aloud, and family alerts.',
   app_guardian: 'I am a son or daughter: protect my parents', app_pair: 'Link with family', app_pair_d: 'Paste the protection link or code your son or daughter sent you.',
   app_pair_ph: 'Link or code', app_paired_ok: 'Linked with your family', app_unpair: 'Unlink', app_share_link: 'Share link',

@@ -46,7 +46,7 @@ flutter build apk --release        # Android → build/app/outputs/flutter-apk/a
 flutter build appbundle            # Android → Google Play (.aab)
 flutter build ipa                  # iOS → build/ios/ipa/*.ipa  (Mac + Xcode + Apple signing)
 ```
-**No Mac?** Push the repo to GitHub, open *Actions → Mobile builds → Run workflow*. GitHub's macOS runner builds `saqr-unsigned.ipa` and `app-release.apk` and attaches them to the run. Sign the IPA before installing it: use Sideloadly or AltStore with an Apple ID, or `codesign` with your own certificate. Alternatively, `codemagic.yaml` builds the APK and an iOS archive on Codemagic's cloud Macs. Add your Apple signing there for a signed IPA.
+**No Mac?** Push the repo to GitHub, open *Actions → Mobile builds → Run workflow*. GitHub's macOS runner builds `Saqr.ipa` and `app-release.apk` and attaches them to the run. Sign the IPA before installing it: use Sideloadly or AltStore with an Apple ID, or `codesign` with your own certificate. Alternatively, `codemagic.yaml` builds the APK and an iOS archive on Codemagic's cloud Macs. Add your Apple signing there for a signed IPA.
 
 ## Add the iOS SMS filter
 1. Open `ios/Runner.xcworkspace` in Xcode.

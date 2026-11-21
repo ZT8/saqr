@@ -207,4 +207,7 @@ function finish(raw, info, reasons, registry, trusted = false) {
   return { type: 'url', input: String(raw), key, host: info?.host || null, domain: info?.reg || null, score, reasons };
 }
 
-module.exports = { analyzeUrl, urlKey, registrableDomain, levenshtein, isTrustedHost };
+// Raw lists, exported so the mobile app's offline engine is generated from the same source.
+const LISTS = { MULTI_SUFFIXES: [...MULTI_SUFFIXES], OFFICIAL_SUFFIXES, TRUSTED_DOMAINS: [...TRUSTED_DOMAINS], BRANDS, AUTHORITIES, SHORTENERS: [...SHORTENERS], SUSPICIOUS_TLDS: [...SUSPICIOUS_TLDS], FREE_HOSTING, PHISH_WORDS };
+
+module.exports = { analyzeUrl, urlKey, registrableDomain, levenshtein, isTrustedHost, LISTS };

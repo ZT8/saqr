@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'offline.dart';
+
 /// Error returned by the Saqr API: `code` matches the web app's error codes (e_<code> strings).
 class ApiError implements Exception {
   ApiError(this.code, [this.status = 0]);
@@ -19,6 +21,7 @@ class Api {
 
   static const defaultBase = 'http://10.0.2.2:3000'; // Android emulator → host machine
   String base = defaultBase;
+  DateTime? _offlineUntil;
   SharedPreferences? _prefs;
 
   Future<void> init() async {
@@ -28,6 +31,7 @@ class Api {
 
   Future<void> setBase(String url) async {
     base = url.trim().replaceAll(RegExp(r'/+$'), '');
+    _offlineUntil = null;
     await _prefs?.setString('server', base);
   }
 
@@ -40,7 +44,7 @@ class Api {
     }
   }
 
-  Future<dynamic> _send(String method, String path, {Object? body, Map<String, String>? headers}) async {
+  Future<dynamic> _send(String method, String path, {Object? body, Map<String, String>? headers, Duration? timeout}) async {
     final uri = Uri.parse('$base$path');
     final h = {'Content-Type': 'application/json', 'Accept': 'application/json', ...?headers};
     late http.Response res;
@@ -48,13 +52,13 @@ class Api {
       final encoded = body == null ? null : jsonEncode(body);
       switch (method) {
         case 'POST':
-          res = await http.post(uri, headers: h, body: encoded).timeout(const Duration(seconds: 60));
+          res = await http.post(uri, headers: h, body: encoded).timeout(timeout ?? const Duration(seconds: 45));
           break;
         case 'DELETE':
-          res = await http.delete(uri, headers: h).timeout(const Duration(seconds: 20));
+          res = await http.delete(uri, headers: h).timeout(timeout ?? const Duration(seconds: 10));
           break;
         default:
-          res = await http.get(uri, headers: h).timeout(const Duration(seconds: 20));
+          res = await http.get(uri, headers: h).timeout(timeout ?? const Duration(seconds: 10));
       }
     } catch (_) {
       throw ApiError('network');
@@ -77,9 +81,24 @@ class Api {
   Future<Map<String, dynamic>> meta() async => Map<String, dynamic>.from(await _send('GET', '/api/meta'));
   Future<Map<String, dynamic>> stats() async => Map<String, dynamic>.from(await _send('GET', '/api/stats'));
 
-  Future<Map<String, dynamic>> scan(String value, {String type = 'auto', String? elderToken, bool share = false}) async =>
-      Map<String, dynamic>.from(await _send('POST', '/api/scan',
-          body: {'type': type, 'value': value, 'share': share}, headers: elderToken == null ? null : {'X-Elder-Token': elderToken}));
+  /// Scans on the server (which adds the community registry and threat feeds). When the server
+  /// cannot be reached, the same engine runs on the device and the result carries `offline: true`.
+  Future<Map<String, dynamic>> scan(String value, {String type = 'auto', String? elderToken, bool share = false}) async {
+    final now = DateTime.now();
+    if (_offlineUntil != null && now.isBefore(_offlineUntil!)) return (await OfflineEngine.load()).analyze(value, type: type);
+    try {
+      final r = Map<String, dynamic>.from(await _send('POST', '/api/scan',
+          body: {'type': type, 'value': value, 'share': share},
+          headers: elderToken == null ? null : {'X-Elder-Token': elderToken},
+          timeout: const Duration(seconds: 6)));
+      _offlineUntil = null;
+      return r;
+    } on ApiError catch (e) {
+      if (e.code != 'network') rethrow;
+      _offlineUntil = now.add(const Duration(minutes: 1)); // don't wait for the server on every scan
+      return (await OfflineEngine.load()).analyze(value, type: type);
+    }
+  }
 
   Future<Map<String, dynamic>> report(Map<String, dynamic> body) async =>
       Map<String, dynamic>.from(await _send('POST', '/api/report', body: body));
@@ -87,7 +106,9 @@ class Api {
   Future<Map<String, dynamic>> registry({String q = '', String type = '', int page = 1}) async =>
       Map<String, dynamic>.from(await _send('GET', '/api/registry?q=${Uri.encodeQueryComponent(q)}&type=$type&page=$page'));
 
-  Future<List<dynamic>> training(String lang) async => List<dynamic>.from(await _send('GET', '/api/training?lang=$lang'));
+  /// Practice questions come from the bank bundled with the app (generated from the server's
+  /// bank and engine), so practice works with or without a connection.
+  Future<List<dynamic>> training(String lang) async => ((await OfflineEngine.trainingBank(lang))..shuffle()).take(8).toList();
 
   // ----- Extortion help -----
   Future<Map<String, dynamic>> createCase(Map<String, dynamic> body) async =>

@@ -127,4 +127,4 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
   };
 }
 
-module.exports = { analyzeMessage, detectTactics, TACTICS, setCustomTerms };
+module.exports = { analyzeMessage, detectTactics, TACTICS, PROTECTIVE, setCustomTerms };

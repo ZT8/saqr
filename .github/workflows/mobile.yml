@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [master]
-    paths: ['mobile/**']
+    paths: ['mobile/**', '.github/workflows/mobile.yml']
 
 jobs:
   ios:
@@ -19,14 +19,15 @@ jobs:
       - run: chmod +x setup.sh && ./setup.sh
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
         continue-on-error: true
+      - run: flutter test
       - run: flutter build ios --release --no-codesign
       - name: Package unsigned IPA
         run: |
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
-          zip -qr saqr-unsigned.ipa Payload
+          zip -qr Saqr.ipa Payload
       - uses: actions/upload-artifact@v4
-        with: { name: saqr-ios-unsigned-ipa, path: mobile/saqr-unsigned.ipa }
+        with: { name: saqr-ios-unsigned-ipa, path: mobile/Saqr.ipa }
 
   android:
     runs-on: ubuntu-latest
@@ -54,10 +55,10 @@ jobs:
           gh release delete mobile-latest -R "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
           gh release create mobile-latest -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
             --title "Saqr mobile (latest build)" --notes "Built from $GITHUB_SHA. The IPA is unsigned: sign it (Sideloadly, AltStore or your certificate) before installing." \
-            out/saqr-unsigned.ipa out/app-release.apk
+            out/Saqr.ipa out/app-release.apk
       - name: Store builds on the "builds" branch
         run: |
           git init -q b && cd b && git checkout -q -b builds
-          cp ../out/saqr-unsigned.ipa ../out/app-release.apk .
+          cp ../out/Saqr.ipa ../out/app-release.apk .
           git -c user.name=ci -c user.email=ci@saqr.local add . && git -c user.name=ci -c user.email=ci@saqr.local commit -qm "Builds for $GITHUB_SHA"
           git push -qf "https://x-access-token:${{ github.token }}@github.com/$GITHUB_REPOSITORY" builds

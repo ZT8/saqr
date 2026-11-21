@@ -102,6 +102,14 @@ class ResultCard extends StatelessWidget {
             Text(t('level_${level}_d'), style: const TextStyle(fontSize: 16, height: 1.45)),
             const SizedBox(height: 6),
             Text(t('result_meta', {'s': score, 'type': t('t_${result['detectedType']}')}), style: const TextStyle(fontSize: 13, color: C.muted)),
+            if (result['offline'] == true) ...[
+              const SizedBox(height: 8),
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.cloud_off_outlined, size: 16, color: C.muted),
+                const SizedBox(width: 6),
+                Expanded(child: Text(t('app_offline_result'), style: const TextStyle(fontSize: 13, color: C.muted, height: 1.4))),
+              ]),
+            ],
           ]),
         ),
         Padding(

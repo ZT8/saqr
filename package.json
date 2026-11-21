@@ -9,7 +9,8 @@
     "test": "node --test test/*.test.js",
     "reset": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\"",
     "dev:fixtures": "node dev/server.js",
-    "feeds:update": "node scripts/update-feeds.js"
+    "feeds:update": "node scripts/update-feeds.js",
+    "mobile:export": "node scripts/export-mobile.js"
   },
   "keywords": [
     "fraud",

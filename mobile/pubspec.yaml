@@ -25,11 +25,22 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.0
+
+flutter_launcher_icons:
+  image_path: assets/icon/icon.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: '#ffffff'
+  adaptive_icon_foreground: assets/icon/icon.png
 
 flutter:
   uses-material-design: true
   assets:
     - assets/i18n/strings.json
+    - assets/offline/engine.json
+    - assets/offline/training.json
   fonts:
     - family: Saqr
       fonts:

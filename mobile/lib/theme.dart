@@ -51,8 +51,11 @@ ThemeData saqrTheme() {
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: C.surface,
-      border: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: C.ink, width: 2)),
+      // Underline borders keep the floating label inside the filled box (an outline border
+      // would lift it onto the box's top edge).
+      border: UnderlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide.none),
+      enabledBorder: UnderlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide.none),
+      focusedBorder: UnderlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: C.ink, width: 2)),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     navigationBarTheme: NavigationBarThemeData(

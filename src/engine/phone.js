@@ -72,4 +72,4 @@ function analyzePhone(raw, registry = () => null) {
   return { type: 'phone', input: String(raw), key: n.e164 || String(raw).trim(), kind, score, reasons };
 }
 
-module.exports = { analyzePhone, normalizePhone };
+module.exports = { analyzePhone, normalizePhone, EMERGENCY, PREMIUM_RANGES };

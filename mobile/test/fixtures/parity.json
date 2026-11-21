@@ -1,0 +1,1649 @@
+[
+ {
+  "value": "https://adpolice-fines.com/pay",
+  "type": "url",
+  "score": 85,
+  "level": "dangerous",
+  "codes": [
+   "authority_unofficial",
+   "phish_words",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "www.dubaipolice.gov.ae",
+  "type": "url",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "official_domain"
+  ]
+ },
+ {
+  "value": "http://emiratesnbd-secure.top/login",
+  "type": "url",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "brand_unofficial",
+   "suspicious_tld",
+   "no_https",
+   "phish_words",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "bit.ly/3xYz",
+  "type": "url",
+  "score": 43,
+  "level": "suspicious",
+  "codes": [
+   "shortener",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "paypa1.com",
+  "type": "url",
+  "score": 78,
+  "level": "dangerous",
+  "codes": [
+   "lookalike_domain",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "login.uae-pay-fines.xyz/verify",
+  "type": "url",
+  "score": 88,
+  "level": "dangerous",
+  "codes": [
+   "suspicious_tld",
+   "phish_words",
+   "uae_service_lookalike",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "https://www.google.com",
+  "type": "url",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "trusted_domain"
+  ]
+ },
+ {
+  "value": "192.168.0.10/login",
+  "type": "url",
+  "score": 59,
+  "level": "suspicious",
+  "codes": [
+   "ip_host",
+   "phish_words",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "mysite.netlify.app/account",
+  "type": "url",
+  "score": 49,
+  "level": "suspicious",
+  "codes": [
+   "free_hosting",
+   "phish_words",
+   "unknown_domain"
+  ]
+ },
+ {
+  "value": "+971501234567",
+  "type": "phone",
+  "score": 8,
+  "level": "safe",
+  "codes": [
+   "uae_mobile",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "0501234567",
+  "type": "phone",
+  "score": 8,
+  "level": "safe",
+  "codes": [
+   "uae_mobile",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "999",
+  "type": "phone",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "official_emergency"
+  ]
+ },
+ {
+  "value": "800123",
+  "type": "phone",
+  "score": 5,
+  "level": "safe",
+  "codes": [
+   "uae_service_number",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "+8821234567",
+  "type": "phone",
+  "score": 58,
+  "level": "suspicious",
+  "codes": [
+   "premium_range",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "+447700900123",
+  "type": "phone",
+  "score": 32,
+  "level": "suspicious",
+  "codes": [
+   "international",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "042345678",
+  "type": "phone",
+  "score": 5,
+  "level": "safe",
+  "codes": [
+   "uae_landline",
+   "phone_no_reports"
+  ]
+ },
+ {
+  "value": "12",
+  "type": "message",
+  "score": 24,
+  "level": "safe",
+  "codes": []
+ },
+ {
+  "value": "هلا، وصلت البيت؟",
+  "type": "message",
+  "score": 4,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your verification code is 731904. Never share it with anyone",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "protective_notice"
+  ]
+ },
+ {
+  "value": "عطني الكود اللي وصلك ضروري",
+  "type": "message",
+  "score": 71,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials"
+  ]
+ },
+ {
+  "value": "شرطة أبوظبي: لديك مخالفة مرورية غير مدفوعة بقيمة 400 درهم، ادفع خلال 24 ساعة لتجنب حجز المركبة adpolice-fines.com/pay",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "contains_risky_link",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "مرحبا، هذا رقمي الجديد اتصل علي +971551112233 بخصوص قضيه ضدك من الشرطة",
+  "type": "message",
+  "score": 82,
+  "level": "dangerous",
+  "codes": [
+   "tactic_threat",
+   "tactic_impersonation",
+   "tactic_new_number",
+   "contains_phone",
+   "combo_impersonation",
+   "combo_official_personal_number"
+  ]
+ },
+ {
+  "value": "شرطة أبوظبي: لديك مخالفة مرورية غير مدفوعة بقيمة 500 درهم، يرجى السداد خلال 24 ساعة لتجنب حجز المركبة عبر الرابط",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "تنبيه من وزارة الداخلية: تم تسجيل مخالفة على هويتك، ادفع الغرامة فورا عبر الرابط لتجنب الإجراءات القانونية",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Dubai Police: You have an unpaid traffic fine of AED 300. Pay within 24 hours to avoid vehicle impound: click the link",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "عزيزي المتعامل تم إيقاف هويتك الإماراتية مؤقتا، يرجى تحديث بياناتك عبر الرابط لتجنب الحظر",
+  "type": "message",
+  "score": 90,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_threat",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "Your Emirates ID has been suspended. Update your details immediately at the link below to avoid legal action",
+  "type": "message",
+  "score": 92,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_urgency",
+   "tactic_threat"
+  ]
+ },
+ {
+  "value": "تم رصد بلاغ ضدك في النيابة العامة، تواصل فورا مع الضابط على الرقم لتسوية القضية ودفع الكفالة",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "This is the police department. A case has been filed against you. Call the officer now and transfer the bail amount",
+  "type": "message",
+  "score": 99,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "عزيزي العميل تم إيقاف بطاقتك البنكية، يرجى إرسال رمز التحقق المرسل إليك لإعادة التفعيل",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_threat",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "المصرف: حسابك معلق، أرسل الرقم السري وتاريخ انتهاء البطاقة لتحديث البيانات",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_personal_data",
+   "tactic_threat",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your bank account has been blocked due to suspicious activity. Reply with the OTP code to unlock it",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_threat",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Dear customer, your card will be deactivated today. Verify your card number and CVV at the secure link",
+  "type": "message",
+  "score": 92,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_threat"
+  ]
+ },
+ {
+  "value": "هلا اخوي انا موظف البنك، وصلك كود على تلفونك عطني اياه عشان نحدث حسابك لا يتوقف",
+  "type": "message",
+  "score": 58,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_impersonation"
+  ]
+ },
+ {
+  "value": "We detected a login to your account. If this was not you, confirm your password and PIN here to secure your account",
+  "type": "message",
+  "score": 86,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "تحديث بيانات العميل إلزامي، يرجى إدخال رقم البطاقة والرقم السري ورمز التحقق خلال ساعة",
+  "type": "message",
+  "score": 88,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_urgency"
+  ]
+ },
+ {
+  "value": "Please share the 6 digit verification code we just sent you to complete your account upgrade",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials"
+  ]
+ },
+ {
+  "value": "شحنتك معلقة في الجمارك، يرجى دفع رسوم التوصيل 12 درهم عبر الرابط لإعادة الجدولة",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_parcel",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "بريد الإمارات: لم نتمكن من توصيل طردك بسبب نقص العنوان، ادفع رسوم بسيطة لإعادة التوصيل",
+  "type": "message",
+  "score": 89,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_parcel",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your package is on hold at customs. Pay the AED 9.99 delivery fee now to release your parcel",
+  "type": "message",
+  "score": 66,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_parcel"
+  ]
+ },
+ {
+  "value": "Aramex: we attempted delivery of your parcel. Confirm your address and pay the redelivery fee here",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_parcel",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "DHL: your shipment is pending payment of customs duty, pay now or it will be returned to sender",
+  "type": "message",
+  "score": 89,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_parcel",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "مبروك! لقد ربحت جائزة نقدية بقيمة 100,000 درهم في السحب الشهري، أرسل بيانات حسابك لاستلام الجائزة",
+  "type": "message",
+  "score": 82,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_prize"
+  ]
+ },
+ {
+  "value": "مبروك فزت بسيارة جديدة من اتصالات، ادفع رسوم التسجيل لاستلام جائزتك",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_prize",
+   "tactic_payment",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Congratulations! You are the lucky winner of AED 50,000. Send your bank details to claim your prize",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_prize",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "You have won an iPhone 16 in our anniversary draw. Pay the shipping fee to receive your gift",
+  "type": "message",
+  "score": 78,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_prize",
+   "tactic_payment"
+  ]
+ },
+ {
+  "value": "مبروك تم اختيار رقمك في سحب اكسبو، للاستلام تواصل معنا على الواتساب",
+  "type": "message",
+  "score": 56,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "وظيفة من البيت بدخل يومي 800 درهم، فقط لايكات ومتابعات، تواصل واتساب",
+  "type": "message",
+  "score": 68,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_job",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "Part time job: earn AED 1000 daily by liking videos. Contact us on WhatsApp now, limited places",
+  "type": "message",
+  "score": 80,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_job",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "استثمر 1000 درهم واحصل على 5000 درهم خلال أسبوع، أرباح مضمونة 100٪ في العملات الرقمية",
+  "type": "message",
+  "score": 68,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "Guaranteed profit! Invest in our bitcoin trading platform and double your money in 7 days",
+  "type": "message",
+  "score": 68,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "فرصة استثمارية حصرية، أرباح يومية مضمونة بدون مخاطرة، حول المبلغ وابدأ اليوم",
+  "type": "message",
+  "score": 78,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "Earn passive income with our crypto mining plan, minimum deposit only 500, withdraw anytime, guaranteed returns",
+  "type": "message",
+  "score": 78,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "نبحث عن موظفين بدوام جزئي براتب 15000 بدون خبرة، ادفع رسوم التأشيرة فقط",
+  "type": "message",
+  "score": 72,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_job"
+  ]
+ },
+ {
+  "value": "اتصالات: لقد ربحت 50 جيجا مجانا، اضغط على الرابط وأدخل بيانات بطاقتك للتفعيل",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_prize",
+   "tactic_impersonation",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your WhatsApp account will be deleted in 24 hours. Verify now by sending the code you received",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_threat",
+   "tactic_impersonation",
+   "tactic_off_platform",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "هيئة الكهرباء: فاتورتك متأخرة وسيتم قطع الخدمة اليوم، ادفع فورا عبر الرابط",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_call_to_action",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your DEWA bill is overdue, service will be disconnected today unless you pay via the link",
+  "type": "message",
+  "score": 99,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your Netflix subscription failed. Update your payment information within 24 hours to avoid suspension",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_urgency"
+  ]
+ },
+ {
+  "value": "حسابك في انستقرام بيتم حذفه بسبب انتهاك حقوق النشر، ادخل الرابط واعترض خلال 24 ساعة",
+  "type": "message",
+  "score": 62,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency"
+  ]
+ },
+ {
+  "value": "هلا يمه هذا رقمي الجديد، تلفوني خربان، ممكن تحولين لي 2000 درهم ضروري الحين",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_new_number"
+  ]
+ },
+ {
+  "value": "Hi mum this is my new number, my phone broke. Can you transfer me some money urgently, I will explain later",
+  "type": "message",
+  "score": 86,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_payment",
+   "tactic_new_number"
+  ]
+ },
+ {
+  "value": "Hello dear, I am a widow with a large inheritance and I need your help to transfer funds to your account",
+  "type": "message",
+  "score": 60,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment"
+  ]
+ },
+ {
+  "value": "حسابك بينقفل اليوم اذا ما حدثت بياناتك، ادخل على الرابط",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_threat",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "معك خدمة العملاء، نحتاج نتأكد من بياناتك، عطني الرقم اللي وصلك",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_personal_data",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "تم تعليق حسابك بسبب نشاط غير معتاد، يرجى الدخول للرابط وتأكيد هويتك",
+  "type": "message",
+  "score": 90,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_threat",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "قرض فوري بدون كفيل وبدون فوائد، تواصل معنا واتساب",
+  "type": "message",
+  "score": 74,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_investment",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "دبل فلوسك خلال يومين مع منصتنا، ربح مضمون",
+  "type": "message",
+  "score": 80,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "ارسل صورة الهوية من الوجهين عشان نكمل التحويل",
+  "type": "message",
+  "score": 74,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_payment"
+  ]
+ },
+ {
+  "value": "انتهت صلاحية بطاقتك، حدث بيانات البطاقة عبر الرابط",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_threat",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "Your account is locked due to suspicious activity, login to verify now",
+  "type": "message",
+  "score": 76,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_threat",
+   "tactic_call_to_action"
+  ]
+ },
+ {
+  "value": "Instant loan approved, no documents needed, contact us on WhatsApp",
+  "type": "message",
+  "score": 74,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_investment",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "السلام عليكم، كيف حالك؟ نشوفك بكرة في المجلس إن شاء الله",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Hi, are we still meeting for lunch tomorrow at 1pm?",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "تذكير: موعدك في العيادة يوم الثلاثاء الساعة 10 صباحا، يرجى الحضور قبل الموعد بعشر دقائق",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Reminder: your dental appointment is on Tuesday at 10:00 AM. Reply C to confirm",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "تم خصم مبلغ 245 درهم من بطاقتك المنتهية بـ 4417 لدى كارفور. إذا لم تقم بهذه العملية اتصل بالرقم الموجود خلف البطاقة",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "AED 245.00 spent on your card ending 4417 at Carrefour. If this was not you, call the number on the back of your card",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "لن نطلب منك أبدا رمز التحقق أو الرقم السري. رمز الدخول الخاص بك هو 482913 لا تشاركه مع أحد",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "protective_notice"
+  ]
+ },
+ {
+  "value": "Your verification code is 482913. Never share this code with anyone, including bank staff",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "protective_notice"
+  ]
+ },
+ {
+  "value": "تم استلام طلبك رقم 55821 وسيتم التوصيل خلال يومين عمل",
+  "type": "message",
+  "score": 18,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "tactic_urgency",
+   "tactic_parcel"
+  ]
+ },
+ {
+  "value": "Your order #55821 has been shipped and will arrive within 2 business days. Track it in the app",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "اجتماع الفريق اليوم الساعة 3 في قاعة الاجتماعات، لا تنسى تجيب اللابتوب",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Team meeting moved to 3pm in the main conference room, please bring your laptop",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "شكرا لتسوقك معنا، نتمنى لك يوما سعيدا",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Thank you for your payment of AED 350 for your mobile bill. Your next bill is due on the 15th",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "الفاتورة الشهرية متوفرة الآن في تطبيق الخدمات، يمكنك الدفع من خلال التطبيق الرسمي",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your monthly statement is now available in the official app",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "مبروك على المولود الجديد، الله يحفظه ويخليه لكم",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Congratulations on your graduation! So proud of you",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "ابوي يقول مرو علينا اليوم بعد صلاة المغرب للعشا",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Can you send me the slides from yesterday’s presentation?",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "الرحلة إلى العين يوم الجمعة، نتحرك الساعة 7 الصبح",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Flight EK201 is on time. Boarding starts at 14:20 from gate B12",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "تم تجديد رخصة القيادة بنجاح، يمكنك تحميل النسخة الرقمية من التطبيق الرسمي",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your vehicle registration has been renewed successfully. View it in the official app",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "وصلت البيت؟ طمني عليك",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Did you get home safely?",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "المدرسة: سيكون يوم الخميس إجازة رسمية بمناسبة اليوم الوطني",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "School notice: Thursday is a public holiday for National Day",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your Careem ride has arrived. Look for a white Lexus, plate 12345",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "تمت إضافة نقاط الولاء إلى حسابك، شكرا لاختيارك لنا",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your gym membership renews next week. Visit the front desk if you want to change your plan",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "أبغي أحجز طاولة لأربعة أشخاص الساعة 8 الليلة",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Please review the attached contract and send your comments by Sunday",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "الله يعطيك العافية على الشغل اليوم، كان عرض ممتاز",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Happy birthday! Wishing you a wonderful year ahead",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "ممكن ترسل لي موقع المطعم؟",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "The electricity in the building will be off on Saturday from 9 to 11 for maintenance",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "تم استلام بلاغك رقم 2231 وسيتم التواصل معك من قبل الفريق المختص",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Your Amazon return has been received. Your refund will appear in 3 to 5 business days",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "بكرة الدوام عن بعد بسبب الأحوال الجوية حسب تعميم الجهة",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Weather alert from NCM: fog expected tonight, drive carefully",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "هلا اخوي شخبارك؟ نتغدى اليوم مع الشباب؟",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "هلا والله، وصلت ولا باقي؟",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "اخوي ارسلت لك الملف على الايميل، شوفه وقول لي رايك",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "يمه بنمر عليكم الحين، تبين شي من الجمعية؟",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Hey bro, are you coming to the match tonight?",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Sure, I will call you when I get to the office",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "عطني رقمك الجديد عشان اسجله عندي",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "ارسل لي رقمك عشان اضيفك في القروب",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "الكود حق الواي فاي مكتوب على الراوتر",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "جدد جوازك قبل السفر لا تنسى",
+  "type": "message",
+  "score": 10,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "tactic_payment"
+  ]
+ },
+ {
+  "value": "مبروك الترقية يا بطل، تستاهل",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Congratulations on the new job, well deserved",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "شرطة دبي: عليك مخالفة 600 درهم غير مدفوعة، ادفعها خلال 24 ساعة لتجنب حجز السيارة dxbpolice-fines.top",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_payment",
+   "tactic_impersonation",
+   "contains_risky_link",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "تم خصم 89 درهم من بطاقتك المنتهية بـ 4417 لدى لولو. إذا لم تقم بالعملية اتصل بالرقم خلف البطاقة",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "هلا اخوي، أنا من خدمة العملاء في البنك، وصلك كود على جوالك؟ عطني اياه عشان نوقف العملية المشبوهة",
+  "type": "message",
+  "score": 58,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_impersonation"
+  ]
+ },
+ {
+  "value": "رمز التحقق الخاص بك هو 731904. لا تشاركه مع أي أحد بما في ذلك موظفي البنك",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "protective_notice"
+  ]
+ },
+ {
+  "value": "بريد الإمارات: طردك موقوف لعدم اكتمال العنوان، ادفع 7 دراهم لإعادة التوصيل emiratespost-ae.click",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "tactic_parcel",
+   "contains_risky_link",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "تم شحن طلبك رقم 88213 وسيصلك خلال يومين عمل، تقدر تتابعه من التطبيق",
+  "type": "message",
+  "score": 12,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "tactic_urgency"
+  ]
+ },
+ {
+  "value": "مبروك! رقمك فاز بسيارة في سحب اليوم الوطني، تواصل واتساب لاستلام الجائزة ودفع رسوم التسجيل",
+  "type": "message",
+  "score": 84,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_prize",
+   "tactic_payment",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "يمه هذا رقمي الجديد، تلفوني طاح وانكسر، حولي لي 1200 درهم ضروري الحين وبرجعهم بكرة",
+  "type": "message",
+  "score": 85,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_payment",
+   "tactic_new_number"
+  ]
+ },
+ {
+  "value": "تذكير: موعدك في المستشفى يوم الأحد الساعة 9 صباحاً، يرجى الحضور قبل الموعد بربع ساعة",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "استثمر 2000 درهم في منصتنا للعملات الرقمية واربح 10000 خلال أسبوع، أرباح مضمونة بدون مخاطرة",
+  "type": "message",
+  "score": 86,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_prize",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "وظيفة من البيت براتب 900 درهم يومياً، بس تسوي لايكات للفيديوهات، بدون خبرة",
+  "type": "message",
+  "score": 62,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_job"
+  ]
+ },
+ {
+  "value": "تم تجديد رخصة القيادة بنجاح، تقدر تحمل النسخة الرقمية من التطبيق الرسمي",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "icp-uae.gov-ae.info/update تحديث الهوية الإماراتية إلزامي خلال 48 ساعة وإلا سيتم إيقافها",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_urgency",
+   "tactic_threat",
+   "contains_risky_link"
+  ]
+ },
+ {
+  "value": "الاجتماع اليوم الساعة 4 في المكتب، لا تنسى الملف",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "اتصالات: ربحت 100 جيجا مجاناً، ادخل بيانات بطاقتك في الرابط للتفعيل",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_prize",
+   "tactic_impersonation",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "هلا والله، وصلت البيت؟ طمني عليك",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Dubai Police: unpaid fine AED 600. Pay within 24 hours to avoid vehicle impound: dxbpolice-fines.top",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_threat",
+   "tactic_payment",
+   "tactic_impersonation",
+   "contains_risky_link",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "AED 89.00 spent on your card ending 4417 at Lulu. If this was not you, call the number on the back of your card",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Hi, this is your bank’s customer service. You received a code just now, please share it so we can stop a suspicious transaction",
+  "type": "message",
+  "score": 58,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_impersonation"
+  ]
+ },
+ {
+  "value": "Your verification code is 731904. Never share it with anyone, including bank staff",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language",
+   "protective_notice"
+  ]
+ },
+ {
+  "value": "Emirates Post: your parcel is on hold due to an incomplete address. Pay AED 7 for redelivery: emiratespost-ae.click",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_impersonation",
+   "tactic_parcel",
+   "contains_risky_link",
+   "combo_impersonation"
+  ]
+ },
+ {
+  "value": "Your order #88213 has shipped and will arrive within 2 business days. Track it in the app",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Congratulations! Your number won a car in the National Day draw. Contact us on WhatsApp and pay the registration fee",
+  "type": "message",
+  "score": 66,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_payment",
+   "tactic_off_platform"
+  ]
+ },
+ {
+  "value": "Hi mum, this is my new number, my phone broke. Can you transfer me AED 1200 urgently, I will return it tomorrow",
+  "type": "message",
+  "score": 86,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_urgency",
+   "tactic_payment",
+   "tactic_new_number"
+  ]
+ },
+ {
+  "value": "Reminder: your hospital appointment is on Sunday at 9 AM. Please arrive 15 minutes early",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "Invest AED 2000 on our crypto platform and earn 10000 in a week. Guaranteed profit, no risk",
+  "type": "message",
+  "score": 68,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_investment"
+  ]
+ },
+ {
+  "value": "Part time job from home: earn AED 900 daily just by liking videos, no experience needed",
+  "type": "message",
+  "score": 62,
+  "level": "suspicious",
+  "codes": [
+   "ml_scam_language",
+   "tactic_job"
+  ]
+ },
+ {
+  "value": "Your driving licence has been renewed. Download the digital copy from the official app",
+  "type": "message",
+  "score": 0,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "icp-uae.gov-ae.info/update Emirates ID update is mandatory within 48 hours or it will be suspended",
+  "type": "message",
+  "score": 100,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_personal_data",
+   "tactic_urgency",
+   "tactic_threat",
+   "contains_risky_link"
+  ]
+ },
+ {
+  "value": "Meeting today at 4pm in the office, don’t forget the file",
+  "type": "message",
+  "score": 1,
+  "level": "safe",
+  "codes": [
+   "ml_normal_language"
+  ]
+ },
+ {
+  "value": "You won 100GB free data! Enter your card details at the link to activate",
+  "type": "message",
+  "score": 90,
+  "level": "dangerous",
+  "codes": [
+   "ml_scam_language",
+   "tactic_credentials",
+   "tactic_prize"
+  ]
+ }
+]

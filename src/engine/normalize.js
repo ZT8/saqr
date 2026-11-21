@@ -79,4 +79,4 @@ function tokenize(text) {
   return tokens;
 }
 
-module.exports = { normalizeText, normalizeDigits, normalizeArabic, tokenize, extractUrls, extractPhones, URL_RE };
+module.exports = { normalizeText, normalizeDigits, normalizeArabic, tokenize, extractUrls, extractPhones, URL_RE, PHONE_RE, STOPWORDS };

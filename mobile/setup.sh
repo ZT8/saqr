@@ -24,6 +24,13 @@ fi
 /usr/libexec/PlistBuddy -c "Add :CFBundleLocalizations:0 string ar" "$PLIST" 2>/dev/null || true
 /usr/libexec/PlistBuddy -c "Add :CFBundleLocalizations:1 string en" "$PLIST" 2>/dev/null || true
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName صقر" "$PLIST" 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Set :CFBundleName Saqr" "$PLIST" 2>/dev/null || true
+
+# Android: app name on the home screen.
+perl -pi -e 's/android:label="saqr"/android:label="صقر"/' "$MANIFEST"
 
 flutter pub get
+
+# App icon (the falcon eye) for both platforms.
+dart run flutter_launcher_icons
 echo "Done. Run: flutter run"

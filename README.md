@@ -221,6 +221,9 @@ On the Scan page, use the example chips, or paste any of these:
 - `+882 1600 4471`
 - `هلا اخوي، نتغدى اليوم؟`
 
+### Mobile app (iOS + Android)
+A Flutter app in [`mobile/`](mobile/README.md) talks to the same API and uses the same strings. It includes scan, report, registry, practice, extortion help, family protection and elder mode. It also comes with an optional iOS **SMS filter extension** (Swift) that moves scam SMS from unknown senders into *Junk* on the device. Setup and build steps for the APK and IPA are in `mobile/README.md`.
+
 ### Threat feeds and scam phrases
 ```bash
 npm run feeds:update     # download every enabled feed now

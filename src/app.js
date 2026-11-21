@@ -60,6 +60,17 @@ function createApp(config) {
 
   // ---------- Public API ----------
   const api = express.Router();
+  // Shared UI strings (the same dictionary the web app uses) for the mobile app.
+  const i18nJson = (() => {
+    try {
+      const vm = require('vm');
+      const ctx = { localStorage: undefined, document: undefined, console };
+      vm.createContext(ctx);
+      vm.runInContext(require('fs').readFileSync(path.join(__dirname, '..', 'public', 'js', 'i18n.js'), 'utf8') + ';globalThis.__I18N = I18N;', ctx);
+      return JSON.stringify(ctx.__I18N);
+    } catch (e) { console.error('[saqr] i18n export failed', e.message); return '{}'; }
+  })();
+  api.get('/i18n', (req, res) => res.type('json').set('Cache-Control', 'public, max-age=3600').send(i18nJson));
   api.get('/meta', (req, res) => res.json({ categories: CATEGORIES, channels: CHANNELS, emirates: EMIRATES, platforms: PLATFORMS, demands: DEMANDS }));
   api.get('/stats', wrap(() => svc.publicStats()));
 

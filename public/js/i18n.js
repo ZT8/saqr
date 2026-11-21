@@ -629,3 +629,22 @@ Object.assign(I18N.en, {
   tac_payment: 'Asks for payment', tac_impersonation: 'Impersonation', tac_parcel: 'Parcels', tac_investment: 'Investment and loans', tac_job: 'Fake jobs',
   tac_off_platform: 'Moves chat to another app', tac_new_number: 'Relative on a new number', tac_call_to_action: 'Asks to tap a link',
 });
+// ---------- Mobile app (Flutter) strings ----------
+Object.assign(I18N.ar, {
+  app_more: 'المزيد', app_settings: 'الإعدادات', app_server: 'عنوان خادم صقر', app_server_hint: 'مثال: https://saqr.example أو http://10.0.2.2:3000 لمحاكي أندرويد',
+  app_save: 'حفظ', app_saved: 'تم الحفظ', app_language: 'اللغة', app_offline: 'تعذّر الوصول للخادم. تأكد من الاتصال أو من عنوان الخادم في الإعدادات.',
+  app_paste: 'لصق', app_clear: 'مسح', app_elder_mode: 'وضع كبار السن', app_elder_d: 'شاشة مبسطة بخط كبير، والنتيجة تنقرأ بصوت، وتنبيه للعائلة.',
+  app_guardian: 'أنا ابن أو بنت: أبي أحمي أهلي', app_pair: 'ربط مع العائلة', app_pair_d: 'الصق رابط أو رمز الحماية اللي أرسله لك ابنك أو بنتك.',
+  app_pair_ph: 'الرابط أو الرمز', app_paired_ok: 'تم الربط مع العائلة', app_unpair: 'إلغاء الربط', app_share_link: 'مشاركة الرابط',
+  app_help_d: 'دليل خطوة بخطوة وبلاغ سري مع أدلة مشفّرة.', app_family_d: 'تنبيه لك إذا وصلت أهلك رسالة خطيرة.', app_call999: 'اتصل 999',
+  app_pick_files: 'اختيار ملفات', app_files_n: 'تم اختيار {n} ملف', app_version: 'الإصدار',
+});
+Object.assign(I18N.en, {
+  app_more: 'More', app_settings: 'Settings', app_server: 'Saqr server address', app_server_hint: 'e.g. https://saqr.example, or http://10.0.2.2:3000 for the Android emulator',
+  app_save: 'Save', app_saved: 'Saved', app_language: 'Language', app_offline: 'Could not reach the server. Check your connection or the server address in Settings.',
+  app_paste: 'Paste', app_clear: 'Clear', app_elder_mode: 'Elder mode', app_elder_d: 'A simple screen with large text, the verdict read aloud, and family alerts.',
+  app_guardian: 'I am a son or daughter: protect my parents', app_pair: 'Link with family', app_pair_d: 'Paste the protection link or code your son or daughter sent you.',
+  app_pair_ph: 'Link or code', app_paired_ok: 'Linked with your family', app_unpair: 'Unlink', app_share_link: 'Share link',
+  app_help_d: 'A step-by-step guide and a confidential report with encrypted evidence.', app_family_d: 'An alert for you if your parents receive a dangerous message.', app_call999: 'Call 999',
+  app_pick_files: 'Choose files', app_files_n: '{n} files chosen', app_version: 'Version',
+});

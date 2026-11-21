@@ -5,3 +5,7 @@ data/
 .DS_Store
 .impeccable/
 .taste-skill/
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins*
+mobile/pubspec.lock

@@ -1,0 +1,34 @@
+# Cloud builds on Codemagic (https://codemagic.io): Android APK and an iOS build on their Macs.
+# Put this file at the repository root if Codemagic does not find it here, or set the build path to `mobile`.
+workflows:
+  saqr-android:
+    name: Saqr Android APK
+    instance_type: mac_mini_m2
+    working_directory: mobile
+    environment:
+      flutter: stable
+    scripts:
+      - name: Create platform folders and get packages
+        script: ./setup.sh
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build APK
+        script: flutter build apk --release
+    artifacts:
+      - mobile/build/app/outputs/flutter-apk/*.apk
+
+  saqr-ios:
+    name: Saqr iOS (unsigned; add App Store Connect signing for an installable IPA)
+    instance_type: mac_mini_m2
+    working_directory: mobile
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Create platform folders and get packages
+        script: ./setup.sh
+      - name: Build iOS (no code signing)
+        script: flutter build ios --release --no-codesign
+    artifacts:
+      - mobile/build/ios/iphoneos/Runner.app

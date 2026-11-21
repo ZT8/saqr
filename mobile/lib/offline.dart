@@ -179,7 +179,7 @@ class OfflineEngine {
   }
 
   Map<String, dynamic> _result(String type, String input, int score, List<Map<String, dynamic>> reasons, [Map<String, dynamic> extra = const {}]) {
-    final s = score.clamp(0, 100);
+    final s = score.clamp(0, 100).toInt();
     return {
       'type': type,
       'input': input,
@@ -226,8 +226,8 @@ class OfflineEngine {
 
     final linkRes = links.map(_url).toList();
     final phoneRes = _extractPhones(text).map(_phone).toList();
-    final maxLink = linkRes.fold<int>(0, (m, l) => math.max(m, l['score'] as int));
-    final maxPhone = phoneRes.fold<int>(0, (m, p) => math.max(m, p['score'] as int));
+    final maxLink = linkRes.fold<int>(0, (m, l) => math.max<int>(m, l['score'] as int));
+    final maxPhone = phoneRes.fold<int>(0, (m, p) => math.max<int>(m, p['score'] as int));
     if (linkRes.isNotEmpty) add(maxLink >= 50 ? 'contains_risky_link' : 'contains_link', maxLink >= 50 ? 'high' : 'low', {'count': linkRes.length});
     if (phoneRes.isNotEmpty) add(maxPhone >= 50 ? 'contains_risky_phone' : 'contains_phone', maxPhone >= 50 ? 'high' : 'low', {'count': phoneRes.length});
 
@@ -241,12 +241,12 @@ class OfflineEngine {
       rulePoints += 10;
     }
 
-    var score = mlPoints + math.min(rulePoints, 50) + (maxLink * 0.5).round() + (maxPhone * 0.35).round();
-    if (tactics.isEmpty && linkRes.isEmpty && phoneRes.isEmpty && pred.probability < 0.6) score = math.min(score, 25);
-    final floor = tactics.keys.fold<int>(0, (m, k) => math.max(m, _tactics[k]!.floor));
-    score = math.max(score, floor);
+    var score = mlPoints + math.min<int>(rulePoints, 50) + (maxLink * 0.5).round() + (maxPhone * 0.35).round();
+    if (tactics.isEmpty && linkRes.isEmpty && phoneRes.isEmpty && pred.probability < 0.6) score = math.min<int>(score, 25);
+    final floor = tactics.keys.fold<int>(0, (m, k) => math.max<int>(m, _tactics[k]!.floor));
+    score = math.max<int>(score, floor);
     final strong = tactics.keys.where((k) => !const ['impersonation', 'parcel', 'off_platform'].contains(k)).length;
-    if (strong >= 2) score = math.max(score, 55 + 8 * (strong - 2));
+    if (strong >= 2) score = math.max<int>(score, 55 + 8 * (strong - 2));
 
     return _result('message', text, score, reasons, {
       'model': {'probability': double.parse(pred.probability.toStringAsFixed(3))},
@@ -273,7 +273,7 @@ class OfflineEngine {
     for (var i = 1; i <= a.length; i++) {
       final cur = <int>[i];
       for (var j = 1; j <= b.length; j++) {
-        cur.add([prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)].reduce(math.min));
+        cur.add([prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)].reduce((x, y) => x < y ? x : y));
       }
       prev = cur;
     }
@@ -320,7 +320,7 @@ class OfflineEngine {
     final official = _isOfficial(host);
     final trusted = official || _trusted.contains(reg) || _trusted.contains(host);
     final tokens = host.split(RegExp(r'[.-]')).where((x) => x.isNotEmpty).toList();
-    final subLabels = host.substring(0, math.max(0, host.length - reg.length)).split('.').where((x) => x.isNotEmpty).toList();
+    final subLabels = host.substring(0, math.max<int>(0, host.length - reg.length)).split('.').where((x) => x.isNotEmpty).toList();
     final isHttp = explicit && url.scheme == 'http';
 
     if (trusted) {
@@ -364,7 +364,7 @@ class OfflineEngine {
 
     final full = '$host${url.path.isEmpty ? '/' : url.path}${url.hasQuery ? '?${url.query}' : ''}'.toLowerCase();
     final words = _phishWords.where((w) => RegExp('(^|[^a-z])$w([^a-z]|\$)').hasMatch(full)).toList();
-    if (words.isNotEmpty) add('phish_words', math.min(30, words.length * 11), words.length > 1 ? 'medium' : 'low', {'terms': words.take(4).toList()});
+    if (words.isNotEmpty) add('phish_words', math.min<int>(30, words.length * 11), words.length > 1 ? 'medium' : 'low', {'terms': words.take(4).toList()});
     if (tokens.contains('uae') || tokens.contains('ae') || RegExp('emirates|dubai|abudhabi').hasMatch(host)) {
       if (words.isNotEmpty && !reasons.any((r) => const ['gov_spoof', 'authority_unofficial', 'brand_unofficial'].contains(r['code']))) {
         add('uae_service_lookalike', 22, 'high', {'domain': reg});
@@ -430,7 +430,7 @@ class OfflineEngine {
       if (premium != null) {
         add('premium_range', 50, 'high', {'prefix': '+$premium'});
       } else {
-        add('international', 24, 'medium', {'prefix': '+${d.substring(0, math.min(3, d.length))}'});
+        add('international', 24, 'medium', {'prefix': '+${d.substring(0, math.min<int>(3, d.length))}'});
       }
       if (d.length < 8 || d.length > 15) add('phone_invalid', 20, 'medium');
     }

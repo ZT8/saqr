@@ -5,11 +5,12 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 flutter create --platforms=android,ios --org ae.saqr --project-name saqr .
+rm -f test/widget_test.dart   # template test for the counter app; Saqr has its own tests
 
 # Android: internet permission for release builds + plain-http to a dev server.
 MANIFEST=android/app/src/main/AndroidManifest.xml
 grep -q 'android.permission.INTERNET' "$MANIFEST" || \
-  sed -i.bak 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application android:usesCleartextTraffic="true"#' "$MANIFEST"
+  perl -0pi -e 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application android:usesCleartextTraffic="true"#' "$MANIFEST"
 
 # iOS: allow http on the local network for development (use https in production).
 PLIST=ios/Runner/Info.plist

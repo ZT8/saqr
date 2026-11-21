@@ -1,4 +1,7 @@
 name: Mobile builds (IPA + APK)
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -38,3 +41,23 @@ jobs:
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with: { name: saqr-android-apk, path: mobile/build/app/outputs/flutter-apk/app-release.apk }
+
+  publish:
+    needs: [ios, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: out, merge-multiple: true }
+      - name: Attach to the "mobile-latest" release
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release delete mobile-latest -R "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create mobile-latest -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Saqr mobile (latest build)" --notes "Built from $GITHUB_SHA. The IPA is unsigned: sign it (Sideloadly, AltStore or your certificate) before installing." \
+            out/saqr-unsigned.ipa out/app-release.apk
+      - name: Store builds on the "builds" branch
+        run: |
+          git init -q b && cd b && git checkout -q -b builds
+          cp ../out/saqr-unsigned.ipa ../out/app-release.apk .
+          git -c user.name=ci -c user.email=ci@saqr.local add . && git -c user.name=ci -c user.email=ci@saqr.local commit -qm "Builds for $GITHUB_SHA"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/$GITHUB_REPOSITORY" builds

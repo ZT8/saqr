@@ -69,11 +69,10 @@ class _ScanScreenState extends State<ScanScreen> {
   Widget build(BuildContext context) {
     final types = ['auto', 'message', 'url', 'phone'];
     return Pad(controller: _scroll, children: [
-      SizedBox(
-        height: 170,
-        child: Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: FractionallySizedBox(widthFactor: .78, child: HeroEye(level: _result?['level'] as String?, mirror: !Strings.I.isRtl)),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Center(
+          child: FractionallySizedBox(widthFactor: .62, child: HeroEye(level: _result?['level'] as String?)),
         ),
       ),
       H1(t('hero_title')),

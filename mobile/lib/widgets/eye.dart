@@ -124,7 +124,7 @@ class HeroEye extends StatelessWidget {
           builder: (context, ic, _) => Transform(
             alignment: Alignment.center,
             transform: Matrix4.diagonal3Values(mirror ? -1 : 1, 1, 1),
-            child: CustomPaint(painter: _HeroEyePainter(open: open, pupil: p ?? pupil, iris: ic ?? iris), child: const AspectRatio(aspectRatio: 10 / 7)),
+            child: CustomPaint(painter: _HeroEyePainter(open: open, pupil: p ?? pupil, iris: ic ?? iris), child: const AspectRatio(aspectRatio: 10 / 6.6)),
           ),
         ),
       ),
@@ -140,7 +140,7 @@ class _HeroEyePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final eyeH = size.height * (660 / 700);
+    final eyeH = size.height;
     final eye = Size(size.width, eyeH);
     // The lid opens from a line to the full almond.
     canvas.save();
@@ -148,19 +148,11 @@ class _HeroEyePainter extends CustomPainter {
     canvas.scale(1, math.max(open, 0.001));
     canvas.drawPath(eyePath(eye), Paint()..color = C.accent);
     canvas.restore();
-    final center = Offset(size.width * .54, eyeH * .5);
+    final center = Offset(size.width * .5, eyeH * .5);
     final r = eyeH * .29 * open;
     canvas.drawCircle(center, r, Paint()..color = iris);
     canvas.drawOval(Rect.fromCenter(center: center, width: size.width * pupil.width * .5 * open, height: eyeH * pupil.height * open), Paint()..color = C.ink);
     canvas.drawCircle(center + Offset(r * .26, -r * .29), r * .12, Paint()..color = Colors.white);
-    // The falcon's malar stripe.
-    final stripe = Path()
-      ..moveTo(size.width * .30, eyeH * .85)
-      ..cubicTo(size.width * .27, eyeH * .94, size.width * .24, size.height * .97, size.width * .19, size.height)
-      ..lineTo(size.width * .26, size.height)
-      ..cubicTo(size.width * .30, size.height * .94, size.width * .33, eyeH * .94, size.width * .35, eyeH * .87)
-      ..close();
-    canvas.drawPath(stripe, Paint()..color = C.ink.withValues(alpha: open));
   }
 
   @override

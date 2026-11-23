@@ -6,9 +6,11 @@ const path = require('path');
 
 function loadKey(config) {
   if (config.evidenceKey) {
-    const k = Buffer.from(config.evidenceKey, 'hex');
-    if (k.length !== 32) throw new Error('EVIDENCE_KEY must be 64 hex characters');
-    return k;
+    // 64 hex characters are used as the raw key. Any other value (for example a secret generated
+    // by the hosting platform) must be long and random; it is hashed into a 32-byte key.
+    if (/^[0-9a-f]{64}$/i.test(config.evidenceKey)) return Buffer.from(config.evidenceKey, 'hex');
+    if (config.evidenceKey.length < 32) throw new Error('EVIDENCE_KEY must be 64 hex characters or a random secret of at least 32 characters');
+    return crypto.createHash('sha256').update(config.evidenceKey, 'utf8').digest();
   }
   // Generate once and keep beside the evidence (outside the database).
   const keyFile = path.join(path.dirname(config.evidenceDir), 'evidence.key');

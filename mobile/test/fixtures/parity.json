@@ -379,11 +379,14 @@
  {
   "value": "هلا اخوي انا موظف البنك، وصلك كود على تلفونك عطني اياه عشان نحدث حسابك لا يتوقف",
   "type": "message",
-  "score": 58,
-  "level": "suspicious",
+  "score": 100,
+  "level": "dangerous",
   "codes": [
    "ml_scam_language",
-   "tactic_impersonation"
+   "tactic_credentials",
+   "tactic_personal_data",
+   "tactic_impersonation",
+   "combo_impersonation"
   ]
  },
  {
@@ -1337,11 +1340,13 @@
  {
   "value": "هلا اخوي، أنا من خدمة العملاء في البنك، وصلك كود على جوالك؟ عطني اياه عشان نوقف العملية المشبوهة",
   "type": "message",
-  "score": 58,
-  "level": "suspicious",
+  "score": 99,
+  "level": "dangerous",
   "codes": [
    "ml_scam_language",
-   "tactic_impersonation"
+   "tactic_credentials",
+   "tactic_impersonation",
+   "combo_impersonation"
   ]
  },
  {

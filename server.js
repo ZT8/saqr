@@ -3,6 +3,12 @@ const config = require('./src/config');
 const { createApp } = require('./src/app');
 const { seedDemo } = require('./src/seed');
 
+const problems = config.productionProblems();
+if (problems.length) {
+  console.error('[saqr] refusing to start in production:\n  - ' + problems.join('\n  - '));
+  process.exit(1);
+}
+
 const { app, db, svc, cases, feeds } = createApp(config);
 
 if (config.demoData && db.prepare('SELECT COUNT(*) c FROM reports').get().c === 0) {

@@ -1,0 +1,27 @@
+# One-click deploy on Render: New → Blueprint → pick this repository.
+# Render asks for ADMIN_PASS (12+ characters) and generates the other secrets.
+services:
+  - type: web
+    name: saqr
+    runtime: docker
+    plan: starter          # a persistent disk needs a paid instance
+    healthCheckPath: /api/stats
+    disk:
+      name: saqr-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_USER
+        value: admin
+      - key: ADMIN_PASS
+        sync: false
+      - key: HASH_SECRET
+        generateValue: true
+      - key: EVIDENCE_KEY
+        generateValue: true
+      - key: DEMO_DATA
+        value: "true"      # set to "false" for a real pilot

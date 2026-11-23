@@ -9,8 +9,8 @@ const { analyzePhone } = require('./phone');
 // Each tactic: keywords in Arabic (any dialect/spelling, normalised at load) and English.
 const TACTICS = {
   // floor: a tactic this telling makes the message at least that risky on its own.
-  credentials: { points: 26, floor: 55, severity: 'high', words: ['رمز التحقق', 'رمز التفعيل', 'الرمز السري', 'الرقم السري', 'كلمه المرور', 'كلمة السر', 'الباسورد', 'كود التفعيل', 'عطني الكود', 'ارسل الكود', 'ارسل لي الكود', 'الكود اللي وصلك', 'الكود الي وصلك', 'الرمز اللي وصلك', 'الرمز الي وصلك', 'الرقم اللي وصلك', 'رقم البطاقه', 'رقم بطاقتك', 'بيانات البطاقه', 'بيانات بطاقتك', 'تاريخ انتهاء البطاقه', 'الرقم اللي ورا البطاقه', 'cvv', 'otp', 'pin', 'password', 'passcode', 'verification code', 'card number', 'card details', 'security code', 'the code you received', 'the code you got', 'code we just sent', 'send me the code', 'share the code', 'send the code'] },
-  personal_data: { points: 14, floor: 40, severity: 'medium', words: ['تحديث بياناتك', 'حدث بياناتك', 'حدّث بياناتك', 'تحديث البيانات', 'تحديث المعلومات', 'بيانات حسابك', 'رقم الهويه', 'صوره الهويه', 'صوره الجواز', 'الهويه من الوجهين', 'الهويه الاماراتيه', 'جواز السفر', 'تاكيد هويتك', 'اكد هويتك', 'نتاكد من بياناتك', 'تاكيد بياناتك', 'اكد بياناتك', 'ارسل بياناتك', 'عطني بياناتك', 'update your details', 'bank details', 'emirates id', 'confirm your address', 'personal information', 'payment information', 'confirm your identity', 'verify your identity', 'photo of your id', 'passport copy'] },
+  credentials: { points: 26, floor: 55, severity: 'high', words: ['وصلك كود', 'وصلك الكود', 'وصلك رمز', 'وصلك الرمز', 'جاك كود', 'جاك الكود', 'جاك رمز', 'رمز التحقق', 'رمز التفعيل', 'الرمز السري', 'الرقم السري', 'كلمه المرور', 'كلمة السر', 'الباسورد', 'كود التفعيل', 'عطني الكود', 'ارسل الكود', 'ارسل لي الكود', 'الكود اللي وصلك', 'الكود الي وصلك', 'الرمز اللي وصلك', 'الرمز الي وصلك', 'الرقم اللي وصلك', 'رقم البطاقه', 'رقم بطاقتك', 'بيانات البطاقه', 'بيانات بطاقتك', 'تاريخ انتهاء البطاقه', 'الرقم اللي ورا البطاقه', 'cvv', 'otp', 'pin', 'password', 'passcode', 'verification code', 'card number', 'card details', 'security code', 'the code you received', 'the code you got', 'code we just sent', 'send me the code', 'share the code', 'send the code'] },
+  personal_data: { points: 14, floor: 40, severity: 'medium', words: ['نحدث حسابك', 'تحديث حسابك', 'تحديث بياناتك', 'حدث بياناتك', 'حدّث بياناتك', 'تحديث البيانات', 'تحديث المعلومات', 'بيانات حسابك', 'رقم الهويه', 'صوره الهويه', 'صوره الجواز', 'الهويه من الوجهين', 'الهويه الاماراتيه', 'جواز السفر', 'تاكيد هويتك', 'اكد هويتك', 'نتاكد من بياناتك', 'تاكيد بياناتك', 'اكد بياناتك', 'ارسل بياناتك', 'عطني بياناتك', 'update your details', 'bank details', 'emirates id', 'confirm your address', 'personal information', 'payment information', 'confirm your identity', 'verify your identity', 'photo of your id', 'passport copy'] },
   urgency: { points: 12, severity: 'medium', words: ['عاجل', 'فورا', 'خلال 24 ساعه', 'خلال 48 ساعه', 'خلال ساعه', 'خلال يومين', 'اليوم فقط', 'اخر فرصه', 'ضروري الحين', 'جدد الحين', 'ادفع الحين', 'حول الحين', 'بسرعه', 'قبل منتصف الليل', 'urgent', 'urgently', 'immediately', 'within 24 hours', 'within 48 hours', 'today only', 'last chance', 'right now', 'act now', 'limited places', 'expires today', 'before midnight'] },
   threat: { points: 16, floor: 35, severity: 'high', words: ['ايقاف', 'تم ايقاف', 'موقوف', 'معلق', 'تعليق حسابك', 'تم تعليق', 'بينقفل', 'ينقفل', 'بيتسكر', 'سيتم اغلاق', 'سيتم حذف', 'اغلاق حسابك', 'حظر', 'حجز المركبه', 'الاجراءات القانونيه', 'قضيه', 'بلاغ ضدك', 'القبض', 'قطع الخدمه', 'حذف حسابك', 'انتهت صلاحيه', 'منتهي الصلاحيه', 'نشاط غير معتاد', 'عمليه مشبوهه', 'suspended', 'blocked', 'locked', 'deactivated', 'legal action', 'arrest', 'case has been filed', 'impound', 'disconnected', 'will be deleted', 'will be closed', 'unusual activity', 'suspicious activity', 'has expired', 'expired'] },
   prize: { points: 18, floor: 40, severity: 'high', words: ['مبروك ربحت', 'مبروك فزت', 'ربحت', 'فزت', 'جايزه', 'جايزتك', 'الفايز', 'السحب', 'هديه مجانيه', 'هديتك', 'اربح', 'كاش باك', 'congratulations you', 'you won', 'you have won', 'winner', 'prize', 'reward', 'lottery', 'lucky', 'free gift', 'claim your', 'giveaway'] },
@@ -69,7 +69,8 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
   // Legitimate OTP/security notices *warn* you not to share the code. When the message only
   // delivers a code with that warning, the credential/brand words are not a request.
   const nt = normalizeText(text);
-  if (PROTECTIVE.some((p) => nt.includes(p)) && !tactics.payment && !tactics.prize && !tactics.threat && !extractUrls(text).length) {
+  const protective = PROTECTIVE.some((p) => nt.includes(p)) && !tactics.payment && !tactics.prize && !tactics.threat && !extractUrls(text).length;
+  if (protective) {
     delete tactics.credentials;
     delete tactics.impersonation;
     add('protective_notice', 0, 'safe');
@@ -102,7 +103,13 @@ function analyzeMessage(text, { model, registry = () => null } = {}) {
 
   let score = mlPoints + Math.min(rulePoints, 50) + Math.round(maxLink * 0.5) + Math.round(maxPhone * 0.35);
   // With no tactic, link or number, only a confident language model can lift the score.
-  if (!Object.keys(tactics).length && !links.length && !phones.length && pred.probability < 0.6) score = Math.min(score, 25);
+  // Language alone is weak evidence: a message with no scam tactic, link or number stays 'safe'
+  // unless the model is very confident (bank alerts and OTP notices share scam vocabulary).
+  const bare = !Object.keys(tactics).length && !links.length && !phones.length;
+  if (bare) score = Math.min(score, pred.probability >= 0.97 ? 45 : 25);
+  // A service notice that tells the reader never to share their code, with no link and no
+  // payment/prize/threat tactic, is how legitimate OTP messages look.
+  if (protective) score = Math.min(score, 25);
   // Telling tactics set a minimum: asking for a code is suspicious however friendly the wording.
   const floor = Object.keys(tactics).reduce((m, k) => Math.max(m, TACTICS[k].floor || 0), 0);
   score = Math.max(score, floor);

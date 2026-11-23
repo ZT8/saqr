@@ -37,7 +37,9 @@ function createApp(config) {
   const sessions = sessionStore(config.sessionHours);
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback');
+  // Behind a hosting proxy (Render, Railway, nginx) set TRUST_PROXY so rate limits and reporter
+  // fingerprints use the visitor's address, not the proxy's.
+  app.set('trust proxy', config.trustProxy ?? 'loopback');
   app.use(helmet({
     contentSecurityPolicy: { directives: { 'default-src': ["'self'"], 'img-src': ["'self'", 'data:'], 'style-src': ["'self'"], 'script-src': ["'self'"] } },
     crossOriginEmbedderPolicy: false,

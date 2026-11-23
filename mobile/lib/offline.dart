@@ -212,7 +212,8 @@ class OfflineEngine {
       if (matched.isNotEmpty) tactics[e.key] = matched.take(3).toList();
     }
     final links = _extractUrls(text);
-    if (_protective.any(nt.contains) && !tactics.containsKey('payment') && !tactics.containsKey('prize') && !tactics.containsKey('threat') && links.isEmpty) {
+    final protective = _protective.any(nt.contains) && !tactics.containsKey('payment') && !tactics.containsKey('prize') && !tactics.containsKey('threat') && links.isEmpty;
+    if (protective) {
       tactics.remove('credentials');
       tactics.remove('impersonation');
       add('protective_notice', 'safe');
@@ -242,7 +243,8 @@ class OfflineEngine {
     }
 
     var score = mlPoints + math.min<int>(rulePoints, 50) + (maxLink * 0.5).round() + (maxPhone * 0.35).round();
-    if (tactics.isEmpty && linkRes.isEmpty && phoneRes.isEmpty && pred.probability < 0.6) score = math.min<int>(score, 25);
+    if (tactics.isEmpty && linkRes.isEmpty && phoneRes.isEmpty) score = math.min<int>(score, pred.probability >= 0.97 ? 45 : 25);
+    if (protective) score = math.min<int>(score, 25);
     final floor = tactics.keys.fold<int>(0, (m, k) => math.max<int>(m, _tactics[k]!.floor));
     score = math.max<int>(score, floor);
     final strong = tactics.keys.where((k) => !const ['impersonation', 'parcel', 'off_platform'].contains(k)).length;

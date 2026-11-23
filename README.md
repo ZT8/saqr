@@ -186,7 +186,7 @@ Privacy is part of the architecture, not an add-on:
 git clone <repo-url>
 cd saqr
 npm install
-cp .env.example .env      # optional; defaults work for the demo
+cp .env.example .env      # optional; the defaults work for a local demo
 npm start
 ```
 
@@ -194,16 +194,32 @@ Then open:
 - Citizen site: **http://localhost:3000**
 - Family protection: **http://localhost:3000/family** (create a link, then open it in another browser or on a phone)
 - Authority dashboard: **http://localhost:3000/dashboard**
-  - demo login: `admin` / `saqr-demo-2026` (set `ADMIN_PASS` in `.env` to change it)
+  - local demo login: `admin` / `saqr-demo-2026`. This password only works in development: with `NODE_ENV=production` Saqr refuses to start until you set your own `ADMIN_PASS`, `HASH_SECRET` and `EVIDENCE_KEY`.
 
 On first start the database is empty, so Saqr loads **fictional demo data** (about 170 reports over 30 days) so the dashboard and registry aren't blank. Set `DEMO_DATA=false` to start empty, and run `npm run reset` to delete the database.
 
 > **Install troubleshooting:** `better-sqlite3` downloads a prebuilt binary for your Node version. If `npm install` fails while building it, switch to the current Node 22 LTS (or install your OS build tools, e.g. *Visual Studio Build Tools* on Windows) and run `npm install` again.
 
+### Deploy (public server)
+The mobile app and the family pages need a server they can reach from anywhere.
+- **Render (one click):** *New → Blueprint →* pick this repository. `render.yaml` builds the `Dockerfile`, adds a 1 GB disk for the database and the encrypted evidence, and generates `HASH_SECRET` and `EVIDENCE_KEY`. Render asks you for `ADMIN_PASS` (12+ characters). Then put the service's https address in the app under *More → Settings*.
+- **Anywhere else (Docker):**
+  ```bash
+  docker build -t saqr .
+  docker run -d -p 3000:3000 -v saqr-data:/data \
+    -e ADMIN_PASS='a-long-password' -e HASH_SECRET="$(openssl rand -hex 32)" -e EVIDENCE_KEY="$(openssl rand -hex 32)" \
+    -e TRUST_PROXY=1 saqr
+  ```
+- Behind a proxy, set `TRUST_PROXY=1` so rate limits and reporter fingerprints use the visitor's address. Back up the `/data` volume, and keep a copy of `EVIDENCE_KEY` somewhere else: without it the evidence cannot be decrypted.
+
+Technical documentation (architecture, scoring, privacy design, data model, API): **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
+
 ### Tests
 ```bash
-npm test
+npm test            # 20 tests
+npm run evaluate    # detection quality: leave-one-out precision and recall
 ```
+Detection quality today: **100% recall and 92.6% precision** on the bilingual dataset (leave-one-out), and 32 of 32 on the held-out practice messages. See [docs/TECHNICAL.md §3](docs/TECHNICAL.md#3-measured-performance) for what these numbers do and don't mean.
 20 tests cover:
 - **The engine:** Arabic and English scams, Gulf-dialect and short scam phrasings, safe messages, official domains, URL and phone red flags, registry overrides, PII redaction, and the learning loop.
 - **The report flow, end to end:** report → redaction → dedupe → admin login → verify → registry → scan → CSV → audit.

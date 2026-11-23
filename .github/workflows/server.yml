@@ -1,0 +1,32 @@
+name: Server (tests + container)
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths-ignore: ['mobile/**', 'docs/**', '**.md']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run evaluate
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t saqr .
+      - name: Refuses to start without production secrets
+        run: |
+          if docker run --rm saqr; then echo "started without secrets"; exit 1; fi
+      - name: Starts and answers with secrets
+        run: |
+          docker run -d --name saqr -p 3000:3000 -e ADMIN_PASS=ci-password-1234 -e HASH_SECRET=ci -e EVIDENCE_KEY=$(openssl rand -base64 32) -e FEED_REFRESH_HOURS=0 -e DEMO_DATA=true saqr
+          for i in $(seq 1 30); do curl -fs localhost:3000/api/stats && break; sleep 1; done
+          curl -fs localhost:3000/api/scan -H 'content-type: application/json' -d '{"type":"auto","value":"ادفع المخالفة خلال 24 ساعة adpolice-fines.com/pay"}' | grep -q dangerous
+          docker logs saqr

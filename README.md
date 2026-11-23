@@ -212,7 +212,7 @@ The mobile app and the family pages need a server they can reach from anywhere.
   ```
 - Behind a proxy, set `TRUST_PROXY=1` so rate limits and reporter fingerprints use the visitor's address. Back up the `/data` volume, and keep a copy of `EVIDENCE_KEY` somewhere else: without it the evidence cannot be decrypted.
 
-Technical documentation (architecture, scoring, privacy design, data model, API): **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
+Technical documentation (architecture, scoring, privacy design, data model, API): **[docs/TECHNICAL.md](docs/TECHNICAL.md)**. Presentation (Arabic, 16 slides with speaker notes): **[docs/Saqr.pptx](docs/Saqr.pptx)**.
 
 ### Tests
 ```bash

@@ -36,6 +36,7 @@ jobs:
       - name: Generate the iOS project
         run: |
           flutter create --org ae.around --project-name around --platforms=ios .
+          rm -f test/widget_test.dart
           BUNDLE_ID="${BUNDLE_ID_SECRET:-ae.around.app}"
           echo "BUNDLE_ID=$BUNDLE_ID" >> $GITHUB_ENV
           PLIST=ios/Runner/Info.plist

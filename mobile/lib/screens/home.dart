@@ -15,7 +15,7 @@ Future<Position?> currentPosition() async {
     var p = await Geolocator.checkPermission();
     if (p == LocationPermission.denied) p = await Geolocator.requestPermission();
     if (p == LocationPermission.denied || p == LocationPermission.deniedForever) return null;
-    return await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium)).timeout(const Duration(seconds: 8));
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium, timeLimit: const Duration(seconds: 8));
   } catch (_) {
     return null;
   }

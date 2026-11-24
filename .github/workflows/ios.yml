@@ -2,6 +2,8 @@
 # - Without signing secrets: an UNSIGNED ipa (sign it with Sideloadly / AltStore).
 # - With the secrets below: a signed ipa.
 name: Around iOS IPA
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:
@@ -97,3 +99,17 @@ jobs:
         with:
           name: Around-ipa
           path: mobile/build/ipa/*.ipa
+
+      - name: Publish to the "around-latest" release and the "around-builds" branch
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IPA=$(ls mobile/build/ipa/*.ipa | head -n1)
+          gh release delete around-latest -R "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create around-latest -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Around iOS (latest build)" --notes "Built from $GITHUB_SHA. If the file name says unsigned, sign it (Sideloadly, AltStore or your certificate) before installing." "$IPA"
+          git init -q b && cd b && git checkout -q -b around-builds
+          cp "../$IPA" .
+          git -c user.name=ci -c user.email=ci@around.local add . && git -c user.name=ci -c user.email=ci@around.local commit -qm "Around build $GITHUB_SHA"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/$GITHUB_REPOSITORY" around-builds

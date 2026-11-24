@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/api.dart';
+import '../core/config.dart';
 import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
@@ -60,6 +61,32 @@ class _LoginScreenState extends State<LoginScreen> {
         await session.refresh();
       });
 
+  Future<void> serverDialog() async {
+    final c = TextEditingController(text: apiBase);
+    final v = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('عنوان الخادم'),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          keyboardType: TextInputType.url,
+          textDirection: TextDirection.ltr,
+          decoration: const InputDecoration(hintText: 'https://xxxx.trycloudflare.com'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
+          TextButton(onPressed: () => Navigator.pop(ctx, c.text), child: const Text('حفظ')),
+        ],
+      ),
+    );
+    if (v == null) return;
+    await saveServer(v);
+    if (!mounted) return;
+    setState(() {});
+    toast(context, 'تم حفظ الخادم');
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
@@ -71,7 +98,9 @@ class _LoginScreenState extends State<LoginScreen> {
             bottom: false,
             child: Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Container(
+                GestureDetector(
+                  onLongPress: serverDialog,
+                  child: Container(
                   width: 92,
                   height: 92,
                   decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 7)),
@@ -79,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: const Alignment(.75, -.75),
                     child: Container(width: 22, height: 22, decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle)),
                   ),
-                ),
+                )),
                 const SizedBox(height: 18),
                 Text('around', style: t.displaySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: -1)),
                 const SizedBox(height: 6),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/config.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'screens/login.dart';
@@ -7,6 +8,7 @@ import 'screens/shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await loadServer();
   await session.load();
   runApp(const AroundApp());
 }

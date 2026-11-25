@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/api.dart';
 import '../core/cart.dart';
 import '../core/format.dart';
+import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
 import 'order.dart';
@@ -21,12 +22,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String method = 'card';
   final note = TextEditingController();
   bool busy = false;
+  Map<String, dynamic>? loyalty;
+  Map<String, dynamic>? gift;
+  bool useBalance = true;
+  bool redeem = false;
 
   @override
   void initState() {
     super.initState();
     _loadCars();
+    _loadExtras();
   }
+
+  /// Store loyalty program and any gift attached to this cart.
+  Future<void> _loadExtras() async {
+    try {
+      if (cart.merchantId != null) {
+        final st = Map<String, dynamic>.from(await api.get('/stores/${cart.merchantId}') as Map);
+        loyalty = st['loyalty'] == null ? null : Map<String, dynamic>.from(st['loyalty'] as Map);
+      }
+      if (cart.giftId != null) {
+        final gs = maps(await api.get('/gifts/received'));
+        final m = gs.where((g) => g['id'] == cart.giftId && g['status'] == 'sent').toList();
+        gift = m.isEmpty ? null : m.first;
+      }
+      if (mounted) setState(() {});
+    } catch (_) {}
+  }
+
+  int get _giftValue => (gift?['amount'] as num?)?.toInt() ?? 0;
+  int get _reward {
+    final l = loyalty;
+    if (!redeem || l == null || l['can_redeem'] != true || cart.total <= 0) return 0;
+    final prog = l['program'] as Map?;
+    final v = (prog?['reward_value'] as num?)?.toInt();
+    final cheapest = cart.lines.values.map((x) => x.price).fold<int>(1 << 30, (a, b) => a < b ? a : b);
+    final val = (v != null && v > 0) ? v : cheapest;
+    return val > cart.total ? cart.total : val;
+  }
+
+  int get _fromBalance {
+    final bal = ((session.user?['gift_balance'] as num?) ?? 0).toInt();
+    if (!useBalance) return 0;
+    final remaining = cart.total - _reward;
+    return bal < remaining ? bal : remaining;
+  }
+
+  int get _payable => cart.total - _reward - _fromBalance;
 
   Future<void> _loadCars() async {
     try {
@@ -105,6 +147,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         'branch_id': cart.branchId,
         'car_id': carId,
         'items': cart.toItems(),
+        if (gift != null) 'gift_id': gift!['id'],
+        'use_gift_balance': _fromBalance > 0,
+        'redeem_reward': _reward > 0,
+        if (cart.sourcePostId != null) 'source_post_id': cart.sourcePostId,
         'payment_method': method,
         'note': note.text.trim(),
       }) as Map;
@@ -153,14 +199,57 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           SizedBox(width: 84, child: Text(aed(l.price * l.qty), textAlign: TextAlign.end)),
                         ]),
                       const Divider(),
+                      if (gift != null)
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          Text('هدية: ${(gift!['item'] as Map?)?['name'] ?? ''}'),
+                          Text('− ${aed(_giftValue)}', style: const TextStyle(color: AppColors.ok, fontWeight: FontWeight.w600)),
+                        ]),
+                      if (_reward > 0)
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          const Text('مكافأة الولاء'),
+                          Text('− ${aed(_reward)}', style: const TextStyle(color: AppColors.ok, fontWeight: FontWeight.w600)),
+                        ]),
+                      if (_fromBalance > 0)
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          const Text('من رصيد الهدايا'),
+                          Text('− ${aed(_fromBalance)}', style: const TextStyle(color: AppColors.ok, fontWeight: FontWeight.w600)),
+                        ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        Text('المجموع', style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                        Text(aed(cart.total), style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                        Text('المطلوب دفعه', style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(aed(_payable), style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                       ]),
                     ]),
                   ),
                 ),
               ),
+              if (loyalty != null && loyalty!['can_redeem'] == true && cart.total > 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Card(
+                    child: SwitchListTile(
+                      value: redeem,
+                      onChanged: (v) => setState(() => redeem = v),
+                      activeColor: AppColors.deep,
+                      title: const Text('استخدم مكافأة الولاء'),
+                      subtitle: Text('${((loyalty!['program'] as Map?)?['reward_text']) ?? ''}'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    ),
+                  ),
+                ),
+              if (((session.user?['gift_balance'] as num?) ?? 0) > 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Card(
+                    child: SwitchListTile(
+                      value: useBalance,
+                      onChanged: (v) => setState(() => useBalance = v),
+                      activeColor: AppColors.deep,
+                      title: const Text('استخدم رصيد الهدايا'),
+                      subtitle: Text('رصيدك ${aed((session.user?['gift_balance'] as num?) ?? 0)}'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    ),
+                  ),
+                ),
               _section(
                 'سيارتك',
                 loadingCars
@@ -209,7 +298,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
               child: FilledButton(
                 onPressed: busy || cart.isEmpty ? null : _confirm,
-                child: busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.accentInk)) : Text('تأكيد الطلب · ${aed(cart.total)}'),
+                child: busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.accentInk)) : Text('تأكيد الطلب · ${aed(_payable)}'),
               ),
             ),
           ),

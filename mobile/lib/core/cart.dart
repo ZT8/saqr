@@ -13,16 +13,22 @@ class Cart extends ChangeNotifier {
   int? branchId;
   String merchantName = '';
   final Map<int, CartLine> lines = {};
+  int? giftId;
+  int? sourcePostId;
 
   int get count => lines.values.fold(0, (a, l) => a + l.qty);
   int get total => lines.values.fold(0, (a, l) => a + l.price * l.qty);
-  bool get isEmpty => lines.isEmpty;
+  bool get isEmpty => lines.isEmpty && giftId == null;
   int qtyOf(int itemId) => lines[itemId]?.qty ?? 0;
 
   bool belongsTo(int merchant) => merchantId == null || merchantId == merchant || lines.isEmpty;
 
   void start(int merchant, int branch, String name) {
-    if (merchantId != merchant) lines.clear();
+    if (merchantId != merchant) {
+      lines.clear();
+      giftId = null;
+      sourcePostId = null;
+    }
     merchantId = merchant;
     branchId = branch;
     merchantName = name;
@@ -47,7 +53,19 @@ class Cart extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addMany(int itemId, String name, int price, int qty) {
+    final l = lines[itemId];
+    if (l == null) {
+      lines[itemId] = CartLine(itemId, name, price, qty.clamp(1, 50));
+    } else {
+      l.qty = (l.qty + qty).clamp(1, 50);
+    }
+    notifyListeners();
+  }
+
   void clear() {
+    giftId = null;
+    sourcePostId = null;
     lines.clear();
     merchantId = null;
     branchId = null;

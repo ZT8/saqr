@@ -43,6 +43,8 @@ jobs:
           echo "BUNDLE_ID=$BUNDLE_ID" >> $GITHUB_ENV
           PLIST=ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string نحتاج موقعك عشان الفرع يجهّز طلبك ويعرف متى توصل." $PLIST
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string نحتاج الكاميرا عشان تصوّر طلبك وتنشره." $PLIST
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string نحتاج الألبوم عشان تختار صورة لمنشورك أو ملفك." $PLIST
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Around" $PLIST || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Around" $PLIST
           sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = ae.around.around;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/" ios/Runner.xcodeproj/project.pbxproj
 

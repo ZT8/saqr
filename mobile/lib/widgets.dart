@@ -126,3 +126,60 @@ class _LoaderState<T> extends State<Loader<T>> {
     return ErrorView(error ?? 'خطأ', reload);
   }
 }
+
+/// Round avatar for a user map {name, avatar}; falls back to the first letter.
+class UserAvatar extends StatelessWidget {
+  final Map? user;
+  final double size;
+  const UserAvatar(this.user, {super.key, this.size = 40});
+  @override
+  Widget build(BuildContext context) {
+    final img = user?['avatar'] as String?;
+    final name = ((user?['name'] as String?) ?? '').trim();
+    return Container(
+      width: size,
+      height: size,
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(color: AppColors.accentSoft, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: img != null && img.isNotEmpty
+          ? Image.network(assetUrl(img), width: size, height: size, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _letter(name))
+          : _letter(name),
+    );
+  }
+
+  Widget _letter(String name) => Text(name.isEmpty ? '؟' : name.substring(0, 1), style: TextStyle(fontSize: size * .42, fontWeight: FontWeight.w700, color: AppColors.deep));
+}
+
+/// Network image from an uploaded path with a neutral placeholder on error.
+class NetImage extends StatelessWidget {
+  final String? path;
+  final BoxFit fit;
+  const NetImage(this.path, {super.key, this.fit = BoxFit.cover});
+  @override
+  Widget build(BuildContext context) => Image.network(
+        assetUrl(path),
+        fit: fit,
+        errorBuilder: (_, __, ___) => Container(color: AppColors.line, alignment: Alignment.center, child: const Icon(Icons.image_not_supported_outlined, color: AppColors.muted)),
+        loadingBuilder: (c, child, p) => p == null ? child : Container(color: AppColors.line),
+      );
+}
+
+class EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? hint;
+  const EmptyState(this.icon, this.title, {super.key, this.hint});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 44, color: AppColors.muted),
+          const SizedBox(height: 12),
+          Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          if (hint != null) ...[const SizedBox(height: 6), Text(hint!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted))],
+        ]),
+      );
+}
+
+List<Map<String, dynamic>> maps(dynamic l) => (l as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();

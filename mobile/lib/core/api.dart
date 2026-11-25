@@ -24,10 +24,10 @@ class Api {
         if (token != null) 'Authorization': 'Bearer $token',
       };
 
-  Future<dynamic> _run(Future<http.Response> Function() send) async {
+  Future<dynamic> _run(Future<http.Response> Function() send, {Duration timeout = const Duration(seconds: 15)}) async {
     http.Response r;
     try {
-      r = await send().timeout(const Duration(seconds: 15));
+      r = await send().timeout(timeout);
     } catch (_) {
       throw ApiException('ما قدرنا نتصل بالخادم، تأكد من الإنترنت', 0);
     }
@@ -46,6 +46,14 @@ class Api {
   Future<dynamic> get(String path, {Map<String, String>? query}) => _run(() => http.get(_uri(path, query), headers: _headers));
   Future<dynamic> post(String path, [Object? body]) => _run(() => http.post(_uri(path), headers: _headers, body: jsonEncode(body ?? {})));
   Future<dynamic> patch(String path, Object body) => _run(() => http.patch(_uri(path), headers: _headers, body: jsonEncode(body)));
+  /// Multipart upload of one image file (stories, avatar).
+  Future<dynamic> upload(String path, String filePath, {Map<String, String> fields = const {}}) => _run(() async {
+        final req = http.MultipartRequest('POST', _uri(path));
+        if (token != null) req.headers['Authorization'] = 'Bearer $token';
+        req.fields.addAll(fields);
+        req.files.add(await http.MultipartFile.fromPath('image', filePath));
+        return http.Response.fromStream(await req.send());
+      }, timeout: const Duration(seconds: 60));
   Future<dynamic> delete(String path) => _run(() => http.delete(_uri(path), headers: _headers));
 }
 

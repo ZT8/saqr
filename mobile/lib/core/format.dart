@@ -19,3 +19,29 @@ String minutesLabel(int n) {
   if (n >= 3 && n <= 10) return '$n دقايق';
   return '$n دقيقة';
 }
+
+DateTime _parse(String? s) {
+  if (s == null || s.isEmpty) return DateTime.now();
+  var v = s.contains('T') ? s : s.replaceFirst(' ', 'T');
+  if (!RegExp(r'(Z|[+-]\d\d:?\d\d)$').hasMatch(v)) v += 'Z';
+  return DateTime.tryParse(v)?.toLocal() ?? DateTime.now();
+}
+
+/// "قبل 5 دقايق" style relative time for server timestamps (UTC, sqlite format).
+String ago(String? iso) {
+  final sec = DateTime.now().difference(_parse(iso)).inSeconds;
+  if (sec < 60) return 'الحين';
+  final m = (sec / 60).round();
+  if (m < 60) return m == 1 ? 'قبل دقيقة' : m == 2 ? 'قبل دقيقتين' : 'قبل $m دقيقة';
+  final h = (m / 60).round();
+  if (h < 24) return h == 1 ? 'قبل ساعة' : h == 2 ? 'قبل ساعتين' : 'قبل $h ساعات';
+  final d = (h / 24).round();
+  return d == 1 ? 'قبل يوم' : d == 2 ? 'قبل يومين' : 'قبل $d أيام';
+}
+
+String dateShort(String? iso) {
+  final d = _parse(iso);
+  return '${d.day}/${d.month}/${d.year}';
+}
+
+String unitOf(Map? program) => program != null && program['type'] == 'points' ? 'نقطة' : 'ختم';

@@ -5,7 +5,11 @@ import '../core/format.dart';
 import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
+import 'gifts.dart';
+import 'loyalty.dart';
+import 'more.dart';
 import 'order.dart';
+import 'social.dart';
 import 'store.dart';
 
 /// Best-effort current position; null when permission is denied or location is off.
@@ -55,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final d = snap.data!;
           final cats = (d['categories'] as List).cast<Map>();
           final active = (d['active_orders'] as List).cast<Map>();
+          final stories = maps(d['stories']);
+          final loyaltyCards = maps(d['loyalty']);
           var stores = (d['near'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
           if (category != null) stores = stores.where((s) => s['category'] == category).toList();
           if (query.trim().isNotEmpty) {
@@ -65,9 +71,24 @@ class _HomeScreenState extends State<HomeScreen> {
             color: AppColors.deep,
             onRefresh: _refresh,
             child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), children: [
-              Text('هلا ${session.name}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text('وش تبي تطلب اليوم؟', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted)),
+              Row(children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('هلا ${session.name}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text('وش تبي تطلب اليوم؟', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted)),
+                  ]),
+                ),
+                IconButton(
+                  tooltip: 'الهدايا',
+                  onPressed: () async {
+                    await Navigator.push(context, MaterialPageRoute(builder: (_) => const GiftsScreen()));
+                    _refresh();
+                  },
+                  icon: const Icon(Icons.card_giftcard_rounded),
+                ),
+                IconButton(tooltip: 'الإشعارات', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())), icon: const Icon(Icons.notifications_none_rounded)),
+              ]),
               const SizedBox(height: 16),
               TextField(
                 decoration: const InputDecoration(hintText: 'ابحث عن محل', prefixIcon: Icon(Icons.search_rounded)),
@@ -97,6 +118,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
               ],
+              if (stories.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 106,
+                  child: ListView(scrollDirection: Axis.horizontal, children: [
+                    for (final st in stories)
+                      StoryBubble(
+                        name: (st['username'] ?? st['name'] ?? '') as String,
+                        image: st['cover'] as String?,
+                        seen: st['unseen'] != true,
+                        onTap: () async {
+                          await Navigator.push(context, MaterialPageRoute(builder: (_) => StoryViewerScreen(userId: st['user_id'] as int)));
+                          _refresh();
+                        },
+                      ),
+                  ]),
+                ),
+              ],
               const SizedBox(height: 16),
               SizedBox(
                 height: 44,
@@ -105,11 +144,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   for (final c in cats) _chip(c['name'] as String, category == c['key'], () => setState(() => category = c['key'] as String), categoryIcons[c['key']] ?? Icons.storefront_rounded),
                 ]),
               ),
+              if (loyaltyCards.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                Row(children: [
+                  Expanded(child: Text('بطاقات الولاء', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
+                  TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyScreen())), child: const Text('الكل')),
+                ]),
+                SizedBox(
+                  height: 150,
+                  child: ListView(scrollDirection: Axis.horizontal, children: [
+                    for (final c in loyaltyCards) Padding(padding: const EdgeInsetsDirectional.only(end: 10), child: LoyaltyCard(c, width: 270)),
+                  ]),
+                ),
+              ],
               const SizedBox(height: 16),
               if (stores.isEmpty)
                 const Padding(padding: EdgeInsets.all(40), child: Center(child: Text('ما لقينا محلات')))
               else
-                for (final s in stores) Padding(padding: const EdgeInsets.only(bottom: 12), child: _StoreTile(s)),
+                for (final s in stores) Padding(padding: const EdgeInsets.only(bottom: 12), child: StoreTile(s)),
             ]),
           );
         },
@@ -132,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 }
 
-class _StoreTile extends StatelessWidget {
+class StoreTile extends StatelessWidget {
   final Map<String, dynamic> s;
-  const _StoreTile(this.s);
+  const StoreTile(this.s);
   @override
   Widget build(BuildContext context) {
     final b = s['branch'] as Map?;

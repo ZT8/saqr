@@ -48,6 +48,11 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Around" $PLIST || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Around" $PLIST
           sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = ae.around.around;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/" ios/Runner.xcodeproj/project.pbxproj
 
+      - name: Launch screen
+        run: |
+          cp launch/LaunchScreen.storyboard ios/Runner/Base.lproj/LaunchScreen.storyboard
+          cp launch/LaunchImage*.png ios/Runner/Assets.xcassets/LaunchImage.imageset/
+
       - name: Analyze
         run: |
           flutter pub get

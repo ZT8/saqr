@@ -2,6 +2,7 @@
 const express = require('express');
 const db = require('../db');
 const banners = require('../services/banners');
+const challenges = require('../services/challenges');
 const { annotate } = require('../services/popular');
 const { h, fail, auth, optionalAuth } = require('../services/core');
 const { storeCard, branchView, parsePos } = require('../services/stores');
@@ -87,6 +88,8 @@ r.get('/home', auth, h((req, res) => {
   });
 }));
 
+r.post('/challenges/:id/claim', auth, h((req, res) => res.json(challenges.claim(req.user.id, Number(req.params.id)))));
+
 r.get('/stores/:id', optionalAuth, h((req, res) => {
   const m = db.one(`SELECT * FROM merchants WHERE id = ? AND status = 'active'`, req.params.id);
   if (!m) fail(404, 'المحل غير موجود');
@@ -105,6 +108,7 @@ r.get('/stores/:id', optionalAuth, h((req, res) => {
     branches,
     menu: cats.map((c) => ({ ...c, items: items.filter((i) => i.category_id === c.id) })).filter((c) => c.items.length),
     top_items: top,
+    challenges: req.user ? challenges.forStore(m.id, req.user.id) : [],
     stories: serializePosts(pinned, req.user && req.user.id),
     loyalty: null,
     favorite: false

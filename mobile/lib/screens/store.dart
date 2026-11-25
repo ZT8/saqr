@@ -104,7 +104,9 @@ class _StoreScreenState extends State<StoreScreen> {
                     }
 
                     final top = ((s['top_items'] as List?) ?? const []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                    final challenges = ((s['challenges'] as List?) ?? const []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
                     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      for (final c in challenges) _ChallengeCard(c, onClaimed: reload),
                       if (top.isNotEmpty) ...[
                         Padding(
                           padding: const EdgeInsets.only(top: 20, bottom: 8),
@@ -201,6 +203,73 @@ class _ItemRow extends StatelessWidget {
                 Text('$qty', style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                 IconButton(onPressed: () => onAdd(item), icon: const Icon(Icons.add_circle_rounded, color: AppColors.deep)),
               ]),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChallengeCard extends StatefulWidget {
+  final Map<String, dynamic> c;
+  final VoidCallback onClaimed;
+  const _ChallengeCard(this.c, {required this.onClaimed});
+  @override
+  State<_ChallengeCard> createState() => _ChallengeCardState();
+}
+
+class _ChallengeCardState extends State<_ChallengeCard> {
+  bool busy = false;
+
+  Future<void> _claim() async {
+    setState(() => busy = true);
+    try {
+      await api.post('/challenges/${widget.c['id']}/claim');
+      if (mounted) toast(context, 'انضاف ${widget.c['bonus']} لرصيد الولاء');
+      widget.onClaimed();
+    } catch (e) {
+      if (mounted) toast(context, e);
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.c;
+    final target = (c['target'] as num).toInt();
+    final done = (c['done'] as num).toInt();
+    final claimed = c['claimed'] == true;
+    final can = c['can_claim'] == true;
+    final t = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Card(
+        color: AppColors.accentSoft,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              const Icon(Icons.bolt_rounded, color: AppColors.accentInk),
+              const SizedBox(width: 6),
+              Expanded(child: Text('${c['title']}', style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700))),
+              Pill('+${c['bonus']} ولاء', bg: Colors.white, fg: AppColors.accentInk),
+            ]),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: done / target),
+                duration: const Duration(milliseconds: 700),
+                curve: kEase,
+                builder: (_, v, __) => LinearProgressIndicator(value: v, minHeight: 10, backgroundColor: Colors.white, color: AppColors.deep),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: Text(claimed ? 'أخذت المكافأة' : '$done من $target طلبات · ينتهي ${c['ends_at']}', style: t.bodySmall?.copyWith(color: AppColors.accentInk))),
+              if (can) FilledButton(onPressed: busy ? null : _claim, child: const Text('خذ المكافأة')),
+            ]),
           ]),
         ),
       ),

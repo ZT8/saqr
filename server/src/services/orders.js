@@ -28,6 +28,8 @@ function serialize(o) {
   const u = db.one('SELECT id, name, phone FROM users WHERE id = ?', o.user_id);
   return {
     ...o, status_label: STATUS_AR[o.status], items, branch: b, merchant: m,
+    // Minutes until the kitchen should start so the order is ready when the car arrives (0 = start now).
+    prep_start_in: o.on_the_way_at && !o.arrived_at && ['new', 'preparing'].includes(o.status) ? Math.max(0, (o.eta_minutes ?? 0) - b.prep_minutes) : null,
     customer: { id: u.id, name: u.name, phone: u.phone },
     queue_ahead: queueAhead(o),
     can_cancel: o.status === 'new',

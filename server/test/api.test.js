@@ -278,3 +278,27 @@ test('merchant: pause orders, extra prep, filters and CSV', async () => {
   assert.match(csv.headers['content-type'], /text\/csv/);
   assert.equal(csv.text.split('\r\n').length, all.body.length + 1);
 });
+
+test('challenges: progress from delivered orders, claim once, bonus lands in loyalty', async () => {
+  const m = db.one(`SELECT merchant_id id FROM users WHERE phone LIKE '%500000002'`);
+  db.run(`INSERT INTO loyalty_programs (merchant_id, active, type, goal, reward_text, reward_value, expiry_months) VALUES (?,1,'stamps',10,'free',0,6)
+    ON CONFLICT(merchant_id) DO UPDATE SET active = 1`, m.id);
+  const u = db.one(`SELECT id FROM users WHERE phone LIKE '%500000011'`);
+  const day = new Date().toISOString().slice(0, 10);
+  const c = await request(app).post('/api/merchant/challenges').set(as(merchant)).send({ title: 'ثلاث طلبات', target_orders: 4, bonus: 3, starts_at: day, ends_at: day }).expect(201);
+  await request(app).post('/api/merchant/challenges').set(as(merchant)).send({ title: 'x', target_orders: 1, bonus: 3, starts_at: day, ends_at: day }).expect(400);
+  let st = await request(app).get(`/api/stores/${m.id}`).set(as(sara)).expect(200);
+  let mine = st.body.challenges.find((x) => x.id === c.body.id);
+  const base = mine.done;
+  assert.equal(mine.can_claim, false);
+  await request(app).post(`/api/challenges/${c.body.id}/claim`).set(as(sara)).expect(400);
+  const b = db.one('SELECT id FROM branches WHERE merchant_id = ?', m.id);
+  for (let i = base; i < 4; i++) db.run(`INSERT INTO orders (user_id, merchant_id, branch_id, status, subtotal, total) VALUES (?,?,?, 'delivered', 800, 800)`, u.id, m.id, b.id);
+  st = await request(app).get(`/api/stores/${m.id}`).set(as(sara)).expect(200);
+  mine = st.body.challenges.find((x) => x.id === c.body.id);
+  assert.deepEqual([mine.done, mine.can_claim], [4, true]);
+  const before = db.one('SELECT COALESCE(SUM(balance),0) b FROM loyalty_accounts WHERE user_id = ? AND merchant_id = ?', u.id, m.id).b;
+  await request(app).post(`/api/challenges/${c.body.id}/claim`).set(as(sara)).expect(200);
+  await request(app).post(`/api/challenges/${c.body.id}/claim`).set(as(sara)).expect(409);
+  assert.equal(db.one('SELECT balance b FROM loyalty_accounts WHERE user_id = ? AND merchant_id = ?', u.id, m.id).b, before + 3);
+});

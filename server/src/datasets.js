@@ -5,7 +5,7 @@ const db = require('./db');
 const seedDemo = require('./seed-demo');
 
 const TABLES = ['story_views', 'saves', 'likes', 'comments', 'reports', 'follows', 'posts', 'gift_ledger', 'payments',
-  'banners', 'order_items', 'orders', 'gifts', 'loyalty_events', 'loyalty_accounts', 'loyalty_programs', 'favorites', 'notifications',
+  'challenge_claims', 'challenges', 'banners', 'order_items', 'orders', 'gifts', 'loyalty_events', 'loyalty_accounts', 'loyalty_programs', 'favorites', 'notifications',
   'cars', 'menu_items', 'menu_categories', 'otp_codes', 'merchant_applications', 'users', 'branches', 'merchants'];
 
 let current = null;

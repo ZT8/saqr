@@ -23,6 +23,41 @@ function chime() {
   } catch { /* audio not available */ }
 }
 
+// Kitchen display: big cards, live timers, most urgent first. One tap moves an order forward.
+function Kitchen({ orders, act, busy, onExit, branchName }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const utc = (v) => new Date(v.replace(' ', 'T') + 'Z').getTime();
+  const rank = (o) => (o.arrived_at ? 0 : o.status === 'new' ? 1 : o.prep_start_in === 0 ? 2 : o.status === 'preparing' ? 3 : o.status === 'ready' ? 5 : 4);
+  const list = [...orders].sort((a, b) => rank(a) - rank(b) || (a.eta_minutes ?? 99) - (b.eta_minutes ?? 99) || a.id - b.id);
+  const mmss = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const next = { new: ['accept', 'قبول'], preparing: ['ready', 'جاهز'], ready: ['deliver', 'تم التسليم'] };
+  return (
+    <div className="kitchen">
+      <header><b>شاشة المطبخ · {branchName}</b><span className="grow" /><span>{list.length} طلب شغّال</span><button onClick={onExit}>رجوع للوحة</button></header>
+      {!list.length && <p className="k-empty">ما فيه طلبات الحين</p>}
+      <div className="k-grid">
+        {list.map((o) => {
+          const since = now - utc(o.accepted_at || o.created_at);
+          const mins = since / 60000;
+          const tone = o.status === 'ready' ? 'ready' : mins >= o.branch.prep_minutes + 3 ? 'late' : mins >= o.branch.prep_minutes ? 'warn' : 'ok';
+          const hint = o.arrived_at ? 'العميل وصل!' : o.prep_start_in === 0 ? 'ابدأ الحين' : o.prep_start_in != null ? `ابدأ بعد ${o.prep_start_in} د` : o.on_the_way_at ? `يوصل بعد ${o.eta_minutes ?? '…'} د` : '';
+          return (
+            <article key={o.id} className={'k-card ' + tone + (o.arrived_at ? ' here' : '')}>
+              <div className="k-top"><b>#{o.id}</b><span className="k-time">{mmss(since)}</span></div>
+              <div className="k-plate">{o.plate_label}</div>
+              {hint && <div className="k-hint">{hint}</div>}
+              <ul>{o.items.map((i, k) => <li key={k}><b>{i.qty}×</b> {i.name}{i.is_gift ? ' (هدية)' : ''}</li>)}</ul>
+              {o.note && <div className="k-note">{o.note}</div>}
+              <button disabled={busy} onClick={() => act(o, next[o.status][0])}>{next[o.status][1]}</button>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Board() {
   const { api, me, socket, signOut } = useSession();
   const [branchId, setBranchId] = useState(null);
@@ -31,6 +66,7 @@ function Board() {
   const [run, busy] = useAction();
   const [itemsOpen, setItemsOpen] = useState(false);
   const [sound, setSound] = useState(true);
+  const [kitchen, setKitchen] = useState(false);
   const [, tick] = useState(0);
   const items = useLoad(() => (itemsOpen ? api.get('/branch/items' + q) : Promise.resolve(null)), [itemsOpen, branchId]);
   const soundRef = useRef(sound); soundRef.current = sound;
@@ -60,6 +96,7 @@ function Board() {
   const coming = orders.filter((o) => !o.arrived_at && o.on_the_way_at).sort((a, b) => (a.eta_minutes ?? 99) - (b.eta_minutes ?? 99));
   const cols = [['طلبات جديدة', 'new', 'orange'], ['قيد التحضير', 'preparing', 'dark'], ['جاهز · بانتظار العميل', 'ready', 'gray']];
 
+  if (kitchen) return <Kitchen orders={orders} act={act} busy={busy} branchName={data.branch.name} onExit={() => setKitchen(false)} />;
   return (
     <div className="board">
       <header className="board-head">
@@ -77,6 +114,7 @@ function Board() {
         <div className="row wrap" style={{ marginInlineStart: 'auto' }}>
           <button className="btn btn-sm" style={{ background: 'transparent', border: '1px solid rgba(246,241,231,.4)' }} onClick={() => { setSound(!sound); if (!sound) chime(); }}>{sound ? 'الصوت شغال' : 'الصوت مقفل'}</button>
           <button className="btn btn-sm" style={{ background: 'transparent', border: '1px solid rgba(246,241,231,.4)' }} onClick={() => setItemsOpen(true)}>إيقاف صنف</button>
+          <button className="btn btn-sm" style={{ background: 'transparent', border: '1px solid rgba(246,241,231,.4)' }} onClick={() => setKitchen(true)}>شاشة المطبخ</button>
           <button className="btn btn-sm" style={{ background: data.branch.is_open ? 'var(--sand)' : 'var(--danger)', color: data.branch.is_open ? 'var(--green)' : '#fff' }} disabled={busy} onClick={toggleOpen}>
             <span style={{ width: 10, height: 10, borderRadius: 5, background: data.branch.is_open ? 'var(--ok)' : '#fff' }} />{data.branch.is_open ? 'الفرع مفتوح' : 'الفرع مغلق'}
           </button>

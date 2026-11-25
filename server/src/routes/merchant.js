@@ -199,6 +199,32 @@ r.post('/branches/:id/pressure', h((req, res) => {
 
 r.use('/banners', require('../services/banners').manager({ ownerOf: (req) => M(req), statusOnCreate: 'pending' }));
 
+// ---- challenges ----
+const challenges = require('../services/challenges');
+r.get('/challenges', h((req, res) => {
+  res.json(db.all('SELECT * FROM challenges WHERE merchant_id = ? ORDER BY id DESC', M(req)).map((c) => ({
+    ...c, claimed: db.one('SELECT COUNT(*) n FROM challenge_claims WHERE challenge_id = ?', c.id).n })));
+}));
+r.post('/challenges', h((req, res) => {
+  const f = challenges.fields(req.body);
+  const id = db.run('INSERT INTO challenges (merchant_id, title, target_orders, bonus, starts_at, ends_at, is_active) VALUES (?,?,?,?,?,?,?)',
+    M(req), f.title, f.target_orders, f.bonus, f.starts_at, f.ends_at, f.is_active).lastInsertRowid;
+  res.status(201).json(db.one('SELECT * FROM challenges WHERE id = ?', id));
+}));
+r.patch('/challenges/:id', h((req, res) => {
+  const c = db.one('SELECT * FROM challenges WHERE id = ? AND merchant_id = ?', req.params.id, M(req));
+  if (!c) fail(404, 'التحدي غير موجود');
+  const f = challenges.fields(req.body, c);
+  db.run('UPDATE challenges SET title=?, target_orders=?, bonus=?, starts_at=?, ends_at=?, is_active=? WHERE id = ?', f.title, f.target_orders, f.bonus, f.starts_at, f.ends_at, f.is_active, c.id);
+  res.json(db.one('SELECT * FROM challenges WHERE id = ?', c.id));
+}));
+r.delete('/challenges/:id', h((req, res) => {
+  const c = db.one('SELECT id FROM challenges WHERE id = ? AND merchant_id = ?', req.params.id, M(req));
+  if (!c) fail(404, 'التحدي غير موجود');
+  db.run('DELETE FROM challenges WHERE id = ?', c.id);
+  res.json({ ok: true });
+}));
+
 // ---- staff ----
 r.get('/staff', h((req, res) => {
   res.json(db.all(`SELECT u.id, u.name, u.phone, u.branch_id, b.name branch_name FROM users u LEFT JOIN branches b ON b.id = u.branch_id

@@ -10,7 +10,7 @@ import BannersManager from '../BannersManager';
 
 const NAV = [
   ['', 'chart', 'نظرة عامة'], ['orders', 'orders', 'الطلبات'], ['menu', 'menu', 'المنيو'], ['branches', 'store', 'الفروع'],
-  ['loyalty', 'star', 'برنامج الولاء'], ['banners', 'image', 'البنرات'], ['stories', 'crown', 'الستوريات'], ['staff', 'users', 'الموظفين'],
+  ['loyalty', 'star', 'برنامج الولاء'], ['challenges', 'flash', 'التحديات'], ['banners', 'image', 'البنرات'], ['stories', 'crown', 'الستوريات'], ['staff', 'users', 'الموظفين'],
   ['settlement', 'wallet', 'التسويات'], ['profile', 'settings', 'ملف المحل']
 ];
 
@@ -360,6 +360,50 @@ function LoyaltySettings() {
   );
 }
 
+function Challenges() {
+  const { api } = useSession();
+  const [run, busy] = useAction();
+  const { data, loading, reload } = useLoad(() => api.get('/merchant/challenges'), []);
+  const [edit, setEdit] = useState(null);
+  if (loading && !data) return <Loader />;
+  const d = (n) => { const x = new Date(); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+  const save = (e) => { e.preventDefault(); run(async () => { edit.id ? await api.patch('/merchant/challenges/' + edit.id, edit) : await api.post('/merchant/challenges', edit); setEdit(null); reload(); }, 'تم الحفظ'); };
+  const del = (c) => { if (confirm('تحذف التحدي؟')) run(async () => { await api.del('/merchant/challenges/' + c.id); reload(); }); };
+  const state = (c) => (!c.is_active ? ['متوقف', 'gray'] : c.ends_at < d(0) ? ['انتهى', 'gray'] : c.starts_at > d(0) ? ['قريباً', 'orange'] : ['شغّال', 'green']);
+  return (
+    <>
+      <p className="muted">تحدٍّ مثل «5 طلبات هذا الأسبوع». العميل يتابع تقدمه في صفحة محلك، ولما يكمل ياخذ مكافأة تنضاف لرصيد الولاء عندك (لازم برنامج الولاء يكون شغّال).</p>
+      <button className="btn btn-orange" style={{ alignSelf: 'flex-start' }} onClick={() => setEdit({ title: '', target_orders: 5, bonus: 2, starts_at: d(0), ends_at: d(7), is_active: 1 })}><Icon name="plus" /> تحدي جديد</button>
+      {!data.length ? <Empty icon="flash" title="ما فيه تحديات للحين" /> : (
+        <div className="table-wrap">
+          <table className="t">
+            <thead><tr><th>التحدي</th><th>المطلوب</th><th>المكافأة</th><th>الفترة</th><th>الحالة</th><th>أخذوا المكافأة</th><th /></tr></thead>
+            <tbody>{data.map((c) => (
+              <tr key={c.id}>
+                <td className="semi">{c.title}</td><td>{c.target_orders} طلبات</td><td>+{c.bonus}</td><td className="small">{c.starts_at} ← {c.ends_at}</td>
+                <td><span className={'pill ' + state(c)[1]}>{state(c)[0]}</span></td><td>{c.claimed}</td>
+                <td><div className="row"><button className="btn btn-sm btn-light" onClick={() => setEdit(c)}>تعديل</button><button className="btn btn-sm btn-danger" onClick={() => del(c)}>حذف</button></div></td>
+              </tr>))}</tbody>
+          </table>
+        </div>
+      )}
+      <Modal open={!!edit} onClose={() => setEdit(null)} title={edit?.id ? 'تعديل التحدي' : 'تحدي جديد'}>
+        {edit && (
+          <form className="col gap-14" onSubmit={save}>
+            <label className="field"><span>اسم التحدي</span><input className="input" maxLength={60} value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} placeholder="5 طلبات هذا الأسبوع" required /></label>
+            <div className="row"><label className="field grow"><span>عدد الطلبات</span><input className="input ltr" type="number" min="2" max="100" value={edit.target_orders} onChange={(e) => setEdit({ ...edit, target_orders: e.target.value })} required /></label>
+              <label className="field grow"><span>المكافأة (أختام/نقاط)</span><input className="input ltr" type="number" min="1" max="1000" value={edit.bonus} onChange={(e) => setEdit({ ...edit, bonus: e.target.value })} required /></label></div>
+            <div className="row"><label className="field grow"><span>يبدأ</span><input className="input ltr" type="date" value={edit.starts_at} onChange={(e) => setEdit({ ...edit, starts_at: e.target.value })} required /></label>
+              <label className="field grow"><span>ينتهي</span><input className="input ltr" type="date" value={edit.ends_at} onChange={(e) => setEdit({ ...edit, ends_at: e.target.value })} required /></label></div>
+            <div className="row-between"><span className="semi">شغّال</span><button type="button" className={'switch' + (edit.is_active ? ' on' : '')} onClick={() => setEdit({ ...edit, is_active: edit.is_active ? 0 : 1 })} aria-label="شغّال" /></div>
+            <button className="btn btn-orange" disabled={busy}>حفظ</button>
+          </form>
+        )}
+      </Modal>
+    </>
+  );
+}
+
 function Stories() {
   const { api, socket } = useSession();
   const [run] = useAction();
@@ -487,6 +531,7 @@ function Shell() {
           <Route path="menu" element={page('menu', <Menu />)} />
           <Route path="branches" element={page('branches', <Branches />)} />
           <Route path="loyalty" element={page('loyalty', <LoyaltySettings />)} />
+          <Route path="challenges" element={page('challenges', <Challenges />)} />
           <Route path="banners" element={page('banners', <BannersManager base="/merchant/banners" />)} />
           <Route path="stories" element={page('stories', <Stories />)} />
           <Route path="staff" element={page('staff', <Staff />)} />

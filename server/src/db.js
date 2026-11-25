@@ -293,6 +293,23 @@ ensureColumn('menu_items', 'badge_off', 'INTEGER NOT NULL DEFAULT 0'); // mercha
 ensureColumn('branches', 'paused_until', 'TEXT'); // UTC 'YYYY-MM-DD HH:MM:SS'; not taking orders until then
 ensureColumn('branches', 'extra_prep', 'INTEGER NOT NULL DEFAULT 0'); // extra minutes added to prep time in rush hours
 db.exec(`
+CREATE TABLE IF NOT EXISTS challenges (
+  id INTEGER PRIMARY KEY,
+  merchant_id INTEGER NOT NULL REFERENCES merchants(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  target_orders INTEGER NOT NULL,
+  bonus INTEGER NOT NULL,            -- stamps/points added to the customer's loyalty balance on claim
+  starts_at TEXT NOT NULL,           -- YYYY-MM-DD
+  ends_at TEXT NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS challenge_claims (
+  challenge_id INTEGER NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  claimed_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (challenge_id, user_id)
+);
 CREATE TABLE IF NOT EXISTS banners (
   id INTEGER PRIMARY KEY,
   title TEXT NOT NULL DEFAULT '',

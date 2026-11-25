@@ -10,12 +10,13 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: Loader<List<Map<String, dynamic>>>(
         load: () async => (await api.get('/orders') as List).map((e) => Map<String, dynamic>.from(e as Map)).toList(),
         builder: (context, orders, reload) => RefreshIndicator(
           color: AppColors.deep,
           onRefresh: reload,
-          child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), children: [
+          child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, kNavSpace), children: [
             Text('طلباتي', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
             if (orders.isEmpty) const Padding(padding: EdgeInsets.all(48), child: Center(child: Text('ما عندك طلبات بعد'))),

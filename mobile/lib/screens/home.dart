@@ -51,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: FutureBuilder<Map<String, dynamic>>(
         future: future,
         builder: (context, snap) {
@@ -70,28 +71,35 @@ class _HomeScreenState extends State<HomeScreen> {
           return RefreshIndicator(
             color: AppColors.deep,
             onRefresh: _refresh,
-            child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), children: [
+            child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, kNavSpace), children: [
               Row(children: [
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('هلا ${session.name}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
-                    Text('وش تبي تطلب اليوم؟', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted)),
+                    Text(DateTime.now().hour < 12 ? 'صباح الخير' : DateTime.now().hour < 18 ? 'مساء النور' : 'مساء الخير', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted)),
+                    const SizedBox(height: 2),
+                    Text(session.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
                   ]),
                 ),
-                IconButton(
+                CircleBtn(
+                  Icons.card_giftcard_rounded,
                   tooltip: 'الهدايا',
-                  onPressed: () async {
+                  onTap: () async {
                     await Navigator.push(context, MaterialPageRoute(builder: (_) => const GiftsScreen()));
                     _refresh();
                   },
-                  icon: const Icon(Icons.card_giftcard_rounded),
                 ),
-                IconButton(tooltip: 'الإشعارات', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())), icon: const Icon(Icons.notifications_none_rounded)),
+                const SizedBox(width: 8),
+                CircleBtn(Icons.notifications_none_rounded, tooltip: 'الإشعارات', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
               ]),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               TextField(
-                decoration: const InputDecoration(hintText: 'ابحث عن محل', prefixIcon: Icon(Icons.search_rounded)),
+                decoration: InputDecoration(
+                  hintText: 'ابحث عن محل',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(99), borderSide: const BorderSide(color: AppColors.line)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(99), borderSide: const BorderSide(color: AppColors.line)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(99), borderSide: const BorderSide(color: AppColors.deep, width: 1.4)),
+                ),
                 onChanged: (v) => setState(() => query = v),
               ),
               if (active.isNotEmpty) ...[
@@ -101,14 +109,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Material(
                       color: AppColors.deep,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(26),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(26),
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderScreen(id: o['id'] as int))),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(children: [
-                            const Icon(Icons.directions_car_rounded, color: AppColors.accent),
+                            Container(width: 40, height: 40, decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle), child: const Icon(Icons.directions_car_rounded, size: 22, color: AppColors.deep)),
                             const SizedBox(width: 12),
                             Expanded(child: Text('طلب رقم ${o['id']} · ${o['merchant_name']}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
                             const Icon(Icons.chevron_left_rounded, color: Colors.white70),
@@ -138,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               const SizedBox(height: 16),
               SizedBox(
-                height: 44,
+                height: 46,
                 child: ListView(scrollDirection: Axis.horizontal, children: [
                   _chip('الكل', category == null, () => setState(() => category = null), Icons.apps_rounded),
                   for (final c in cats) _chip(c['name'] as String, category == c['key'], () => setState(() => category = c['key'] as String), categoryIcons[c['key']] ?? Icons.storefront_rounded),
@@ -147,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (loyaltyCards.isNotEmpty) ...[
                 const SizedBox(height: 18),
                 Row(children: [
-                  Expanded(child: Text('بطاقات الولاء', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
+                  Expanded(child: Text('بطاقات الولاء', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))),
                   TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyScreen())), child: const Text('الكل')),
                 ]),
                 SizedBox(
@@ -159,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               const SizedBox(height: 16),
               if (stores.isEmpty)
-                const Padding(padding: EdgeInsets.all(40), child: Center(child: Text('ما لقينا محلات')))
+                const EmptyState(Icons.storefront_outlined, 'ما لقينا محلات', hint: 'جرّب تغيّر الفلتر أو البحث')
               else
                 for (final s in stores) Padding(padding: const EdgeInsets.only(bottom: 12), child: StoreTile(s)),
             ]),
@@ -171,16 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _chip(String label, bool on, VoidCallback tap, IconData icon) => Padding(
         padding: const EdgeInsetsDirectional.only(end: 8),
-        child: ChoiceChip(
-          label: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 18), const SizedBox(width: 6), Text(label)]),
-          selected: on,
-          onSelected: (_) => tap(),
-          showCheckmark: false,
-          selectedColor: AppColors.accent,
-          backgroundColor: Colors.white,
-          side: const BorderSide(color: AppColors.line),
-          shape: const StadiumBorder(),
-        ),
+        child: SoftChip(label, icon: icon, selected: on, onTap: tap),
       );
 }
 
@@ -191,10 +190,10 @@ class StoreTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final b = s['branch'] as Map?;
     final open = b != null && b['open'] == true;
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => StoreScreen(id: s['id'] as int))),
+    return PressScale(
+      scale: .985,
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => StoreScreen(id: s['id'] as int))),
+      child: Card(
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Row(children: [
@@ -205,7 +204,7 @@ class StoreTile extends StatelessWidget {
                 Text(s['name'] as String, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 Wrap(spacing: 6, runSpacing: 4, children: [
-                  Pill(open ? 'مفتوح' : 'مغلق', bg: open ? AppColors.accentSoft : AppColors.ground, fg: open ? AppColors.accentInk : AppColors.muted),
+                  Pill(open ? 'مفتوح' : 'مغلق', bg: open ? AppColors.accentSoft : const Color(0xFFFBE9E3), fg: open ? AppColors.accentInk : AppColors.danger),
                   if (b != null && b['distance_m'] != null) Pill(distanceLabel(b['distance_m'] as num)),
                   if (b != null) Pill(b['area'] as String? ?? ''),
                 ]),

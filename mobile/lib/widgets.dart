@@ -9,7 +9,8 @@ void toast(BuildContext context, Object message) {
     content: Text(message.toString()),
     behavior: SnackBarBehavior.floating,
     backgroundColor: AppColors.deep,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
   ));
 }
 
@@ -47,7 +48,7 @@ class StoreAvatar extends StatelessWidget {
       width: size,
       height: size,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: tint.withValues(alpha: .25), borderRadius: BorderRadius.circular(size * .3)),
+      decoration: BoxDecoration(color: tint.withValues(alpha: .25), borderRadius: BorderRadius.circular(size / 2)),
       child: logo != null && logo.isNotEmpty
           ? Image.network(assetUrl(logo), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(icon, size: size * .5, color: AppColors.deep))
           : Icon(icon, size: size * .5, color: AppColors.deep),
@@ -62,8 +63,8 @@ class Pill extends StatelessWidget {
   const Pill(this.text, {super.key, this.bg, this.fg});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(color: bg ?? AppColors.ground, borderRadius: BorderRadius.circular(99)),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(color: bg ?? AppColors.chip, borderRadius: BorderRadius.circular(99)),
         child: Text(text, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg ?? AppColors.ink, fontWeight: FontWeight.w600)),
       );
 }
@@ -183,3 +184,54 @@ class EmptyState extends StatelessWidget {
 }
 
 List<Map<String, dynamic>> maps(dynamic l) => (l as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
+
+/// Round soft icon button (header actions): tinted circle, outline icon.
+class CircleBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final String? tooltip;
+  final double size;
+  final bool dot;
+  const CircleBtn(this.icon, {super.key, required this.onTap, this.tooltip, this.size = 46, this.dot = false});
+  @override
+  Widget build(BuildContext context) {
+    final w = PressScale(
+      onTap: onTap,
+      scale: .92,
+      child: Stack(clipBehavior: Clip.none, children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: .8), shape: BoxShape.circle, border: Border.all(color: AppColors.line)),
+          child: Icon(icon, size: size * .5, color: AppColors.ink),
+        ),
+        if (dot) Positioned(top: 10, right: 11, child: Container(width: 9, height: 9, decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5)))),
+      ]),
+    );
+    return tooltip == null ? w : Tooltip(message: tooltip!, child: w);
+  }
+}
+
+/// Selectable pill (filter / category / method). Selected = soft accent fill.
+class SoftChip extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final bool selected;
+  final VoidCallback onTap;
+  const SoftChip(this.label, {super.key, this.icon, required this.selected, required this.onTap});
+  @override
+  Widget build(BuildContext context) => PressScale(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: kMed,
+          curve: kEase,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(color: selected ? AppColors.accentSoft : AppColors.chip, borderRadius: BorderRadius.circular(99), border: Border.all(color: selected ? AppColors.accent : Colors.transparent)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (icon != null) ...[Icon(icon, size: 18, color: selected ? AppColors.accentInk : AppColors.ink), const SizedBox(width: 6)],
+            Text(label, style: TextStyle(fontSize: 14, fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? AppColors.accentInk : AppColors.ink)),
+          ]),
+        ),
+      );
+}

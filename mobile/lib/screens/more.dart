@@ -18,6 +18,7 @@ class MoreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return SafeArea(
+      bottom: false,
       child: Loader<Map<String, dynamic>>(
         load: () async {
           await session.refresh();
@@ -40,7 +41,7 @@ class MoreScreen extends StatelessWidget {
             [Icons.notifications_none_rounded, 'الإشعارات', unread > 0 ? '$unread جديدة' : '', const NotificationsScreen()],
             [Icons.person_outline_rounded, 'تعديل الملف', '', const EditProfileScreen()],
           ];
-          return ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), children: [
+          return ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, kNavSpace), children: [
             Text('المزيد', style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 14),
             Card(

@@ -72,10 +72,10 @@ class _StoreScreenState extends State<StoreScreen> {
                               selected: i == branchIndex,
                               onSelected: (_) => setState(() => branchIndex = i),
                               showCheckmark: false,
-                              selectedColor: AppColors.accent,
-                              backgroundColor: Colors.white,
+                              selectedColor: AppColors.accentSoft,
+                              backgroundColor: AppColors.chip,
                               shape: const StadiumBorder(),
-                              side: const BorderSide(color: AppColors.line),
+                              side: BorderSide.none,
                             ),
                           ),
                       ]),
@@ -117,6 +117,7 @@ class _StoreScreenState extends State<StoreScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
                     child: FilledButton(
+                      style: FilledButton.styleFrom(backgroundColor: AppColors.deep, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 26), elevation: 6, shadowColor: AppColors.deep.withValues(alpha: .35)),
                       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen())),
                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                         Text('السلة · ${cart.count}'),
@@ -172,7 +173,7 @@ class _ItemRow extends StatelessWidget {
             else if (qty == 0)
               IconButton.filled(
                 onPressed: enabled ? () => onAdd(item) : null,
-                style: IconButton.styleFrom(backgroundColor: AppColors.accent, foregroundColor: AppColors.accentInk),
+                style: IconButton.styleFrom(backgroundColor: AppColors.accent, foregroundColor: AppColors.deep, fixedSize: const Size(40, 40)),
                 icon: const Icon(Icons.add_rounded),
               )
             else

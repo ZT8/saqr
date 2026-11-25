@@ -78,9 +78,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final t = Theme.of(context).textTheme;
     final browsing = query.isEmpty && category == null;
     return SafeArea(
+      bottom: false,
       child: error != null && stores == null
           ? ErrorView(error!, _init)
-          : ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 24), children: [
+          : ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, kNavSpace), children: [
               Text('اكسبلور', style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               TextField(controller: q, onChanged: _onChanged, decoration: const InputDecoration(hintText: 'ابحث عن محل، منتج، أو شخص', prefixIcon: Icon(Icons.search_rounded))),
@@ -99,9 +100,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           _search();
                         },
                         showCheckmark: false,
-                        selectedColor: AppColors.accent,
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: AppColors.line),
+                        selectedColor: AppColors.accentSoft,
+                        backgroundColor: AppColors.chip,
+                        side: BorderSide.none,
                         shape: const StadiumBorder(),
                       ),
                     ),

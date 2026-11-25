@@ -247,12 +247,14 @@ class _SocialScreenState extends State<SocialScreen> {
   Widget build(BuildContext context) {
     final me = session.user ?? {};
     return SafeArea(
+      bottom: false,
       child: Column(children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
           child: Row(children: [
             Expanded(child: Text('Around Social', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700))),
-            IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())), icon: const Icon(Icons.notifications_none_rounded)),
+            CircleBtn(Icons.notifications_none_rounded, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
+            const SizedBox(width: 6),
             InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(id: me['id'] as int))),
               customBorder: const CircleBorder(),
@@ -260,20 +262,30 @@ class _SocialScreenState extends State<SocialScreen> {
             ),
           ]),
         ),
-        Row(children: [
-          for (final t in const [['following', 'أتابعهم'], ['foryou', 'لك']])
-            Expanded(
-              child: InkWell(
-                onTap: () => _setTab(t[0]),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: tab == t[0] ? AppColors.deep : AppColors.line, width: 3))),
-                  child: Text(t[1], style: TextStyle(fontWeight: FontWeight.w700, color: tab == t[0] ? AppColors.deep : AppColors.muted)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(color: AppColors.chip, borderRadius: BorderRadius.circular(99)),
+            child: Row(children: [
+              for (final t in const [['following', 'أتابعهم'], ['foryou', 'لك']])
+                Expanded(
+                  child: PressScale(
+                    onTap: () => _setTab(t[0]),
+                    scale: .98,
+                    child: AnimatedContainer(
+                      duration: kMed,
+                      curve: kEase,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: tab == t[0] ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(99), boxShadow: tab == t[0] ? [BoxShadow(color: AppColors.deep.withValues(alpha: .06), blurRadius: 10, offset: const Offset(0, 3))] : null),
+                      child: Text(t[1], style: TextStyle(fontWeight: FontWeight.w700, color: tab == t[0] ? AppColors.deep : AppColors.muted)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-        ]),
+            ]),
+          ),
+        ),
         Expanded(
           child: error != null && posts == null
               ? ErrorView(error!, _load)
@@ -282,9 +294,9 @@ class _SocialScreenState extends State<SocialScreen> {
                   : RefreshIndicator(
                       color: AppColors.deep,
                       onRefresh: _load,
-                      child: ListView(children: [
+                      child: ListView(padding: const EdgeInsets.only(bottom: kNavSpace), children: [
                         Container(
-                          color: Colors.white,
+                          color: Colors.transparent,
                           height: 112,
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           child: ListView(scrollDirection: Axis.horizontal, children: [
@@ -922,10 +934,10 @@ class _PostComposerScreenState extends State<PostComposerScreen> {
                           selected: orderId == o['id'],
                           onSelected: (_) => setState(() => orderId = o['id'] as int),
                           showCheckmark: false,
-                          selectedColor: AppColors.accent,
-                          backgroundColor: Colors.white,
+                          selectedColor: AppColors.accentSoft,
+                          backgroundColor: AppColors.chip,
                           shape: const StadiumBorder(),
-                          side: const BorderSide(color: AppColors.line),
+                          side: BorderSide.none,
                         ),
                       ),
                   ]),

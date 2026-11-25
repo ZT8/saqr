@@ -5,6 +5,7 @@ import '../core/format.dart';
 import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
+import 'banners.dart';
 import 'gifts.dart';
 import 'loyalty.dart';
 import 'more.dart';
@@ -102,6 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 onChanged: (v) => setState(() => query = v),
               ),
+              if (maps(d['banners'] ?? []).isNotEmpty && category == null && query.trim().isEmpty) ...[
+                const SizedBox(height: 16),
+                BannerCarousel(maps(d['banners'] ?? [])),
+              ],
               if (active.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 for (final o in active)

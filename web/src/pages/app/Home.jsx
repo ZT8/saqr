@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../../lib/session';
 import { useLoad, usePosition, posQuery } from '../../lib/hooks';
@@ -6,6 +7,45 @@ import { aed, dateShort } from '../../lib/format';
 import Icon, { Logo } from '../../ui/Icon';
 import { Avatar, StoreLogo, Loader, ErrorBox, useAction, catIcon } from '../../ui/kit';
 import { StoreRow, StoryBubble, LoyaltyMini, StoreMeta } from './parts';
+
+// Home banners: scroll-snap carousel, advances every 5s (paused while touched or when motion is reduced), counts one view per banner and a click on tap.
+function BannerCarousel({ banners, api, nav }) {
+  const box = useRef(null);
+  const seen = useRef(new Set());
+  const [i, setI] = useState(0);
+  const idx = Math.min(i, Math.max(0, banners.length - 1));
+  const go = (n) => { const el = box.current; if (el) el.scrollTo({ left: -n * el.clientWidth, behavior: 'smooth' }); };
+  useEffect(() => {
+    if (banners.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    let held = false;
+    const el = box.current;
+    const hold = () => { held = true; }; const free = () => { held = false; };
+    el.addEventListener('pointerdown', hold); el.addEventListener('pointerup', free); el.addEventListener('pointerleave', free);
+    const t = setInterval(() => { if (!held) go((idx + 1) % banners.length); }, 5000);
+    return () => { clearInterval(t); el.removeEventListener('pointerdown', hold); el.removeEventListener('pointerup', free); el.removeEventListener('pointerleave', free); };
+  }, [idx, banners.length]);
+  useEffect(() => {
+    const b = banners[idx];
+    if (b && !seen.current.has(b.id)) { seen.current.add(b.id); api.post(`/banners/${b.id}/view`).catch(() => {}); }
+  }, [idx, banners]);
+  if (!banners.length) return null;
+  const onScroll = (e) => { const el = e.currentTarget; setI(Math.round(Math.abs(el.scrollLeft) / el.clientWidth)); };
+  const tap = (b) => { api.post(`/banners/${b.id}/click`).catch(() => {}); if (b.merchant_id) nav(`/app/store/${b.merchant_id}`); };
+  return (
+    <div className="pad col gap-6">
+      <div ref={box} onScroll={onScroll} style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none', borderRadius: 24, gap: 0 }}>
+        {banners.map((b) => (
+          <button key={b.id} onClick={() => tap(b)} style={{ flex: '0 0 100%', scrollSnapAlign: 'start', position: 'relative', border: 0, padding: 0, background: 'var(--accent-soft)', aspectRatio: '2 / 1', cursor: b.merchant_id ? 'pointer' : 'default' }}>
+            <img src={b.image} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(12,29,22,.65), transparent 55%)' }} />
+            <span style={{ position: 'absolute', insetInline: 16, bottom: 14, color: '#fff', textAlign: 'right' }}><b style={{ fontSize: 18, display: 'block' }}>{b.title}</b>{b.subtitle && <span className="small" style={{ opacity: .9 }}>{b.subtitle}</span>}</span>
+          </button>
+        ))}
+      </div>
+      {banners.length > 1 && <div className="row" style={{ justifyContent: 'center', gap: 6 }}>{banners.map((b, n) => <button key={b.id} aria-label={`بنر ${n + 1}`} onClick={() => go(n)} style={{ width: n === idx ? 18 : 6, height: 6, borderRadius: 3, border: 0, padding: 0, background: n === idx ? 'var(--deep)' : 'var(--line)', transition: 'width 200ms cubic-bezier(0.23,1,0.32,1), background 200ms' }} />)}</div>}
+    </div>
+  );
+}
 
 export default function Home() {
   const { api, me } = useSession();
@@ -46,6 +86,8 @@ export default function Home() {
               <Link key={c.key} to={`/app/explore?category=${c.key}`} className="chip"><Icon name={catIcon(c.key)} size={18} color="var(--green)" />{c.name}</Link>
             ))}
           </div>
+
+          <BannerCarousel banners={data.banners || []} api={api} nav={nav} />
 
           {data.active_orders.length > 0 && (
             <div className="pad col gap-6">

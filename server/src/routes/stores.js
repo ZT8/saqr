@@ -1,6 +1,8 @@
 // Public browsing: home feed, categories, stores, store details, favorites, search.
 const express = require('express');
 const db = require('../db');
+const banners = require('../services/banners');
+const { annotate } = require('../services/popular');
 const { h, fail, auth, optionalAuth } = require('../services/core');
 const { storeCard, branchView, parsePos } = require('../services/stores');
 const loyalty = require('../services/loyalty');
@@ -74,6 +76,7 @@ r.get('/home', auth, h((req, res) => {
 
   res.json({
     categories: CATEGORIES,
+    banners: banners.live(),
     stories: rail,
     quick,
     favorites: stores.filter((s) => s.favorite),
@@ -91,10 +94,10 @@ r.get('/stores/:id', optionalAuth, h((req, res) => {
   const branches = db.all('SELECT * FROM branches WHERE merchant_id = ?', m.id).map((b) => branchView(b, pos))
     .sort((a, b) => (b.open - a.open) || (a.distance_m - b.distance_m));
   const cats = db.all('SELECT * FROM menu_categories WHERE merchant_id = ? ORDER BY sort, id', m.id);
-  const items = db.all('SELECT * FROM menu_items WHERE merchant_id = ? ORDER BY is_top DESC, id', m.id);
-  const sold = new Map(db.all(`SELECT oi.item_id, SUM(oi.qty) n FROM order_items oi JOIN orders o ON o.id = oi.order_id
-    WHERE o.merchant_id = ? AND o.status = 'delivered' GROUP BY oi.item_id`, m.id).map((x) => [x.item_id, x.n]));
-  const top = [...items].filter((i) => i.is_available).sort((a, b) => (sold.get(b.id) || 0) - (sold.get(a.id) || 0) || b.is_top - a.is_top).slice(0, 4);
+  const items = annotate(db.all('SELECT * FROM menu_items WHERE merchant_id = ?', m.id), m.id)
+    .sort((a, b) => (b.show_badge - a.show_badge) || (b.orders_30d - a.orders_30d) || (b.is_top - a.is_top) || (a.id - b.id));
+  // "Most ordered" section: only items that really earned it, strongest first.
+  const top = items.filter((i) => i.is_available && i.show_badge).slice(0, 6);
   const pinned = db.all(`SELECT * FROM posts WHERE merchant_id = ? AND removed = 0 AND (pinned = 1 OR created_at >= datetime('now','-1 day'))
     ORDER BY pinned DESC, id DESC LIMIT 10`, m.id);
   const out = {

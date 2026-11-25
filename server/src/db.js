@@ -285,6 +285,31 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 db.exec(SCHEMA);
 
+// Additive migrations (safe on existing databases).
+function ensureColumn(table, col, def) {
+  if (!db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
+}
+ensureColumn('menu_items', 'badge_off', 'INTEGER NOT NULL DEFAULT 0'); // merchant hid the auto "most ordered" badge
+ensureColumn('branches', 'paused_until', 'TEXT'); // UTC 'YYYY-MM-DD HH:MM:SS'; not taking orders until then
+ensureColumn('branches', 'extra_prep', 'INTEGER NOT NULL DEFAULT 0'); // extra minutes added to prep time in rush hours
+db.exec(`
+CREATE TABLE IF NOT EXISTS banners (
+  id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL DEFAULT '',
+  subtitle TEXT NOT NULL DEFAULT '',
+  image TEXT,
+  owner_merchant_id INTEGER REFERENCES merchants(id) ON DELETE CASCADE,   -- NULL = Around's own banner
+  link_merchant_id INTEGER REFERENCES merchants(id) ON DELETE SET NULL,   -- where a tap goes
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('pending','active','rejected')),
+  is_active INTEGER NOT NULL DEFAULT 1,
+  starts_at TEXT,
+  ends_at TEXT,
+  sort INTEGER NOT NULL DEFAULT 0,
+  views INTEGER NOT NULL DEFAULT 0,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);`);
+
 // Small helpers
 db.tx = (fn) => db.transaction(fn)();
 db.one = (sql, ...p) => db.prepare(sql).get(...p);

@@ -197,3 +197,84 @@ test('join application -> no account until admin approves', async () => {
   const l2 = (await request(app).get('/api/admin/applications').set(as(admin))).body;
   await request(app).post('/api/admin/applications/' + l2.find((x) => x.phone === '+971557776668').id + '/reject').set(as(admin)).expect(200);
 });
+
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+
+test('most ordered: computed from real delivered orders, merchant can hide the badge', async () => {
+  const m = db.one(`SELECT merchant_id id FROM users WHERE phone LIKE '%500000002'`);
+  const items = db.all('SELECT id FROM menu_items WHERE merchant_id = ? AND is_available = 1 ORDER BY id', m.id);
+  assert.ok(items.length >= 2);
+  const used = new Set(db.all('SELECT DISTINCT item_id FROM order_items').map((x) => x.item_id));
+  const star = items[0];
+  const other = items.find((i) => i.id !== star.id && !used.has(i.id));
+  assert.ok(other, 'an item nobody ordered');
+  const u = db.one(`SELECT id FROM users WHERE phone LIKE '%500000004'`);
+  const b = db.one('SELECT id FROM branches WHERE merchant_id = ?', m.id);
+  const before = (require('../src/services/popular').annotate(items, m.id).find((i) => i.id === star.id)).orders_30d;
+  const oid = db.run(`INSERT INTO orders (user_id, merchant_id, branch_id, status, subtotal, total) VALUES (?,?,?, 'delivered', 1000, 1000)`, u.id, m.id, b.id).lastInsertRowid;
+  db.run('INSERT INTO order_items (order_id, item_id, name, unit_price, qty) VALUES (?,?,?,?,?)', oid, star.id, 'x', 500, 9);
+  db.run('INSERT INTO order_items (order_id, item_id, name, unit_price, qty) VALUES (?,?,?,?,?)', oid, other.id, 'y', 500, 1);
+
+  let s = await request(app).get(`/api/stores/${m.id}`).set(as(customer)).expect(200);
+  assert.equal(s.body.top_items[0].id, star.id);
+  assert.ok(!s.body.top_items.some((i) => i.id === other.id), 'one sale is not "most ordered"');
+  const first = s.body.menu.flatMap((c) => c.items).find((i) => i.id === star.id);
+  assert.equal(first.orders_30d, before + 9);
+
+  await request(app).patch(`/api/merchant/items/${star.id}`).set(as(merchant)).send({ badge_off: 1 }).expect(200);
+  s = await request(app).get(`/api/stores/${m.id}`).set(as(customer)).expect(200);
+  assert.ok(!s.body.top_items.some((i) => i.id === star.id), 'hidden by merchant');
+});
+
+test('banners: merchant submits, admin approves, appears in /home, tracked', async () => {
+  const mine = await request(app).post('/api/merchant/banners').set(as(merchant)).field('title', 'عرض الصيف').attach('image', PNG, 'b.png').expect(201);
+  assert.equal(mine.body.status, 'pending');
+  let home = await request(app).get('/api/home').set(as(customer)).expect(200);
+  assert.ok(!home.body.banners.some((b) => b.id === mine.body.id), 'pending is not public');
+
+  const own = await request(app).post('/api/admin/banners/own').set(as(admin)).field('title', 'Around').attach('image', PNG, 'a.png').expect(201);
+  assert.equal(own.body.status, 'active');
+  await request(app).post(`/api/admin/banners/${mine.body.id}/approve`).set(as(admin)).expect(200);
+  home = await request(app).get('/api/home').set(as(customer)).expect(200);
+  assert.ok(home.body.banners.some((b) => b.id === mine.body.id) && home.body.banners.some((b) => b.id === own.body.id));
+  assert.ok(home.body.banners.find((b) => b.id === mine.body.id).merchant_id, 'merchant banner links to its store');
+
+  await request(app).post(`/api/banners/${mine.body.id}/view`).set(as(customer)).expect(200);
+  await request(app).post(`/api/banners/${mine.body.id}/click`).set(as(customer)).expect(200);
+  const list = await request(app).get('/api/merchant/banners').set(as(merchant)).expect(200);
+  assert.deepEqual([list.body[0].views, list.body[0].clicks], [1, 1]);
+
+  // editing a live merchant banner sends it back for review; ended banners disappear
+  await request(app).patch(`/api/merchant/banners/${mine.body.id}`).set(as(merchant)).send({ title: 'عرض جديد' }).expect(200);
+  home = await request(app).get('/api/home').set(as(customer)).expect(200);
+  assert.ok(!home.body.banners.some((b) => b.id === mine.body.id));
+  await request(app).patch(`/api/admin/banners/own/${own.body.id}`).set(as(admin)).send({ ends_at: '2020-01-01' }).expect(200);
+  home = await request(app).get('/api/home').set(as(customer)).expect(200);
+  assert.ok(!home.body.banners.some((b) => b.id === own.body.id));
+  await request(app).get('/api/admin/banners/own').set(as(merchant)).expect(403);
+});
+
+test('merchant: pause orders, extra prep, filters and CSV', async () => {
+  const m = db.one(`SELECT merchant_id id FROM users WHERE phone LIKE '%500000002'`);
+  const b = db.one('SELECT * FROM branches WHERE merchant_id = ?', m.id);
+  const branches = db.all('SELECT id FROM branches WHERE merchant_id = ?', m.id);
+  for (const x of branches) await request(app).post(`/api/merchant/branches/${x.id}/pressure`).set(as(merchant)).send({ pause_minutes: 30, extra_prep: 10 }).expect(200);
+  const st = await request(app).get(`/api/stores/${m.id}`).set(as(customer)).expect(200);
+  assert.equal(st.body.branch.open, false);
+  assert.equal(st.body.branch.hours_label, 'متوقف مؤقتاً');
+  assert.equal(st.body.branch.paused, true);
+  assert.equal(st.body.branch.prep_minutes, st.body.branch.prep_minutes && (db.one('SELECT prep_minutes p FROM branches WHERE id = ?', st.body.branch.id).p + 10));
+  await request(app).post(`/api/merchant/branches/${b.id}/pressure`).set(as(merchant)).send({ extra_prep: 99 }).expect(400);
+  for (const x of branches) await request(app).post(`/api/merchant/branches/${x.id}/pressure`).set(as(merchant)).send({ pause_minutes: 0, extra_prep: 0 }).expect(200);
+
+  const all = await request(app).get('/api/merchant/orders').set(as(merchant)).expect(200);
+  assert.ok(all.body.length > 0);
+  const one = all.body[0];
+  const byId = await request(app).get('/api/merchant/orders').query({ q: '#' + one.id }).set(as(merchant)).expect(200);
+  assert.deepEqual(byId.body.map((o) => o.id), [one.id]);
+  const none = await request(app).get('/api/merchant/orders').query({ status: 'rejected', from: '2000-01-01', to: '2000-01-02' }).set(as(merchant)).expect(200);
+  assert.equal(none.body.length, 0);
+  const csv = await request(app).get('/api/merchant/orders.csv').set(as(merchant)).expect(200);
+  assert.match(csv.headers['content-type'], /text\/csv/);
+  assert.equal(csv.text.split('\r\n').length, all.body.length + 1);
+});

@@ -37,7 +37,6 @@ class MoreScreen extends StatelessWidget {
             [Icons.card_giftcard_rounded, 'الهدايا', 'رصيدك ${aed((me['gift_balance'] as num?) ?? 0)}', const GiftsScreen()],
             [Icons.directions_car_rounded, 'سياراتي', 'عشان الفرع يعرفك', const CarsScreen()],
             [Icons.receipt_long_rounded, 'طلباتي', '', const Scaffold(body: OrdersScreen())],
-            [Icons.emoji_events_rounded, 'ملفي في Around Social', '${me['posts'] ?? 0} منشور · ${me['followers'] ?? 0} متابِع', UserProfileScreen(id: (me['id'] as num).toInt())],
             [Icons.notifications_none_rounded, 'الإشعارات', unread > 0 ? '$unread جديدة' : '', const NotificationsScreen()],
             [Icons.person_outline_rounded, 'تعديل الملف', '', const EditProfileScreen()],
           ];
@@ -45,7 +44,10 @@ class MoreScreen extends StatelessWidget {
             Text('المزيد', style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 14),
             Card(
-              child: Padding(
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+               onTap: () => go(UserProfileScreen(id: (me['id'] as num).toInt())),
+               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
                   UserAvatar(me, size: 56),
@@ -57,8 +59,23 @@ class MoreScreen extends StatelessWidget {
                     ]),
                   ),
                   if (tier != null) Pill('${tier['name']}', bg: AppColors.accentSoft, fg: AppColors.accentInk),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_left_rounded, color: AppColors.muted),
                 ]),
+               ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
+              child: Row(children: [
+                for (final st in [['${me['posts'] ?? 0}', 'منشور'], ['${me['followers'] ?? 0}', 'متابِع'], ['${me['following'] ?? 0}', 'يتابع']])
+                  Expanded(
+                    child: Column(children: [
+                      Text(st[0], style: t.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(st[1], style: t.labelMedium?.copyWith(color: AppColors.muted)),
+                    ]),
+                  ),
+              ]),
             ),
             const SizedBox(height: 14),
             Card(

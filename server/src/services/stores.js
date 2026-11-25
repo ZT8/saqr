@@ -13,8 +13,11 @@ function dubaiMinutesNow() {
 }
 const toMin = (t) => { const [a, b] = t.split(':').map(Number); return a * 60 + b; };
 
+const nowUtc = () => new Date().toISOString().slice(0, 19).replace('T', ' ');
+const isPaused = (b) => !!b.paused_until && b.paused_until > nowUtc();
+
 function isOpen(b) {
-  if (!b.is_open) return false;
+  if (!b.is_open || isPaused(b)) return false;
   const now = dubaiMinutesNow(), o = toMin(b.open_time), c = toMin(b.close_time);
   return c > o ? now >= o && now < c : now >= o || now < c; // handles past-midnight closing
 }
@@ -28,9 +31,10 @@ function fmtTime(t) {
 function branchView(b, pos) {
   const open = isOpen(b);
   const d = pos ? distanceMeters(pos, b) : null;
+  const paused = isPaused(b);
   return {
-    ...b, open, distance_m: d,
-    hours_label: open ? `مفتوح · يسكر ${fmtTime(b.close_time)}` : (b.is_open ? `مغلق · يفتح ${fmtTime(b.open_time)}` : 'مغلق مؤقتاً')
+    ...b, open, paused, distance_m: d, prep_minutes: b.prep_minutes + (b.extra_prep || 0),
+    hours_label: paused ? 'متوقف مؤقتاً' : open ? `مفتوح · يسكر ${fmtTime(b.close_time)}` : (b.is_open ? `مغلق · يفتح ${fmtTime(b.open_time)}` : 'مغلق مؤقتاً')
   };
 }
 
@@ -49,4 +53,4 @@ function parsePos(q) {
   return Number.isFinite(lat) && Number.isFinite(lng) && lat && lng ? { lat, lng } : DEFAULT_POS;
 }
 
-module.exports = { isOpen, branchView, storeCard, parsePos, fmtTime, DEFAULT_POS };
+module.exports = { isOpen, isPaused, nowUtc, branchView, storeCard, parsePos, fmtTime, DEFAULT_POS };

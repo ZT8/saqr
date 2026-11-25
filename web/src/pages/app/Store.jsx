@@ -209,7 +209,7 @@ function ItemRow({ it, onOpen, onAdd, category }) {
   return (
     <div className="item-row" style={{ opacity: it.is_available ? 1 : 0.5 }}>
       <button onClick={onOpen} className="grow col gap-4" style={{ border: 0, background: 'none', padding: 0, textAlign: 'right' }}>
-        <span className="bold" style={{ fontSize: 16 }}>{it.name}</span>
+        <span className="bold" style={{ fontSize: 16 }}>{it.name}{it.show_badge && <span className="pill orange" style={{ marginInlineStart: 8, fontSize: 11 }}>الأكثر طلباً</span>}</span>
         {it.description && <span className="small muted">{it.description}</span>}
         <span className="semi green mt-8">{it.is_available ? aed(it.price) : 'غير متوفر'}</span>
       </button>

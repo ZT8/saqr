@@ -6,10 +6,11 @@ import { aed, ago, dateShort } from '../../lib/format';
 import Icon, { Logo } from '../../ui/Icon';
 import { Num, Loader, ErrorBox, Empty, Modal, ItemThumb, StoreLogo, useAction, useToast } from '../../ui/kit';
 import Login from '../Login';
+import BannersManager from '../BannersManager';
 
 const NAV = [
   ['', 'chart', 'نظرة عامة'], ['orders', 'orders', 'الطلبات'], ['menu', 'menu', 'المنيو'], ['branches', 'store', 'الفروع'],
-  ['loyalty', 'star', 'برنامج الولاء'], ['stories', 'crown', 'الستوريات'], ['staff', 'users', 'الموظفين'],
+  ['loyalty', 'star', 'برنامج الولاء'], ['banners', 'image', 'البنرات'], ['stories', 'crown', 'الستوريات'], ['staff', 'users', 'الموظفين'],
   ['settlement', 'wallet', 'التسويات'], ['profile', 'settings', 'ملف المحل']
 ];
 
@@ -19,6 +20,37 @@ export function Bars({ rows, value, label }) {
     <div className="bars-chart" role="img" aria-label={label}>
       {rows.map((r, i) => <div key={r.d} style={{ '--i': i }} title={`${r.d}: ${value(r)}`}><span className="semi bar-val" style={{ color: 'var(--ink)' }}>{value(r) || ''}</span><i style={{ height: `${(value(r) / max) * 100}%` }} /><span>{r.d.slice(8)}</span></div>)}
     </div>
+  );
+}
+
+function Delta({ now, before }) {
+  if (!before) return <span className="xs muted">{now ? 'جديد' : '—'}</span>;
+  const p = Math.round(((now - before) / before) * 100);
+  return <span className={'pill ' + (p >= 0 ? 'green' : 'red')}>{p >= 0 ? '▲' : '▼'} {Math.abs(p)}%</span>;
+}
+function WeekCompare({ week }) {
+  return (
+    <div className="card col"><h2 className="bold">هذا الأسبوع مقابل الماضي</h2>
+      <div className="row-between"><span>المبيعات</span><span className="row"><b><Num v={week.this.sales} f={aed} /></b><Delta now={week.this.sales} before={week.last.sales} /></span></div>
+      <div className="row-between"><span>الطلبات</span><span className="row"><b><Num v={week.this.orders} /></b><Delta now={week.this.orders} before={week.last.orders} /></span></div>
+      <span className="xs muted">الأسبوع الماضي: {aed(week.last.sales)} · {week.last.orders} طلب</span>
+    </div>
+  );
+}
+function Peak({ rows }) {
+  if (!rows.length) return <p className="muted">—</p>;
+  const by = new Map(rows.map((r) => [r.hour, r.orders]));
+  const lo = Math.min(7, ...rows.map((x) => x.hour)), hi = Math.max(22, ...rows.map((x) => x.hour));
+  const hours = Array.from({ length: hi - lo + 1 }, (_, i) => ({ hour: lo + i, orders: by.get(lo + i) || 0 }));
+  const max = Math.max(...hours.map((h) => h.orders));
+  const best = hours.reduce((a, b) => (b.orders > a.orders ? b : a));
+  return (
+    <>
+      <div className="bars-chart" role="img" aria-label="الطلبات حسب الساعة">
+        {hours.map((h, i) => <div key={h.hour} style={{ '--i': i }} title={`${h.hour}:00 — ${h.orders}`}><span className="semi bar-val" style={{ color: 'var(--ink)' }}>{h.orders || ''}</span><i style={{ height: `${(h.orders / max) * 100}%`, ...(h.hour === best.hour ? { background: 'var(--accent)' } : {}) }} /><span>{h.hour}</span></div>)}
+      </div>
+      <span className="xs muted">أزحم ساعة: {best.hour}:00 ({best.orders} طلب)</span>
+    </>
   );
 }
 
@@ -42,6 +74,10 @@ function Overview() {
         <div className="card col"><h2 className="bold">المبيعات آخر 14 يوم</h2>{data.days.length ? <Bars rows={data.days} value={(r) => Math.round(r.sales / 100)} label="المبيعات اليومية بالدرهم" /> : <p className="muted">ما فيه مبيعات للحين</p>}</div>
         <div className="card col"><h2 className="bold">الأكثر طلباً (30 يوم)</h2>
           {data.top.length ? data.top.map((t, i) => <div key={t.name} className="row-between"><span>{i + 1}. {t.name}</span><b>{t.qty}</b></div>) : <p className="muted">—</p>}</div>
+      </div>
+      <div className="grid-2">
+        <WeekCompare week={data.week} />
+        <div className="card col"><h2 className="bold">ساعات الذروة (30 يوم)</h2><Peak rows={data.peak} /></div>
       </div>
       <OrdersTable orders={data.recent} title="آخر الطلبات" />
     </>
@@ -71,16 +107,57 @@ function OrdersTable({ orders, title }) {
   );
 }
 
+const today = () => new Date().toISOString().slice(0, 10);
+function beep() {
+  try {
+    const C = window.AudioContext || window.webkitAudioContext; const c = new C(); const t = c.currentTime;
+    [880, 1175].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; o.connect(g); g.connect(c.destination);
+      g.gain.setValueAtTime(0.0001, t + i * 0.18); g.gain.exponentialRampToValueAtTime(0.25, t + i * 0.18 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.18 + 0.16);
+      o.start(t + i * 0.18); o.stop(t + i * 0.18 + 0.18); });
+    setTimeout(() => c.close(), 800);
+  } catch { /* audio blocked until the first click */ }
+}
+
 function Orders() {
   const { api, socket } = useSession();
-  const [status, setStatus] = useState('');
-  const { data, loading, reload } = useLoad(() => api.get('/merchant/orders' + (status ? '?status=' + status : '')), [status]);
+  const toast = useToast();
+  const [f, setF] = useState({ status: '', branch_id: '', q: '', from: '', to: '' });
+  const [sound, setSound] = useState(() => localStorage.getItem('around_sound') !== '0');
+  const branches = useLoad(() => api.get('/merchant/branches'), []);
+  const qs = new URLSearchParams(Object.entries(f).filter(([, v]) => v)).toString();
+  const { data, loading, reload } = useLoad(() => api.get('/merchant/orders' + (qs ? '?' + qs : '')), [qs]);
   useSocketEvent(socket, 'order:update', reload);
-  useSocketEvent(socket, 'order:new', reload);
+  useSocketEvent(socket, 'order:new', () => { reload(); if (sound) beep(); });
+  const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
+  const toggleSound = () => { const n = !sound; setSound(n); localStorage.setItem('around_sound', n ? '1' : '0'); if (n) beep(); };
+  const exportCsv = async () => {
+    try {
+      const res = await fetch('/api/merchant/orders.csv' + (qs ? '?' + qs : ''), { headers: { Authorization: 'Bearer ' + localStorage.getItem('around_token_merchant') } });
+      if (!res.ok) throw new Error();
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a'); a.href = url; a.download = `orders-${today()}.csv`; a.click(); URL.revokeObjectURL(url);
+    } catch { toast('ما قدرنا نصدّر الملف'); }
+  };
+  const quick = (from, to) => setF((x) => ({ ...x, from, to }));
+  const d = (n) => { const x = new Date(); x.setDate(x.getDate() - n); return x.toISOString().slice(0, 10); };
   return (
     <>
+      <div className="row wrap">
+        <input className="input" style={{ width: 300 }} placeholder="ابحث: رقم الطلب، اللوحة، اسم العميل" value={f.q} onChange={(e) => set('q', e.target.value)} />
+        <select className="select" style={{ width: 170 }} value={f.branch_id} onChange={(e) => set('branch_id', e.target.value)}>
+          <option value="">كل الفروع</option>{(branches.data || []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
+        <input className="input ltr" style={{ width: 175 }} type="date" value={f.from} onChange={(e) => set('from', e.target.value)} aria-label="من" />
+        <input className="input ltr" style={{ width: 175 }} type="date" value={f.to} onChange={(e) => set('to', e.target.value)} aria-label="إلى" />
+        <button className="chip" onClick={() => quick(today(), today())}>اليوم</button>
+        <button className="chip" onClick={() => quick(d(6), today())}>7 أيام</button>
+        <button className="chip" onClick={() => quick('', '')}>كل الوقت</button>
+        <span className="grow" />
+        <button className={'btn btn-sm ' + (sound ? '' : 'btn-ghost')} onClick={toggleSound}>{sound ? 'صوت الطلبات: شغال' : 'صوت الطلبات: مكتوم'}</button>
+        <button className="btn btn-sm btn-light" onClick={exportCsv}>تصدير CSV</button>
+      </div>
       <div className="row wrap">{[['', 'الكل'], ['new', 'جديد'], ['preparing', 'قيد التحضير'], ['ready', 'جاهز'], ['delivered', 'تم التسليم'], ['rejected', 'مرفوض'], ['cancelled', 'ملغي']].map(([k, l]) =>
-        <button key={k} className={'chip' + (status === k ? ' on' : '')} onClick={() => setStatus(k)}>{l}</button>)}</div>
+        <button key={k} className={'chip' + (f.status === k ? ' on' : '')} onClick={() => set('status', k)}>{l}</button>)}</div>
       {loading && !data ? <Loader /> : <OrdersTable orders={data || []} />}
     </>
   );
@@ -108,14 +185,15 @@ function Menu() {
         <div key={g.id ?? 'none'} className="table-wrap">
           <div className="row-between" style={{ padding: '12px 8px 0' }}><h2 className="bold">{g.name}</h2>{g.id && <button className="btn btn-sm btn-danger" onClick={() => delCat(g)}>حذف القسم</button>}</div>
           <table className="t">
-            <thead><tr><th /><th>المنتج</th><th>السعر</th><th>الأكثر طلباً</th><th>متوفر</th><th /></tr></thead>
+            <thead><tr><th /><th>المنتج</th><th>السعر</th><th>الطلبات (30 يوم)</th><th>الأكثر طلباً</th><th>متوفر</th><th /></tr></thead>
             <tbody>
               {g.items.map((it) => (
                 <tr key={it.id}>
                   <td style={{ width: 64 }}><ItemThumb item={it} size={48} category={profile.data?.category} /></td>
                   <td><div className="semi">{it.name}</div><div className="xs muted">{it.description}</div></td>
                   <td>{aed(it.price)}</td>
-                  <td>{it.is_top ? <span className="pill orange">مميز</span> : '—'}</td>
+                  <td className="semi">{it.orders_30d || '—'}</td>
+                  <td>{it.show_badge ? <span className="pill orange">الأكثر طلباً</span> : it.popular ? <span className="pill gray">مخفي</span> : '—'}{it.is_top ? <span className="pill green" style={{ marginInlineStart: 6 }}>مثبّت</span> : null}</td>
                   <td><button className={'switch' + (it.is_available ? ' on' : '')} onClick={() => toggle(it)} aria-pressed={!!it.is_available} aria-label={`توفر ${it.name}`} /></td>
                   <td><button className="btn btn-sm btn-light" onClick={() => setEdit({ ...it, price: it.price / 100 })}>تعديل</button></td>
                 </tr>
@@ -141,7 +219,7 @@ function ItemEditor({ item, categories, onClose, onSaved }) {
     e.preventDefault();
     const fd = new FormData();
     ['name', 'description', 'price', 'category_id'].forEach((k) => fd.append(k, f[k] ?? ''));
-    fd.append('is_available', f.is_available ? '1' : '0'); fd.append('is_top', f.is_top ? '1' : '0');
+    fd.append('is_available', f.is_available ? '1' : '0'); fd.append('is_top', f.is_top ? '1' : '0'); fd.append('badge_off', f.badge_off ? '1' : '0');
     if (file) fd.append('image', file);
     run(async () => { f.id ? await api.patch('/merchant/items/' + f.id, fd) : await api.post('/merchant/items', fd); onSaved(); }, 'تم الحفظ');
   };
@@ -157,10 +235,35 @@ function ItemEditor({ item, categories, onClose, onSaved }) {
         </div>
         <label className="field"><span>الصورة</span><input className="input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} style={{ paddingTop: 10 }} /></label>
         <div className="row-between"><span className="semi">متوفر</span><button type="button" className={'switch' + (f.is_available ? ' on' : '')} onClick={() => setF({ ...f, is_available: f.is_available ? 0 : 1 })} aria-label="متوفر" /></div>
-        <div className="row-between"><span className="semi">يظهر في «الأكثر طلباً»</span><button type="button" className={'switch' + (f.is_top ? ' on' : '')} onClick={() => setF({ ...f, is_top: f.is_top ? 0 : 1 })} aria-label="مميز" /></div>
+        <p className="xs muted">شارة «الأكثر طلباً» تطلع لحالها لما المنتج يكون من أكثر منتجاتك طلباً في آخر 30 يوم.</p>
+        <div className="row-between"><span className="semi">إخفاء شارة «الأكثر طلباً»</span><button type="button" className={'switch' + (f.badge_off ? ' on' : '')} onClick={() => setF({ ...f, badge_off: f.badge_off ? 0 : 1 })} aria-label="إخفاء الشارة" /></div>
+        <div className="row-between"><span className="semi">تثبيته أعلى المنيو</span><button type="button" className={'switch' + (f.is_top ? ' on' : '')} onClick={() => setF({ ...f, is_top: f.is_top ? 0 : 1 })} aria-label="مميز" /></div>
         <div className="row">{f.id && <button type="button" className="btn btn-danger" onClick={del}>حذف</button>}<button className="btn btn-orange grow" disabled={busy}>حفظ</button></div>
       </form>
     </Modal>
+  );
+}
+
+// Rush-hour controls: stop taking orders for a while, or quote longer prep time.
+function Pressure({ branch: b, onDone }) {
+  const { api } = useSession();
+  const [run, busy] = useAction();
+  const paused = b.paused_until && b.paused_until.replace(' ', 'T') + 'Z' > new Date().toISOString();
+  const send = (body, msg) => run(async () => { await api.post(`/merchant/branches/${b.id}/pressure`, body); onDone(); }, msg);
+  const left = paused ? Math.max(1, Math.round((new Date(b.paused_until.replace(' ', 'T') + 'Z') - Date.now()) / 60000)) : 0;
+  return (
+    <div className="col gap-6" style={{ background: 'var(--accent-soft)', borderRadius: 16, padding: 12 }}>
+      <div className="row-between small"><b>وقت الضغط</b>{paused && <span className="pill red">متوقف · باقي {left} د</span>}</div>
+      <div className="row wrap">
+        <span className="xs muted">إيقاف الطلبات:</span>
+        {[15, 30, 60].map((m) => <button key={m} className="chip" disabled={busy} onClick={() => send({ pause_minutes: m }, `وقّفنا الطلبات ${m} دقيقة`)}>{m} د</button>)}
+        {paused && <button className="chip on" disabled={busy} onClick={() => send({ pause_minutes: 0 }, 'رجعنا نستقبل الطلبات')}>استئناف</button>}
+      </div>
+      <div className="row wrap">
+        <span className="xs muted">زيادة وقت التحضير:</span>
+        {[0, 5, 10, 15].map((m) => <button key={m} className={'chip' + ((b.extra_prep || 0) === m ? ' on' : '')} disabled={busy} onClick={() => send({ extra_prep: m }, m ? `وقت التحضير +${m} د` : 'رجّعنا وقت التحضير')}>{m ? '+' + m : 'عادي'}</button>)}
+      </div>
+    </div>
   );
 }
 
@@ -182,6 +285,7 @@ function Branches() {
             <span className="muted small">{b.area} · {b.city}</span>
             <span className="small">الدوام {b.open_time} إلى {b.close_time} · التحضير {b.prep_minutes} د</span>
             <span className="xs muted ltr">{b.lat.toFixed(5)}, {b.lng.toFixed(5)}</span>
+            <Pressure branch={b} onDone={reload} />
             <div className="row"><button className="btn btn-sm btn-light" onClick={() => setEdit(b)}>تعديل</button><Link className="btn btn-sm" to={`/branch`}>تطبيق الفرع</Link></div>
           </div>
         ))}
@@ -383,6 +487,7 @@ function Shell() {
           <Route path="menu" element={page('menu', <Menu />)} />
           <Route path="branches" element={page('branches', <Branches />)} />
           <Route path="loyalty" element={page('loyalty', <LoyaltySettings />)} />
+          <Route path="banners" element={page('banners', <BannersManager base="/merchant/banners" />)} />
           <Route path="stories" element={page('stories', <Stories />)} />
           <Route path="staff" element={page('staff', <Staff />)} />
           <Route path="settlement" element={page('settlement', <Settlement />)} />

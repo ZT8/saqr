@@ -115,6 +115,17 @@ r.post('/applications/:id/reject', h((req, res) => {
   res.json({ ok: true });
 }));
 
+const banners = require('../services/banners');
+r.use('/banners/own', banners.manager({ ownerOf: () => null, statusOnCreate: 'active' }));
+// Merchant banners waiting for review, and the decision.
+r.get('/banners/review', h((_req, res) => res.json(db.all(`SELECT b.*, m.name owner_name FROM banners b JOIN merchants m ON m.id = b.owner_merchant_id
+  WHERE b.status = 'pending' ORDER BY b.id`))));
+r.post('/banners/:id/:action(approve|reject)', h((req, res) => {
+  const b = db.one('SELECT * FROM banners WHERE id = ? AND owner_merchant_id IS NOT NULL', req.params.id);
+  if (!b) fail(404, 'البنر غير موجود');
+  db.run('UPDATE banners SET status = ? WHERE id = ?', req.params.action === 'approve' ? 'active' : 'rejected', b.id);
+  res.json({ ok: true });
+}));
 r.get('/orders', h((req, res) => {
   const rows = req.query.live
     ? db.all(`SELECT * FROM orders WHERE status IN ('new','preparing','ready') ORDER BY id DESC`)

@@ -6,6 +6,8 @@ const { upload, fileUrl } = require('../services/uploads');
 const { serializePosts } = require('../services/social');
 const { normalizePhone } = require('./auth');
 const orders = require('../services/orders');
+const { annotate } = require('../services/popular');
+const { nowUtc } = require('../services/stores');
 
 const r = express.Router();
 r.use(auth, requireRole('merchant'));
@@ -47,15 +49,38 @@ r.get('/overview', h((req, res) => {
   const top = db.all(`SELECT oi.name, SUM(oi.qty) qty FROM order_items oi JOIN orders o ON o.id = oi.order_id
     WHERE o.merchant_id = ? AND o.status = 'delivered' AND o.created_at >= datetime('now','-30 days') GROUP BY oi.name ORDER BY qty DESC LIMIT 5`, id);
   const recent = db.all(`SELECT * FROM orders WHERE merchant_id = ? AND status != 'pending_payment' ORDER BY id DESC LIMIT 8`, id).map(orders.serialize);
-  res.json({ today: { orders: today.orders, sales: today.sales, avg_wait_min: Math.round(today.wait * 10) / 10 }, rating: { avg: rating.avg ? Math.round(rating.avg * 10) / 10 : null, count: rating.n }, live, days, top, recent });
+  const span = (a, b) => db.one(`SELECT COUNT(*) orders, COALESCE(SUM(subtotal - reward_discount),0) sales FROM orders
+    WHERE merchant_id = ? AND status = 'delivered' AND created_at >= datetime('now', ?) AND created_at < datetime('now', ?)`, id, a, b);
+  const week = { this: span('-7 days', '+1 day'), last: span('-14 days', '-7 days') };
+  // Peak hours in Dubai time (UTC+4), last 30 days, all orders that reached the kitchen.
+  const peak = db.all(`SELECT CAST(strftime('%H', created_at, '+4 hours') AS INTEGER) hour, COUNT(*) orders FROM orders
+    WHERE merchant_id = ? AND status IN ('new','preparing','ready','delivered') AND created_at >= datetime('now','-30 days') GROUP BY hour ORDER BY hour`, id);
+  res.json({ week, peak, today: { orders: today.orders, sales: today.sales, avg_wait_min: Math.round(today.wait * 10) / 10 }, rating: { avg: rating.avg ? Math.round(rating.avg * 10) / 10 : null, count: rating.n }, live, days, top, recent });
 }));
 
-r.get('/orders', h((req, res) => {
-  const status = req.query.status;
-  const rows = status
-    ? db.all('SELECT * FROM orders WHERE merchant_id = ? AND status = ? ORDER BY id DESC LIMIT 200', M(req), status)
-    : db.all(`SELECT * FROM orders WHERE merchant_id = ? AND status != 'pending_payment' ORDER BY id DESC LIMIT 200`, M(req));
-  res.json(rows.map(orders.serialize));
+// Orders with filters: status, branch_id, q (order number / plate / customer name), from, to (YYYY-MM-DD).
+function filteredOrders(req, limit) {
+  const where = ['o.merchant_id = ?', "o.status != 'pending_payment'"];
+  const args = [M(req)];
+  const q = req.query;
+  if (q.status) { where.push('o.status = ?'); args.push(String(q.status)); }
+  if (q.branch_id) { where.push('o.branch_id = ?'); args.push(Number(q.branch_id)); }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(q.from || '')) { where.push('date(o.created_at) >= ?'); args.push(q.from); }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(q.to || '')) { where.push('date(o.created_at) <= ?'); args.push(q.to); }
+  const term = String(q.q || '').trim().replace(/^#/, '').slice(0, 40);
+  if (term) {
+    where.push('(CAST(o.id AS TEXT) = ? OR o.plate_label LIKE ? OR u.name LIKE ?)');
+    args.push(term, `%${term}%`, `%${term}%`);
+  }
+  return db.all(`SELECT o.* FROM orders o JOIN users u ON u.id = o.user_id WHERE ${where.join(' AND ')} ORDER BY o.id DESC LIMIT ${limit}`, ...args);
+}
+r.get('/orders', h((req, res) => res.json(filteredOrders(req, 200).map(orders.serialize))));
+r.get('/orders.csv', h((req, res) => {
+  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = filteredOrders(req, 5000).map(orders.serialize);
+  const head = ['رقم الطلب', 'التاريخ', 'الفرع', 'العميل', 'اللوحة', 'المنتجات', 'المبلغ', 'العمولة', 'الحالة'];
+  const lines = rows.map((o) => [o.id, o.created_at, o.branch?.name, o.customer?.name, o.plate_label, o.items.map((i) => `${i.qty}x ${i.name}`).join(' + '), (o.subtotal - o.reward_discount) / 100, o.commission / 100, o.status_label].map(esc).join(','));
+  res.set('Content-Type', 'text/csv; charset=utf-8').send('\uFEFF' + [head.map(esc).join(','), ...lines].join('\r\n'));
 }));
 
 // Settlement: what Around owes the merchant for delivered orders in a period.
@@ -72,7 +97,7 @@ r.get('/settlement', h((req, res) => {
 // ---- menu ----
 r.get('/menu', h((req, res) => {
   const cats = db.all('SELECT * FROM menu_categories WHERE merchant_id = ? ORDER BY sort, id', M(req));
-  const items = db.all('SELECT * FROM menu_items WHERE merchant_id = ? ORDER BY id', M(req));
+  const items = annotate(db.all('SELECT * FROM menu_items WHERE merchant_id = ? ORDER BY id', M(req)), M(req));
   res.json({ categories: cats, items });
 }));
 r.post('/categories', h((req, res) => {
@@ -97,7 +122,8 @@ function itemFields(req, base = {}) {
     description: String(b.description ?? base.description ?? '').slice(0, 200),
     price: b.price != null ? fils(b.price) : base.price,
     is_available: b.is_available != null ? (String(b.is_available) === '1' || b.is_available === true ? 1 : 0) : (base.is_available ?? 1),
-    is_top: b.is_top != null ? (String(b.is_top) === '1' || b.is_top === true ? 1 : 0) : (base.is_top ?? 0)
+    is_top: b.is_top != null ? (String(b.is_top) === '1' || b.is_top === true ? 1 : 0) : (base.is_top ?? 0),
+    badge_off: b.badge_off != null ? (String(b.badge_off) === '1' || b.badge_off === true ? 1 : 0) : (base.badge_off ?? 0)
   };
 }
 r.post('/items', upload.single('image'), h((req, res) => {
@@ -111,8 +137,8 @@ r.patch('/items/:id', upload.single('image'), h((req, res) => {
   const it = db.one('SELECT * FROM menu_items WHERE id = ? AND merchant_id = ?', req.params.id, M(req));
   if (!it) fail(404, 'المنتج غير موجود');
   const f = itemFields(req, it);
-  db.run('UPDATE menu_items SET category_id = ?, name = ?, description = ?, price = ?, image = ?, is_available = ?, is_top = ? WHERE id = ?',
-    f.category_id, f.name, f.description, f.price, req.file ? fileUrl(req.file) : it.image, f.is_available, f.is_top, it.id);
+  db.run('UPDATE menu_items SET category_id = ?, name = ?, description = ?, price = ?, image = ?, is_available = ?, is_top = ?, badge_off = ? WHERE id = ?',
+    f.category_id, f.name, f.description, f.price, req.file ? fileUrl(req.file) : it.image, f.is_available, f.is_top, f.badge_off, it.id);
   res.json(db.one('SELECT * FROM menu_items WHERE id = ?', it.id));
 }));
 r.delete('/items/:id', h((req, res) => {
@@ -152,6 +178,26 @@ r.patch('/branches/:id', h((req, res) => {
     f.name, f.area, f.city, f.lat, f.lng, f.open_time, f.close_time, f.prep_minutes, b.id);
   res.json(db.one('SELECT * FROM branches WHERE id = ?', b.id));
 }));
+
+// Rush-hour controls: stop taking orders for N minutes (0 = resume) and/or add extra prep minutes (0 = none).
+r.post('/branches/:id/pressure', h((req, res) => {
+  const b = db.one('SELECT * FROM branches WHERE id = ? AND merchant_id = ?', req.params.id, M(req));
+  if (!b) fail(404, 'الفرع غير موجود');
+  let paused = b.paused_until, extra = b.extra_prep;
+  if (req.body.pause_minutes != null) {
+    const m = Math.round(Number(req.body.pause_minutes));
+    if (!(m >= 0 && m <= 720)) fail(400, 'مدة الإيقاف غير صحيحة');
+    paused = m ? new Date(Date.now() + m * 60000).toISOString().slice(0, 19).replace('T', ' ') : null;
+  }
+  if (req.body.extra_prep != null) {
+    extra = Math.round(Number(req.body.extra_prep));
+    if (!(extra >= 0 && extra <= 60)) fail(400, 'الوقت الإضافي غير صحيح');
+  }
+  db.run('UPDATE branches SET paused_until = ?, extra_prep = ? WHERE id = ?', paused, extra, b.id);
+  res.json(db.one('SELECT * FROM branches WHERE id = ?', b.id));
+}));
+
+r.use('/banners', require('../services/banners').manager({ ownerOf: (req) => M(req), statusOnCreate: 'pending' }));
 
 // ---- staff ----
 r.get('/staff', h((req, res) => {

@@ -16,6 +16,7 @@ function createApp() {
   api.get('/health', (_req, res) => res.json({ ok: true, payments: payments.isTest ? 'test' : 'live' }));
   api.use('/auth', require('./routes/auth').router);
   api.use('/', require('./routes/stores').router);
+  api.use('/banners', require('./services/banners').tracking);
   api.use('/orders', require('./routes/orders'));
   api.use('/social', require('./routes/social'));
   api.use('/gifts', require('./routes/gifts'));

@@ -95,20 +95,33 @@ class _StoreScreenState extends State<StoreScreen> {
                   ],
                   const SizedBox(height: 8),
                   if (menu.isEmpty) const Padding(padding: EdgeInsets.all(40), child: Center(child: Text('المنيو قيد التجهيز'))),
-                  for (final c in menu) ...[
-                    Padding(padding: const EdgeInsets.only(top: 20, bottom: 8), child: Text(c['name'] as String, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))),
-                    for (final raw in (c['items'] as List))
-                      _ItemRow(
-                        item: Map<String, dynamic>.from(raw as Map),
-                        enabled: open,
-                        onAdd: (it) async {
-                          final mid = s['id'] as int;
-                          if (!cart.belongsTo(mid) && !await _confirmReplace(s['name'] as String)) return;
-                          cart.start(mid, branch['id'] as int, s['name'] as String);
-                          cart.add(it['id'] as int, it['name'] as String, it['price'] as int);
-                        },
-                      ),
-                  ],
+                  () {
+                    Future<void> add(Map<String, dynamic> it) async {
+                      final mid = s['id'] as int;
+                      if (!cart.belongsTo(mid) && !await _confirmReplace(s['name'] as String)) return;
+                      cart.start(mid, branch['id'] as int, s['name'] as String);
+                      cart.add(it['id'] as int, it['name'] as String, it['price'] as int);
+                    }
+
+                    final top = ((s['top_items'] as List?) ?? const []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      if (top.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, bottom: 8),
+                          child: Row(children: [
+                            const Icon(Icons.local_fire_department_rounded, color: AppColors.accentInk, size: 22),
+                            const SizedBox(width: 6),
+                            Text('الأكثر طلباً', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                          ]),
+                        ),
+                        for (final it in top) _ItemRow(item: it, enabled: open, onAdd: add),
+                      ],
+                      for (final c in menu) ...[
+                        Padding(padding: const EdgeInsets.only(top: 20, bottom: 8), child: Text(c['name'] as String, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))),
+                        for (final raw in (c['items'] as List)) _ItemRow(item: Map<String, dynamic>.from(raw as Map), enabled: open, onAdd: add),
+                      ],
+                    ]);
+                  }(),
                 ]),
               ),
               if (!cart.isEmpty && cart.merchantId == s['id'])
@@ -160,7 +173,13 @@ class _ItemRow extends StatelessWidget {
               ),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(item['name'] as String, style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                Row(children: [
+                  Flexible(child: Text(item['name'] as String, style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700))),
+                  if (item['show_badge'] == true) ...[
+                    const SizedBox(width: 6),
+                    const Pill('الأكثر طلباً', bg: AppColors.accentSoft, fg: AppColors.accentInk),
+                  ],
+                ]),
                 if ((item['description'] as String?)?.isNotEmpty ?? false)
                   Text(item['description'] as String, maxLines: 2, overflow: TextOverflow.ellipsis, style: t.bodySmall?.copyWith(color: AppColors.muted)),
                 const SizedBox(height: 4),

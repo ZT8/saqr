@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import '../core/api.dart';
 import '../core/cart.dart';
 import '../core/format.dart';
-import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
 import 'checkout.dart';
@@ -245,7 +244,6 @@ class _SocialScreenState extends State<SocialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final me = session.user ?? {};
     return SafeArea(
       bottom: false,
       child: Column(children: [
@@ -254,12 +252,6 @@ class _SocialScreenState extends State<SocialScreen> {
           child: Row(children: [
             Expanded(child: Text('Around Social', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700))),
             CircleBtn(Icons.notifications_none_rounded, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
-            const SizedBox(width: 6),
-            InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserProfileScreen(id: me['id'] as int))),
-              customBorder: const CircleBorder(),
-              child: Padding(padding: const EdgeInsets.all(4), child: UserAvatar(me, size: 36)),
-            ),
           ]),
         ),
         Padding(

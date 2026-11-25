@@ -23,7 +23,7 @@ function queueAhead(o) {
 
 function serialize(o) {
   const items = db.all('SELECT name, unit_price, qty, is_gift, item_id FROM order_items WHERE order_id = ?', o.id);
-  const b = db.one('SELECT id, name, area, city, lat, lng, prep_minutes FROM branches WHERE id = ?', o.branch_id);
+  const b = db.one('SELECT id, name, area, city, lat, lng, prep_minutes + extra_prep AS prep_minutes FROM branches WHERE id = ?', o.branch_id);
   const m = db.one('SELECT id, name, color, logo FROM merchants WHERE id = ?', o.merchant_id);
   const u = db.one('SELECT id, name, phone FROM users WHERE id = ?', o.user_id);
   return {

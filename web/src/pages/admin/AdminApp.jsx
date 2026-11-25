@@ -8,7 +8,8 @@ import { Num, Loader, ErrorBox, Empty, Modal, StoreLogo, useAction } from '../..
 import { Bars } from '../merchant/MerchantApp';
 import Login from '../Login';
 
-const NAV = [['', 'chart', 'نظرة عامة'], ['merchants', 'store', 'التجار'], ['orders', 'orders', 'الطلبات'], ['reports', 'flag', 'البلاغات'], ['users', 'users', 'المستخدمين']];
+import BannersManager from '../BannersManager';
+const NAV = [['', 'chart', 'نظرة عامة'], ['merchants', 'store', 'التجار'], ['orders', 'orders', 'الطلبات'], ['banners', 'image', 'البنرات'], ['reports', 'flag', 'البلاغات'], ['users', 'users', 'المستخدمين']];
 const CAT = { coffee: 'قهوة', burger: 'برجر', restaurant: 'مطعم', bakery: 'مخبز', juice: 'عصائر', dessert: 'حلويات', grocery: 'بقالة', pharmacy: 'صيدلية' };
 
 function Overview() {
@@ -184,6 +185,7 @@ function Shell() {
           <Route index element={page('', <Overview />)} />
           <Route path="merchants" element={page('merchants', <Merchants />)} />
           <Route path="orders" element={page('orders', <Orders />)} />
+          <Route path="banners" element={page('banners', <BannersManager base="/admin/banners/own" review />)} />
           <Route path="reports" element={page('reports', <Reports />)} />
           <Route path="users" element={page('users', <Users />)} />
           <Route path="*" element={<Navigate to="/admin" replace />} />

@@ -146,7 +146,7 @@ class _SearchOrb extends StatelessWidget {
               width: 70,
               height: 70,
               decoration: _glass().copyWith(color: selected ? AppColors.accent : Colors.white.withValues(alpha: .82)),
-              child: Icon(Icons.search_rounded, size: 28, color: selected ? AppColors.deep : AppColors.ink),
+              child: Icon(Icons.explore_outlined, size: 28, color: selected ? AppColors.deep : AppColors.ink),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'core/config.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'screens/login.dart';
+import 'screens/splash.dart';
 import 'screens/shell.dart';
 
 Future<void> main() async {
@@ -29,9 +30,11 @@ class AroundApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: ListenableBuilder(
-        listenable: session,
-        builder: (context, _) => session.signedIn ? const Shell() : const LoginScreen(),
+      home: Splash(
+        child: ListenableBuilder(
+          listenable: session,
+          builder: (context, _) => session.signedIn ? const Shell() : const LoginScreen(),
+        ),
       ),
     );
   }

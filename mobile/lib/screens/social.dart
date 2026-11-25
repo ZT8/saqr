@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../core/api.dart';
 import '../core/cart.dart';
 import '../core/format.dart';
+import '../core/session.dart';
 import '../core/theme.dart';
 import '../widgets.dart';
 import 'checkout.dart';
@@ -244,6 +245,7 @@ class _SocialScreenState extends State<SocialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final me = session.user ?? {};
     return SafeArea(
       bottom: false,
       child: Column(children: [

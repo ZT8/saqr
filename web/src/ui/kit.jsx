@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
 
 // ---------- toasts ----------
@@ -133,4 +133,32 @@ export function Stars({ value = 0, onChange, size = 36 }) {
       ))}
     </div>
   );
+}
+
+
+// ---------- animated number ----------
+// Counts up from 0 on first show, then tweens between values on live updates.
+// Reduced-motion users get the final value straight away.
+export function Num({ v, f = (x) => String(x), dec = 0, dur = 900 }) {
+  const target = Number(v) || 0;
+  const [shown, setShown] = useState(0);
+  const from = useRef(0);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { from.current = target; setShown(target); return undefined; }
+    const start = from.current;
+    const t0 = performance.now();
+    let raf;
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      const val = start + (target - start) * e;
+      from.current = val;
+      setShown(val);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, dur]);
+  const val = dec ? Number(shown.toFixed(dec)) : Math.round(shown);
+  return <span className="num">{f(val)}</span>;
 }

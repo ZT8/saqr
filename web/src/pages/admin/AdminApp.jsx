@@ -4,7 +4,7 @@ import { SessionProvider, useSession } from '../../lib/session';
 import { useLoad, useSocketEvent } from '../../lib/hooks';
 import { aed, ago, dateShort } from '../../lib/format';
 import Icon, { Logo } from '../../ui/Icon';
-import { Loader, ErrorBox, Empty, Modal, StoreLogo, useAction } from '../../ui/kit';
+import { Num, Loader, ErrorBox, Empty, Modal, StoreLogo, useAction } from '../../ui/kit';
 import { Bars } from '../merchant/MerchantApp';
 import Login from '../Login';
 
@@ -20,13 +20,13 @@ function Overview() {
   return (
     <>
       <div className="kpis">
-        <div className="kpi"><span className="muted small">طلبات اليوم (مسلّمة)</span><b>{data.today.orders}</b></div>
-        <div className="kpi"><span className="muted small">قيمة الطلبات اليوم</span><b>{aed(data.today.gmv)}</b></div>
-        <div className="kpi"><span className="muted small">إيراد Around اليوم</span><b>{aed(data.today.revenue)}</b></div>
-        <div className="kpi"><span className="muted small">طلبات شغالة الحين</span><b>{data.live}</b></div>
-        <div className="kpi"><span className="muted small">التجار</span><b>{data.merchants.active}<span className="small muted"> نشط · {data.merchants.pending} بانتظار</span></b></div>
-        <div className="kpi"><span className="muted small">العملاء</span><b>{data.customers}</b></div>
-        <div className="kpi" style={data.open_reports ? { background: 'var(--danger-soft)' } : undefined}><span className="muted small">بلاغات مفتوحة</span><b>{data.open_reports}</b></div>
+        <div className="kpi"><span className="muted small">طلبات اليوم (مسلّمة)</span><b><Num v={data.today.orders} /></b></div>
+        <div className="kpi"><span className="muted small">قيمة الطلبات اليوم</span><b><Num v={data.today.gmv} f={aed} /></b></div>
+        <div className="kpi"><span className="muted small">إيراد Around اليوم</span><b><Num v={data.today.revenue} f={aed} /></b></div>
+        <div className="kpi"><span className="muted small">طلبات شغالة الحين</span><b><Num v={data.live} /></b></div>
+        <div className="kpi"><span className="muted small">التجار</span><b><Num v={data.merchants.active} /><span className="small muted"> نشط · {data.merchants.pending} بانتظار</span></b></div>
+        <div className="kpi"><span className="muted small">العملاء</span><b><Num v={data.customers} /></b></div>
+        <div className="kpi" style={data.open_reports ? { background: 'var(--danger-soft)' } : undefined}><span className="muted small">بلاغات مفتوحة</span><b><Num v={data.open_reports} /></b></div>
       </div>
       <div className="grid-2">
         <div className="card col"><h2 className="bold">الطلبات آخر 14 يوم</h2>{data.days.length ? <Bars rows={data.days} value={(r) => r.orders} label="الطلبات اليومية" /> : <p className="muted">—</p>}</div>
@@ -175,7 +175,7 @@ function Shell() {
   return (
     <div className="console">
       <nav className="side" aria-label="أقسام الإدارة">
-        <div className="brand"><Logo size={30} ink="#FFFFFF" /><b style={{ fontSize: 17 }}>إدارة Around</b></div>
+        <div className="brand"><Logo size={30} ink="#0C1D16" /><b style={{ fontSize: 17 }}>إدارة Around</b></div>
         {NAV.map(([p, icon, label]) => <NavLink key={p} to={'/admin' + (p ? '/' + p : '')} end={!p} className={({ isActive }) => (isActive ? 'active' : '')}><Icon name={icon} size={20} />{label}</NavLink>)}
         <button className="nav" onClick={signOut} style={{ marginTop: 'auto' }}><Icon name="logout" size={20} />خروج</button>
       </nav>

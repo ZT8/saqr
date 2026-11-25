@@ -4,7 +4,7 @@ import { SessionProvider, useSession } from '../../lib/session';
 import { useLoad, useSocketEvent } from '../../lib/hooks';
 import { aed, ago, dateShort } from '../../lib/format';
 import Icon, { Logo } from '../../ui/Icon';
-import { Loader, ErrorBox, Empty, Modal, ItemThumb, StoreLogo, useAction, useToast } from '../../ui/kit';
+import { Num, Loader, ErrorBox, Empty, Modal, ItemThumb, StoreLogo, useAction, useToast } from '../../ui/kit';
 import Login from '../Login';
 
 const NAV = [
@@ -17,7 +17,7 @@ export function Bars({ rows, value, label }) {
   const max = Math.max(1, ...rows.map(value));
   return (
     <div className="bars-chart" role="img" aria-label={label}>
-      {rows.map((r) => <div key={r.d} title={`${r.d}: ${value(r)}`}><span className="semi" style={{ color: 'var(--ink)' }}>{value(r) || ''}</span><i style={{ height: `${(value(r) / max) * 100}%` }} /><span>{r.d.slice(8)}</span></div>)}
+      {rows.map((r, i) => <div key={r.d} style={{ '--i': i }} title={`${r.d}: ${value(r)}`}><span className="semi bar-val" style={{ color: 'var(--ink)' }}>{value(r) || ''}</span><i style={{ height: `${(value(r) / max) * 100}%` }} /><span>{r.d.slice(8)}</span></div>)}
     </div>
   );
 }
@@ -32,11 +32,11 @@ function Overview() {
   return (
     <>
       <div className="kpis">
-        <div className="kpi"><span className="muted small">طلبات اليوم (مسلّمة)</span><b>{data.today.orders}</b></div>
-        <div className="kpi"><span className="muted small">مبيعات اليوم</span><b>{aed(data.today.sales)}</b></div>
-        <div className="kpi"><span className="muted small">انتظار العميل بعد وصوله</span><b>{data.today.avg_wait_min ? `${data.today.avg_wait_min} د` : '—'}</b></div>
-        <div className="kpi"><span className="muted small">التقييم (30 يوم)</span><b>{data.rating.avg ?? '—'}<span className="small muted"> / 5 · {data.rating.count} تقييم</span></b></div>
-        <div className="kpi" style={{ background: 'var(--green)', color: 'var(--sand)' }}><span className="small" style={{ opacity: .85 }}>طلبات شغالة الحين</span><b>{data.live}</b><Link to="/branch" className="small semi" style={{ textDecoration: 'underline' }}>افتح تطبيق الفرع</Link></div>
+        <div className="kpi"><span className="muted small">طلبات اليوم (مسلّمة)</span><b><Num v={data.today.orders} /></b></div>
+        <div className="kpi"><span className="muted small">مبيعات اليوم</span><b><Num v={data.today.sales} f={aed} /></b></div>
+        <div className="kpi"><span className="muted small">انتظار العميل بعد وصوله</span><b>{data.today.avg_wait_min ? <Num v={data.today.avg_wait_min} f={(n) => `${n} د`} /> : '—'}</b></div>
+        <div className="kpi"><span className="muted small">التقييم (30 يوم)</span><b>{data.rating.avg != null ? <Num v={data.rating.avg} dec={1} f={(n) => n.toFixed(1)} /> : '—'}<span className="small muted"> / 5 · {data.rating.count} تقييم</span></b></div>
+        <div className="kpi" style={{ background: 'var(--green)', color: 'var(--sand)' }}><span className="small" style={{ opacity: .85 }}>طلبات شغالة الحين</span><b><Num v={data.live} /></b><Link to="/branch" className="small semi" style={{ textDecoration: 'underline' }}>افتح تطبيق الفرع</Link></div>
       </div>
       <div className="grid-2">
         <div className="card col"><h2 className="bold">المبيعات آخر 14 يوم</h2>{data.days.length ? <Bars rows={data.days} value={(r) => Math.round(r.sales / 100)} label="المبيعات اليومية بالدرهم" /> : <p className="muted">ما فيه مبيعات للحين</p>}</div>
@@ -222,9 +222,9 @@ function LoyaltySettings() {
     <>
       <p className="muted" style={{ maxWidth: 760 }}>أنت تحدد كيف يجمع عملاؤك النقاط، وش يكسبون، ومتى تنتهي. Around تعرض برنامجك وتحسب النقاط تلقائياً، وتكلفة المكافأة عليك.</p>
       <div className="kpis">
-        <div className="kpi"><span className="muted small">أعضاء عندهم رصيد</span><b>{data.stats.members}</b></div>
-        <div className="kpi"><span className="muted small">جاهزين للمكافأة</span><b>{data.stats.ready}</b></div>
-        <div className="kpi"><span className="muted small">مكافآت استُخدمت (30 يوم)</span><b>{data.stats.redeemed_30d}</b></div>
+        <div className="kpi"><span className="muted small">أعضاء عندهم رصيد</span><b><Num v={data.stats.members} /></b></div>
+        <div className="kpi"><span className="muted small">جاهزين للمكافأة</span><b><Num v={data.stats.ready} /></b></div>
+        <div className="kpi"><span className="muted small">مكافآت استُخدمت (30 يوم)</span><b><Num v={data.stats.redeemed_30d} /></b></div>
       </div>
       <div className="grid-2">
         <div className="card col gap-18">
@@ -325,10 +325,10 @@ function Settlement() {
       </div>
       {loading || !data ? <Loader /> : (
         <div className="kpis">
-          <div className="kpi"><span className="muted small">طلبات مسلّمة</span><b>{data.orders}</b></div>
-          <div className="kpi"><span className="muted small">إجمالي المبيعات</span><b>{aed(data.gross)}</b></div>
-          <div className="kpi"><span className="muted small">عمولة Around ({data.commission_pct}%)</span><b>{aed(data.commission)}</b></div>
-          <div className="kpi" style={{ background: 'var(--green)', color: 'var(--sand)' }}><span className="small" style={{ opacity: .85 }}>صافي مستحق لك</span><b>{aed(data.net)}</b><span className="xs" style={{ opacity: .85 }}>{dateShort(data.from)} إلى {dateShort(data.to)}</span></div>
+          <div className="kpi"><span className="muted small">طلبات مسلّمة</span><b><Num v={data.orders} /></b></div>
+          <div className="kpi"><span className="muted small">إجمالي المبيعات</span><b><Num v={data.gross} f={aed} /></b></div>
+          <div className="kpi"><span className="muted small">عمولة Around ({data.commission_pct}%)</span><b><Num v={data.commission} f={aed} /></b></div>
+          <div className="kpi" style={{ background: 'var(--green)', color: 'var(--sand)' }}><span className="small" style={{ opacity: .85 }}>صافي مستحق لك</span><b><Num v={data.net} f={aed} /></b><span className="xs" style={{ opacity: .85 }}>{dateShort(data.from)} إلى {dateShort(data.to)}</span></div>
         </div>
       )}
       <p className="small muted">التحويل لحسابك البنكي أسبوعياً بعد خصم العمولة. قيمة الهدايا ومكافآت الولاء محسوبة في الإجمالي.</p>
@@ -370,7 +370,7 @@ function Shell() {
   return (
     <div className="console">
       <nav className="side" aria-label="أقسام اللوحة">
-        <div className="brand"><Logo size={30} ink="#FFFFFF" /><div className="col" style={{ gap: 0 }}><b style={{ fontSize: 17 }}>Around للتجار</b><span className="xs" style={{ opacity: .8 }}>{profile.data?.name}</span></div></div>
+        <div className="brand"><Logo size={30} ink="#0C1D16" /><div className="col" style={{ gap: 0 }}><b style={{ fontSize: 17 }}>Around للتجار</b><span className="xs muted">{profile.data?.name}</span></div></div>
         {NAV.map(([p, icon, label]) => <NavLink key={p} to={'/merchant' + (p ? '/' + p : '')} end={!p} className={({ isActive }) => (isActive ? 'active' : '')}><Icon name={icon} size={20} />{label}</NavLink>)}
         <button className="nav" onClick={signOut} style={{ marginTop: 'auto' }}><Icon name="logout" size={20} />خروج</button>
       </nav>

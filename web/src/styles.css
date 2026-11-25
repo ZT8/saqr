@@ -353,3 +353,31 @@ table.t td { padding: 14px 10px; border-top: 1px solid var(--line); vertical-ali
 .login-sheet { background: var(--ground); color: var(--ink); border-radius: 32px 32px 0 0; padding: 26px 20px calc(30px + env(safe-area-inset-bottom)); width: 100%; max-width: 480px; margin: 0 auto; animation: sheet-up 420ms var(--ease-drawer) backwards; }
 @media (prefers-reduced-motion: reduce) { .login-sat { animation: none; } }
 .login-sat > svg { animation: spin 18s linear infinite reverse; }
+
+/* ---------- soft console skin (merchant / admin): light sidebar, thin borders, soft chips ---------- */
+.console { background: linear-gradient(180deg, #E4EFD8 0, #F1F5DA 150px, rgba(244, 247, 241, 0) 380px) top / 100% 380px no-repeat, #F4F7F1; }
+.console .side { background: rgba(255, 255, 255, .86); color: var(--ink); border-inline-end: 1px solid var(--line); backdrop-filter: blur(14px); }
+.console .side .brand b { color: var(--ink); }
+.console .side a, .console .side button.nav { color: var(--muted); transition: background 160ms var(--ease-out), color 160ms var(--ease-out), transform 160ms var(--ease-out); }
+.console .side a.active { background: var(--accent-soft); color: var(--deep); font-weight: 600; }
+.console .side a.active svg { color: var(--deep); }
+@media (hover: hover) and (pointer: fine) { .console .side a:hover:not(.active), .console .side button.nav:hover { background: var(--ground-2); color: var(--ink); } }
+.console-head h1, .console-main > h1 { font-weight: 600; letter-spacing: -.01em; }
+.console .kpi, .console .card, .console .table-wrap { border: 1px solid var(--line); border-radius: 22px; box-shadow: none; }
+.console .kpi { padding: 20px 22px; animation: rise 420ms var(--ease-out) backwards; animation-delay: calc(var(--k, 0) * 45ms); }
+.console .kpi:nth-child(1) { --k: 0; } .console .kpi:nth-child(2) { --k: 1; } .console .kpi:nth-child(3) { --k: 2; } .console .kpi:nth-child(4) { --k: 3; } .console .kpi:nth-child(5) { --k: 4; } .console .kpi:nth-child(6) { --k: 5; } .console .kpi:nth-child(7) { --k: 6; }
+.console .kpi b, .num { font-variant-numeric: tabular-nums; }
+.console .kpi[style*="--green"] { border-color: transparent; }
+.console .card { animation: rise 420ms var(--ease-out) backwards; animation-delay: 180ms; }
+.console .table-wrap { padding: 8px 20px; animation: rise 420ms var(--ease-out) backwards; animation-delay: 260ms; }
+.console table.t th { font-size: 13px; }
+.console table.t tbody tr { transition: background 140ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .console table.t tbody tr:hover { background: #F7FAF3; } }
+.console .chip { background: var(--chip, #E9EFE5); border-color: transparent; height: 40px; transition: background 200ms var(--ease-out), transform 160ms var(--ease-out); }
+.console .chip.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.console .btn { transition: background 160ms var(--ease-out), transform 160ms var(--ease-out); }
+.console input, .console select, .console textarea { border-radius: 16px; }
+.bars-chart i { animation-delay: calc(var(--i, 0) * 35ms); }
+.bars-chart .bar-val { animation: fade 400ms var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 35ms + 250ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes fade { from { opacity: 0; } }
